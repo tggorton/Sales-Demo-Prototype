@@ -1306,7 +1306,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                         visiblePanels.length === 0
                           ? 'minmax(0, 1fr)'
                           : `minmax(0, 1fr) ${visiblePanels.map(() => '324px').join(' ')}`,
-                      height: 617,
+                      height: 549,
                       gap: 1,
                       alignItems: 'stretch',
                     }}
@@ -1322,11 +1322,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                       <Box
                         sx={{
                           width:
-                            visiblePanels.length === 0
-                              ? 1096
-                              : visiblePanels.length === 1
-                                ? 'min(100%, 976px)'
-                                : '100%',
+                            visiblePanels.length <= 1 ? 'min(100%, 976px)' : '100%',
                           maxWidth: '100%',
                           height: 'auto',
                           aspectRatio: '16 / 9',
