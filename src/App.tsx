@@ -29,6 +29,8 @@ import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined'
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 type ContentCategory = 'All' | 'Reality TV' | 'Comedy' | 'Drama'
@@ -389,6 +391,7 @@ function App() {
   const [selectedTier, setSelectedTier] = useState<TierOption>('Basic Scene')
   const [selectedAdPlayback, setSelectedAdPlayback] =
     useState<AdPlaybackOption>('CTA Pause')
+  const [isTitlePanelExpanded, setIsTitlePanelExpanded] = useState(true)
   const [isJsonDownloadModalOpen, setIsJsonDownloadModalOpen] = useState(false)
   const [selectedJsonDownloadOption, setSelectedJsonDownloadOption] =
     useState<JsonDownloadOption>('Original JSON')
@@ -406,6 +409,7 @@ function App() {
 
   const isSyncImpulseMode =
     selectedTier === 'Exact Product Match' && selectedAdPlayback === 'Sync: Impulse'
+  const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
   const shouldShowInContentCta =
     selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause'
   const playbackDurationSeconds = isSyncImpulseMode
@@ -1216,58 +1220,71 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                   boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
                 }}
               >
-                <Stack spacing={2}>
-                  <Button
-                    variant="text"
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => {
-                      setIsVideoPlaying(false)
-                      setCurrentView('selection')
-                    }}
-                    sx={{ color: '#ED005E', width: 'fit-content', p: 0 }}
-                  >
-                    Back to Content Selection
-                  </Button>
-
-                  <Typography variant="h4" color="text.primary" sx={{ fontSize: 44 }}>
-                    {selectedContent?.title ?? 'Project'} Demo
-                  </Typography>
-
-                  <Stack direction="row" spacing={2} sx={{ maxWidth: 636 }}>
-                    <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
-                      <InputLabel id="tier-page-select-label">Tier Selection</InputLabel>
-                      <Select
-                        labelId="tier-page-select-label"
-                        value={selectedTier}
-                        label="Tier Selection"
-                        onChange={(event) => setSelectedTier(event.target.value as TierOption)}
+                <Stack spacing={isTitlePanelExpanded ? 1.75 : 0}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Stack direction="row" alignItems="center" spacing={0.8}>
+                      <Button
+                        variant="text"
+                        startIcon={<ArrowBackIcon />}
+                        onClick={() => {
+                          setIsVideoPlaying(false)
+                          setCurrentView('selection')
+                        }}
+                        sx={{ color: '#ED005E', width: 'fit-content', p: 0 }}
                       >
-                        {tierOptions.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-
-                    <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
-                      <InputLabel id="ad-page-select-label">Ad Playback Mode</InputLabel>
-                      <Select
-                        labelId="ad-page-select-label"
-                        value={selectedAdPlayback}
-                        label="Ad Playback Mode"
-                        onChange={(event) =>
-                          setSelectedAdPlayback(event.target.value as AdPlaybackOption)
-                        }
-                      >
-                        {adPlaybackOptions.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                        Back to Content Selection
+                      </Button>
+                      <Typography sx={{ color: 'rgba(0,0,0,0.38)' }}>|</Typography>
+                      <Typography sx={{ color: 'rgba(0,0,0,0.87)', fontWeight: 500, letterSpacing: 0.2 }}>
+                        {titlePanelSummary}
+                      </Typography>
+                    </Stack>
+                    <IconButton
+                      size="small"
+                      onClick={() => setIsTitlePanelExpanded((prev) => !prev)}
+                      sx={{ color: 'rgba(0,0,0,0.56)' }}
+                    >
+                      {isTitlePanelExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
                   </Stack>
+
+                  {isTitlePanelExpanded && (
+                    <Stack direction="row" spacing={2} sx={{ maxWidth: 636 }}>
+                      <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
+                        <InputLabel id="tier-page-select-label">Tier Selection</InputLabel>
+                        <Select
+                          labelId="tier-page-select-label"
+                          value={selectedTier}
+                          label="Tier Selection"
+                          onChange={(event) => setSelectedTier(event.target.value as TierOption)}
+                        >
+                          {tierOptions.map((option) => (
+                            <MenuItem key={option} value={option}>
+                              {option}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+
+                      <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
+                        <InputLabel id="ad-page-select-label">Ad Playback Mode</InputLabel>
+                        <Select
+                          labelId="ad-page-select-label"
+                          value={selectedAdPlayback}
+                          label="Ad Playback Mode"
+                          onChange={(event) =>
+                            setSelectedAdPlayback(event.target.value as AdPlaybackOption)
+                          }
+                        >
+                          {adPlaybackOptions.map((option) => (
+                            <MenuItem key={option} value={option}>
+                              {option}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                  )}
                 </Stack>
               </Paper>
 
