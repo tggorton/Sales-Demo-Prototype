@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  min-width: 375px;
+  font-family:
+    'Roboto',
+    'Helvetica',
+    'Arial',
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
