@@ -10,10 +10,14 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  Menu,
   Paper,
   Select,
   Slider,
   Stack,
+  TextField,
+  Drawer,
+  Divider,
   Tooltip,
   Typography,
   Chip,
@@ -31,7 +35,7 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 
 type ContentCategory = 'All' | 'Reality TV' | 'Comedy' | 'Drama'
 type TierOption =
@@ -144,6 +148,12 @@ const AD_QR_DESTINATION_1 = 'https://kerv.social/embed/3/32014'
 const AD_QR_DESTINATION_2 = 'https://kerv.social/embed/3/32015'
 const AD_QR_IMAGE_1 = `https://quickchart.io/qr?size=260&margin=0&text=${encodeURIComponent(AD_QR_DESTINATION_1)}`
 const AD_QR_IMAGE_2 = `https://quickchart.io/qr?size=260&margin=0&text=${encodeURIComponent(AD_QR_DESTINATION_2)}`
+const PLACEHOLDER_VIDEO_URL = '/assets/video/Placeholder-SalesDemo-Content_Compresssed.mp4'
+const DEFAULT_USER_NAME = 'John Doe'
+const DEFAULT_USER_EMAIL = 'John.doe@kerv.ai'
+// REFERENCE: tune these if we revisit collapsed-title viewport centering behavior.
+const DEFAULT_MACBOOK_VIEWPORT_MAX_WIDTH = 1600
+const DEFAULT_MACBOOK_VIEWPORT_MAX_HEIGHT = 1000
 
 type SceneMetadata = {
   id: string
@@ -380,7 +390,7 @@ const SCENE_METADATA: SceneMetadata[] = [
 ]
 
 function App() {
-  const [currentView, setCurrentView] = useState<'selection' | 'demo'>('selection')
+  const [currentView, setCurrentView] = useState<'login' | 'selection' | 'demo'>('login')
   const [activeDemoPanels, setActiveDemoPanels] = useState<
     Array<'taxonomy' | 'product' | 'json'>
   >([])
@@ -397,10 +407,24 @@ function App() {
     useState<JsonDownloadOption>('Original JSON')
   const [isCompanionModalOpen, setIsCompanionModalOpen] = useState(false)
   const [selectedCompanionUrl, setSelectedCompanionUrl] = useState(AD_QR_DESTINATION_1)
+  const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false)
+  const [profileName, setProfileName] = useState(DEFAULT_USER_NAME)
+  const [verifiedProfileEmail] = useState(DEFAULT_USER_EMAIL)
+  const [pendingProfileEmail, setPendingProfileEmail] = useState<string | null>(null)
+  const [profileNameDraft, setProfileNameDraft] = useState(DEFAULT_USER_NAME)
+  const [profileEmailDraft, setProfileEmailDraft] = useState(DEFAULT_USER_EMAIL)
+  const [isVerifyEmailDialogOpen, setIsVerifyEmailDialogOpen] = useState(false)
+  const [loginUsername, setLoginUsername] = useState('user@kerv.ai')
+  const [loginPassword, setLoginPassword] = useState('SalesDemoTest')
   const [expandedPanel, setExpandedPanel] = useState<null | 'taxonomy' | 'product' | 'json'>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [videoCurrentSeconds, setVideoCurrentSeconds] = useState(DEFAULT_START_SECONDS)
+  const [videoElementDuration, setVideoElementDuration] = useState(0)
   const wasVideoPlayingBeforeExpandRef = useRef(false)
+  const contentVideoRef = useRef<HTMLVideoElement | null>(null)
+  const playbackLoadAreaRef = useRef<HTMLDivElement | null>(null)
+  const previousTitlePanelExpandedRef = useRef(isTitlePanelExpanded)
 
   const filteredItems = useMemo(() => {
     if (selectedCategory === 'All') return CONTENT_ITEMS
@@ -410,6 +434,8 @@ function App() {
   const isSyncImpulseMode =
     selectedTier === 'Exact Product Match' && selectedAdPlayback === 'Sync: Impulse'
   const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
+  const effectiveProfileEmail = pendingProfileEmail ?? verifiedProfileEmail
+  const isProfileEmailVerified = pendingProfileEmail === null
   const shouldShowInContentCta =
     selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause'
   const playbackDurationSeconds = isSyncImpulseMode
@@ -520,6 +546,60 @@ function App() {
     setIsVideoPlaying(false)
     setVideoCurrentSeconds(isSyncImpulseMode ? 0 : DEFAULT_START_SECONDS)
     setCurrentView('demo')
+  }
+
+  const handleLogin = () => {
+    setCurrentView('selection')
+  }
+
+  const openProfileMenu = (event: ReactMouseEvent<HTMLElement>) => {
+    setProfileMenuAnchorEl(event.currentTarget)
+  }
+
+  const closeProfileMenu = () => {
+    setProfileMenuAnchorEl(null)
+  }
+
+  const openProfileDrawer = () => {
+    closeProfileMenu()
+    setProfileNameDraft(profileName)
+    setProfileEmailDraft(effectiveProfileEmail)
+    setIsProfileDrawerOpen(true)
+  }
+
+  const closeProfileDrawer = () => {
+    setProfileNameDraft(profileName)
+    setProfileEmailDraft(effectiveProfileEmail)
+    setIsProfileDrawerOpen(false)
+  }
+
+  const handleSaveProfile = () => {
+    const nextName = profileNameDraft.trim() || profileName
+    const nextEmail = profileEmailDraft.trim() || effectiveProfileEmail
+    const emailChanged = nextEmail.toLowerCase() !== verifiedProfileEmail.toLowerCase()
+    setProfileName(nextName)
+    setProfileNameDraft(nextName)
+    if (!emailChanged) {
+      setPendingProfileEmail(null)
+    } else {
+      setPendingProfileEmail(nextEmail)
+      setIsVerifyEmailDialogOpen(true)
+    }
+    setProfileEmailDraft(nextEmail)
+    setIsProfileDrawerOpen(false)
+  }
+
+  const handleSignOut = () => {
+    closeProfileMenu()
+    setIsProfileDrawerOpen(false)
+    setIsVerifyEmailDialogOpen(false)
+    setIsVideoPlaying(false)
+    setIsSelectorModalOpen(false)
+    setIsJsonDownloadModalOpen(false)
+    setIsCompanionModalOpen(false)
+    setExpandedPanel(null)
+    setActiveDemoPanels([])
+    setCurrentView('login')
   }
 
   const toggleDemoPanel = (panel: 'taxonomy' | 'product' | 'json') => {
@@ -769,9 +849,11 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
   const taxonomyScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const productScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const jsonScrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const panelScrollTargetsRef = useRef({ taxonomy: 0, product: 0, json: 0 })
+  const panelScrollRafRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (currentView !== 'demo') return
+    if (currentView !== 'demo' || isVideoPlaying) return
     const frame = window.requestAnimationFrame(() => {
       taxonomyRefs.current[activeSceneIndex]?.scrollIntoView({
         behavior: 'smooth',
@@ -779,10 +861,10 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
       })
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [activeSceneIndex, currentView, visiblePanelsKey])
+  }, [activeSceneIndex, currentView, visiblePanelsKey, isVideoPlaying])
 
   useEffect(() => {
-    if (currentView !== 'demo') return
+    if (currentView !== 'demo' || isVideoPlaying) return
     const frame = window.requestAnimationFrame(() => {
       productRefs.current[activeProductIndex]?.scrollIntoView({
         behavior: 'smooth',
@@ -790,7 +872,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
       })
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [activeProductIndex, currentView, visiblePanelsKey])
+  }, [activeProductIndex, currentView, visiblePanelsKey, isVideoPlaying])
 
   useEffect(() => {
     if (currentView !== 'demo' || !isVideoPlaying) return
@@ -800,7 +882,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
       const taxonomyContainer = taxonomyScrollContainerRef.current
       if (taxonomyContainer) {
         const maxScroll = taxonomyContainer.scrollHeight - taxonomyContainer.clientHeight
-        if (maxScroll > 0) taxonomyContainer.scrollTop = maxScroll * progress
+        if (maxScroll > 0) panelScrollTargetsRef.current.taxonomy = maxScroll * progress
       }
     }
 
@@ -808,7 +890,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
       const productContainer = productScrollContainerRef.current
       if (productContainer) {
         const maxScroll = productContainer.scrollHeight - productContainer.clientHeight
-        if (maxScroll > 0) productContainer.scrollTop = maxScroll * progress
+        if (maxScroll > 0) panelScrollTargetsRef.current.product = maxScroll * progress
       }
     }
   }, [
@@ -829,7 +911,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
       isSyncImpulseMode && isAdBreakPlayback
         ? adBreakSegmentProgress
         : Math.min(1, (videoCurrentSeconds / playbackDurationSeconds) * 2)
-    container.scrollTop = maxScroll * progress
+    panelScrollTargetsRef.current.json = maxScroll * progress
   }, [
     currentView,
     isVideoPlaying,
@@ -840,6 +922,37 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     isAdBreakPlayback,
     adBreakSegmentProgress,
   ])
+
+  useEffect(() => {
+    if (currentView !== 'demo' || !isVideoPlaying) return
+
+    const animatePanelScrolls = () => {
+      const smoothFactor = 0.2
+
+      if (visiblePanels.includes('taxonomy') && taxonomyScrollContainerRef.current) {
+        const el = taxonomyScrollContainerRef.current
+        el.scrollTop += (panelScrollTargetsRef.current.taxonomy - el.scrollTop) * smoothFactor
+      }
+      if (visiblePanels.includes('product') && productScrollContainerRef.current) {
+        const el = productScrollContainerRef.current
+        el.scrollTop += (panelScrollTargetsRef.current.product - el.scrollTop) * smoothFactor
+      }
+      if (visiblePanels.includes('json') && jsonScrollContainerRef.current) {
+        const el = jsonScrollContainerRef.current
+        el.scrollTop += (panelScrollTargetsRef.current.json - el.scrollTop) * smoothFactor
+      }
+
+      panelScrollRafRef.current = window.requestAnimationFrame(animatePanelScrolls)
+    }
+
+    panelScrollRafRef.current = window.requestAnimationFrame(animatePanelScrolls)
+    return () => {
+      if (panelScrollRafRef.current !== null) {
+        window.cancelAnimationFrame(panelScrollRafRef.current)
+        panelScrollRafRef.current = null
+      }
+    }
+  }, [currentView, isVideoPlaying, visiblePanelsKey])
 
   const panelPaperStyles = {
     borderRadius: 0,
@@ -877,8 +990,8 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
   useEffect(() => {
     if (!isVideoPlaying || currentView !== 'demo' || hasPlaybackEnded) return
     const timer = window.setTimeout(() => {
-      setVideoCurrentSeconds((prev) => Math.min(prev + 1, playbackDurationSeconds))
-    }, 1000)
+      setVideoCurrentSeconds((prev) => Math.min(prev + 0.1, playbackDurationSeconds))
+    }, 100)
     return () => window.clearTimeout(timer)
   }, [isVideoPlaying, currentView, hasPlaybackEnded, playbackDurationSeconds, videoCurrentSeconds])
 
@@ -886,9 +999,57 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     setVideoCurrentSeconds((prev) => Math.min(prev, playbackDurationSeconds))
   }, [playbackDurationSeconds])
 
+  useEffect(() => {
+    const wasExpanded = previousTitlePanelExpandedRef.current
+    previousTitlePanelExpandedRef.current = isTitlePanelExpanded
+    if (currentView !== 'demo' || isTitlePanelExpanded || !wasExpanded) return
+    if (
+      window.innerWidth > DEFAULT_MACBOOK_VIEWPORT_MAX_WIDTH ||
+      window.innerHeight > DEFAULT_MACBOOK_VIEWPORT_MAX_HEIGHT
+    ) {
+      return
+    }
+    const target = playbackLoadAreaRef.current
+    if (!target) return
+    const frame = window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [currentView, isTitlePanelExpanded])
+
+  useEffect(() => {
+    if (currentView !== 'demo') return
+    const videoEl = contentVideoRef.current
+    if (!videoEl) return
+
+    if (isAdBreakPlayback || !isVideoPlaying || hasPlaybackEnded) {
+      videoEl.pause()
+      return
+    }
+
+    const playPromise = videoEl.play()
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {})
+    }
+  }, [currentView, isAdBreakPlayback, isVideoPlaying, hasPlaybackEnded])
+
+  useEffect(() => {
+    if (currentView !== 'demo' || isAdBreakPlayback) return
+    const videoEl = contentVideoRef.current
+    if (!videoEl) return
+
+    const duration = videoElementDuration || videoEl.duration || 0
+    if (!duration || Number.isNaN(duration)) return
+    const targetTime = videoCurrentSeconds % duration
+    if (Math.abs(videoEl.currentTime - targetTime) > 0.6) {
+      videoEl.currentTime = targetTime
+    }
+  }, [currentView, isAdBreakPlayback, videoCurrentSeconds, videoElementDuration])
+
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainder = seconds % 60
+    const wholeSeconds = Math.max(0, Math.floor(seconds))
+    const minutes = Math.floor(wholeSeconds / 60)
+    const remainder = wholeSeconds % 60
     return `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`
   }
 
@@ -1093,29 +1254,121 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     >
       <Container maxWidth={false} sx={{ width: 1440, maxWidth: '100%', px: 3 }}>
         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, bgcolor: 'transparent' }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Stack direction="row" alignItems="center" spacing={1.5}>
-              <Box
-                role="button"
-                component="img"
-                src="/assets/kerv-logo.svg"
-                alt="Kerv logo"
-                sx={{ width: 40, height: 40, cursor: 'pointer' }}
-              />
-              <Typography
-                color="text.primary"
-                sx={{ fontWeight: 500, fontSize: 22, lineHeight: '32px', opacity: 0.87 }}
+          {currentView === 'login' ? (
+            <Paper
+              sx={{
+                width: 'min(100%, 1280px)',
+                height: 'min(82vh, 760px)',
+                mx: 'auto',
+                borderRadius: 2,
+                overflow: 'hidden',
+                border: '1px solid rgba(0,0,0,0.08)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+              }}
+            >
+              <Box sx={{ p: { xs: 4, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 4.5 }}>
+                  <Box component="img" src="/assets/kerv-logo.svg" alt="Kerv logo" sx={{ width: 40, height: 40 }} />
+                  <Typography color="text.primary" sx={{ fontWeight: 500, fontSize: 34, lineHeight: 1, opacity: 0.87 }}>
+                    | Sales Demo Tool
+                  </Typography>
+                </Stack>
+
+                <Typography sx={{ fontSize: { xs: 42, md: 50 }, lineHeight: 1.2, color: 'rgba(0,0,0,0.87)', mb: 6 }}>
+                  Welcome back!
+                  <br />
+                  Log in to your account.
+                </Typography>
+
+                <Box sx={{ width: 'min(100%, 420px)' }}>
+                  <Typography sx={{ fontWeight: 600, fontSize: 36, color: 'rgba(0,0,0,0.87)', mb: 2.5 }}>
+                    Log in
+                  </Typography>
+                  <Stack spacing={1.4}>
+                    <TextField
+                      size="small"
+                      value={loginUsername}
+                      onChange={(event) => setLoginUsername(event.target.value)}
+                      placeholder="Email"
+                      fullWidth
+                    />
+                    <TextField
+                      size="small"
+                      value={loginPassword}
+                      onChange={(event) => setLoginPassword(event.target.value)}
+                      placeholder="Password"
+                      type="password"
+                      fullWidth
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={handleLogin}
+                      sx={{ mt: 1.2, bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, height: 42, fontWeight: 600 }}
+                    >
+                      LOG IN
+                    </Button>
+                    <Button
+                      variant="text"
+                      sx={{ mt: 0.2, color: '#A0245D', p: 0, justifyContent: 'flex-start', width: 'fit-content', fontWeight: 700 }}
+                    >
+                      FORGOT YOUR PASSWORD?
+                    </Button>
+                  </Stack>
+                </Box>
+              </Box>
+              <Box sx={{ bgcolor: '#ED005E' }} />
+            </Paper>
+          ) : (
+            <>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  <Box
+                    role="button"
+                    component="img"
+                    src="/assets/kerv-logo.svg"
+                    alt="Kerv logo"
+                    sx={{ width: 40, height: 40, cursor: 'pointer' }}
+                  />
+                  <Typography
+                    color="text.primary"
+                    sx={{ fontWeight: 500, fontSize: 22, lineHeight: '32px', opacity: 0.87 }}
+                  >
+                    | Sales Demo Tool
+                  </Typography>
+                </Stack>
+
+                <IconButton sx={{ color: '#ED005E' }} onClick={openProfileMenu}>
+                  <PersonIcon />
+                </IconButton>
+              </Stack>
+
+              <Menu
+                anchorEl={profileMenuAnchorEl}
+                open={Boolean(profileMenuAnchorEl)}
+                onClose={closeProfileMenu}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: 160,
+                      borderRadius: 1.1,
+                      mt: 0.8,
+                    },
+                  },
+                }}
               >
-                | Sales Demo Tool
-              </Typography>
-            </Stack>
+                <MenuItem onClick={openProfileDrawer} sx={{ fontSize: 14 }}>
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleSignOut} sx={{ fontSize: 14, color: '#9A1B52' }}>
+                  Sign Out
+                </MenuItem>
+              </Menu>
 
-            <IconButton sx={{ color: '#ED005E' }}>
-              <PersonIcon />
-            </IconButton>
-          </Stack>
-
-          {currentView === 'selection' ? (
+              {currentView === 'selection' ? (
             <Stack spacing={2}>
               <Paper
                 sx={{
@@ -1289,6 +1542,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
               </Paper>
 
               <Paper
+                ref={playbackLoadAreaRef}
                 sx={{
                   p: 3,
                   minHeight: 650,
@@ -1336,45 +1590,48 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                       >
                         <Box
                           sx={{
-                            width: '100%',
-                            height: '100%',
+                            position: 'absolute',
+                            inset: 0,
                             backgroundColor: '#1a1a1a',
-                            backgroundImage: isSyncImpulseMode
-                              ? isAdBreakPlayback
-                                ? `url(${activeAdBreakImage})`
-                                : selectedContent
-                                  ? `linear-gradient(0deg, rgba(255,0,40,0.14), rgba(255,0,40,0.14)), url(${selectedContent.posterUrl})`
-                                  : 'none'
-                              : selectedContent
-                                ? `linear-gradient(0deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${selectedContent.posterUrl})`
-                                : 'none',
+                            backgroundImage: `url(${activeAdBreakImage})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            transformOrigin: 'center',
-                            transform: 'scale(1) translate3d(0,0,0)',
-                            animation:
-                              isVideoPlaying && !isAdBreakPlayback && !hasPlaybackEnded
-                                ? isSyncImpulseMode
-                                  ? 'impulseTintPulse 2.8s ease-in-out infinite alternate'
-                                  : 'contentMotion 6s ease-in-out infinite alternate'
-                                : 'none',
-                            '@keyframes impulseTintPulse': {
-                              '0%': {
-                                filter: 'saturate(0.85) brightness(0.92)',
-                                transform: 'scale(1.01) translateX(-0.8%)',
-                              },
-                              '100%': {
-                                filter: 'saturate(1.15) brightness(1.02)',
-                                transform: 'scale(1.05) translateX(0.8%)',
-                              },
-                            },
-                            '@keyframes contentMotion': {
-                              '0%': { transform: 'scale(1.01) translateX(-0.6%)' },
-                              '100%': { transform: 'scale(1.04) translateX(0.6%)' },
-                            },
+                            opacity: isAdBreakPlayback ? 1 : 0,
+                            transition: 'opacity 320ms ease-in-out',
                           }}
                         />
-                        {isSyncImpulseMode && !isAdBreakPlayback && (
+                        <Box sx={{ position: 'absolute', inset: 0, opacity: isAdBreakPlayback ? 0 : 1, transition: 'opacity 320ms ease-in-out' }}>
+                          <Box
+                            component="video"
+                            ref={contentVideoRef}
+                            src={PLACEHOLDER_VIDEO_URL}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            onLoadedMetadata={(event) => {
+                              const duration = event.currentTarget.duration
+                              if (!Number.isNaN(duration)) {
+                                setVideoElementDuration(duration)
+                              }
+                            }}
+                            sx={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block',
+                              backgroundColor: '#1a1a1a',
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              inset: 0,
+                              backgroundColor: isSyncImpulseMode ? 'rgba(255,0,40,0.14)' : 'rgba(0,0,0,0.3)',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        </Box>
+                        {isSyncImpulseMode && (
                           <Box
                             sx={{
                               position: 'absolute',
@@ -1383,6 +1640,8 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                               background:
                                 'radial-gradient(circle at 18% 35%, rgba(0,255,255,0.12), transparent 36%), radial-gradient(circle at 80% 20%, rgba(255,40,90,0.16), transparent 34%), radial-gradient(circle at 65% 78%, rgba(255,80,120,0.14), transparent 40%)',
                               mixBlendMode: 'screen',
+                              opacity: isAdBreakPlayback ? 0 : 1,
+                              transition: 'opacity 320ms ease-in-out',
                             }}
                           />
                         )}
@@ -2060,9 +2319,149 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                 </Stack>
               </Paper>
             </Stack>
+              )}
+            </>
           )}
         </Paper>
       </Container>
+
+      <Drawer
+        anchor="right"
+        open={isProfileDrawerOpen}
+        onClose={closeProfileDrawer}
+        PaperProps={{
+          sx: {
+            width: 430,
+            maxWidth: '92vw',
+            borderTopLeftRadius: 8,
+            borderBottomLeftRadius: 8,
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.4 }}>
+            <Typography sx={{ fontSize: 26, fontWeight: 600, color: 'rgba(0,0,0,0.87)' }}>
+              Profile
+            </Typography>
+            <IconButton size="small" onClick={closeProfileDrawer} sx={{ color: '#8b8b8b' }}>
+              <CloseOutlinedIcon />
+            </IconButton>
+          </Stack>
+          <Divider />
+
+          <Stack spacing={2.4} sx={{ pt: 2.2 }}>
+            <TextField
+              fullWidth
+              label="Name"
+              size="small"
+              value={profileNameDraft}
+              onChange={(event) => setProfileNameDraft(event.target.value)}
+              sx={dropdownMagentaStyles}
+            />
+            <Box>
+              <Stack direction="row" spacing={1.2} alignItems="flex-start">
+                <TextField
+                  fullWidth
+                  label="Email"
+                  size="small"
+                  value={profileEmailDraft}
+                  onChange={(event) => setProfileEmailDraft(event.target.value)}
+                  sx={dropdownMagentaStyles}
+                />
+                {!isProfileEmailVerified && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setIsVerifyEmailDialogOpen(true)}
+                    sx={{
+                      borderColor: '#ED005E80',
+                      color: '#ED005E',
+                      minWidth: 166,
+                      height: 40,
+                      fontWeight: 600,
+                      letterSpacing: 0.3,
+                      '&:hover': { borderColor: '#ED005E', backgroundColor: 'rgba(237,0,94,0.04)' },
+                    }}
+                  >
+                    RESEND EMAIL
+                  </Button>
+                )}
+              </Stack>
+              {!isProfileEmailVerified && (
+                <Typography sx={{ mt: 0.9, ml: 0.25, fontSize: 12, color: '#B0004D', fontWeight: 600 }}>
+                  Email not verified
+                </Typography>
+              )}
+            </Box>
+          </Stack>
+
+          <Box sx={{ mt: 'auto', pt: 2 }}>
+            <Divider sx={{ mb: 1.2 }} />
+            <Stack direction="row" justifyContent="flex-end" spacing={1}>
+              <Button
+                variant="text"
+                onClick={closeProfileDrawer}
+                sx={{ color: 'rgba(0,0,0,0.54)', minWidth: 80 }}
+              >
+                CANCEL
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleSaveProfile}
+                sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, minWidth: 80 }}
+              >
+                SAVE
+              </Button>
+            </Stack>
+          </Box>
+        </Box>
+      </Drawer>
+
+      <Dialog
+        open={isVerifyEmailDialogOpen}
+        onClose={() => setIsVerifyEmailDialogOpen(false)}
+        maxWidth={false}
+        PaperProps={{
+          sx: {
+            width: 444,
+            maxWidth: '95vw',
+            borderRadius: 1.5,
+            overflow: 'hidden',
+            boxShadow:
+              '0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12)',
+          },
+        }}
+      >
+        <DialogContent sx={{ px: 3, pt: 3.2, pb: 2.4 }}>
+          <Stack spacing={2} alignItems="center" textAlign="center">
+            <Typography sx={{ fontSize: 42, lineHeight: 1, color: '#ED005E' }}>✉</Typography>
+            <Box>
+              <Typography sx={{ fontSize: 24, fontWeight: 500, color: 'rgba(0,0,0,0.87)' }}>
+                Verify your new email
+              </Typography>
+              <Typography sx={{ fontSize: 14, color: 'rgba(0,0,0,0.6)', mt: 0.8 }}>
+                We sent you an email verification request.
+              </Typography>
+            </Box>
+            <Stack spacing={1} sx={{ width: '100%', maxWidth: 300 }}>
+              <Button
+                variant="contained"
+                onClick={() => setIsVerifyEmailDialogOpen(false)}
+                sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, fontWeight: 600 }}
+              >
+                CHECK EMAIL APP
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setIsVerifyEmailDialogOpen(false)}
+                sx={{ borderColor: '#ED005E80', color: '#ED005E', fontWeight: 600 }}
+              >
+                RESEND EMAIL
+              </Button>
+            </Stack>
+          </Stack>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={expandedPanel !== null}
@@ -2142,7 +2541,6 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
         PaperProps={{
           sx: {
             width: 762,
-            height: 442,
             maxWidth: '95vw',
             borderRadius: 2,
             border: '2px solid rgba(255,255,255,0.9)',
@@ -2161,13 +2559,13 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ px: 6, pt: 7, pb: 2 }}>
-          <Stack spacing={4} alignItems="center">
+        <DialogContent sx={{ px: 6, pt: 7, pb: 5.5, flex: '0 0 auto' }}>
+          <Stack spacing={0} alignItems="center">
             <Typography
               variant="h4"
               color="text.primary"
               textAlign="center"
-              sx={{ maxWidth: 760, fontSize: 26, lineHeight: 1.28 }}
+              sx={{ maxWidth: 760, fontSize: 26, lineHeight: 1.28, mb: 5.5 }}
             >
               Please select the Tier-level and
               <br />
