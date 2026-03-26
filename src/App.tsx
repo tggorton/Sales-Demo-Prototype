@@ -30,7 +30,6 @@ import PauseRoundedIcon from '@mui/icons-material/PauseRounded'
 import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined'
-import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
@@ -53,6 +52,7 @@ type AdPlaybackOption =
   | 'Sync: L-Bar'
   | 'Sync: Impulse'
   | 'Companion'
+type TaxonomyOption = 'IAB' | 'Location' | 'Sentiment' | 'Brand Safety' | 'Faces' | 'Emotion' | 'Object'
 type JsonDownloadOption = 'Original JSON' | 'Summary JSON'
 
 type ContentItem = {
@@ -131,6 +131,15 @@ const adPlaybackOptions: AdPlaybackOption[] = [
   'Sync: Impulse',
   'Companion',
 ]
+const taxonomyOptions: TaxonomyOption[] = [
+  'IAB',
+  'Location',
+  'Sentiment',
+  'Brand Safety',
+  'Faces',
+  'Emotion',
+  'Object',
+]
 const jsonDownloadOptions: JsonDownloadOption[] = ['Original JSON', 'Summary JSON']
 const TOTAL_DURATION_SECONDS = 32 * 60 + 20
 const DEFAULT_START_SECONDS = 4 * 60 + 31
@@ -174,6 +183,31 @@ type SceneMetadata = {
     description: string
     image: string
   }>
+}
+
+type PanelGlyphProps = {
+  variant: 'expand' | 'collapse'
+  color: string
+  size?: number
+}
+
+const PanelGlyph = ({ variant, color, size = 12 }: PanelGlyphProps) => {
+  const viewBox = variant === 'expand' ? '8.8 8.8 9.8 9.8' : '7.8 7.8 9.8 9.8'
+  const path =
+    variant === 'expand'
+      ? 'M10.3257 14.9657H9V18.28H12.3143V16.9543H10.3257V14.9657ZM9 12.3143H10.3257V10.3257H12.3143V9H9V12.3143ZM16.9543 16.9543H14.9657V18.28H18.28V14.9657H16.9543V16.9543ZM14.9657 9V10.3257H16.9543V12.3143H18.28V9H14.9657Z'
+      : 'M8 15.2914H9.98857V17.28H11.3143V13.9657H8V15.2914ZM9.98857 9.98857H8V11.3143H11.3143V8H9.98857V9.98857ZM13.9657 17.28H15.2914V15.2914H17.28V13.9657H13.9657V17.28ZM15.2914 9.98857V8H13.9657V11.3143H17.28V9.98857H15.2914Z'
+
+  return (
+    <Box
+      component="svg"
+      viewBox={viewBox}
+      aria-hidden
+      sx={{ width: size, height: size, display: 'block', color, flexShrink: 0 }}
+    >
+      <path d={path} fill="currentColor" />
+    </Box>
+  )
 }
 
 const SCENE_METADATA: SceneMetadata[] = [
@@ -401,6 +435,7 @@ function App() {
   const [selectedTier, setSelectedTier] = useState<TierOption>('Basic Scene')
   const [selectedAdPlayback, setSelectedAdPlayback] =
     useState<AdPlaybackOption>('CTA Pause')
+  const [selectedTaxonomy, setSelectedTaxonomy] = useState<TaxonomyOption>('Emotion')
   const [isTitlePanelExpanded, setIsTitlePanelExpanded] = useState(true)
   const [isJsonDownloadModalOpen, setIsJsonDownloadModalOpen] = useState(false)
   const [selectedJsonDownloadOption, setSelectedJsonDownloadOption] =
@@ -441,6 +476,15 @@ function App() {
   const playbackDurationSeconds = isSyncImpulseMode
     ? SYNC_IMPULSE_DURATION_SECONDS
     : TOTAL_DURATION_SECONDS
+  const nonImpulsePanelProgress = useMemo(() => {
+    if (isSyncImpulseMode) return 0
+    const effectiveDuration = Math.max(1, videoElementDuration || 0)
+    const elapsedSinceStart = Math.max(0, videoCurrentSeconds - DEFAULT_START_SECONDS)
+    return Math.min(1, elapsedSinceStart / effectiveDuration)
+  }, [isSyncImpulseMode, videoCurrentSeconds, videoElementDuration])
+  const panelTimelineSeconds = isSyncImpulseMode
+    ? videoCurrentSeconds
+    : nonImpulsePanelProgress * TOTAL_DURATION_SECONDS
   const playbackScenes = useMemo(() => {
     if (!isSyncImpulseMode) return SCENE_METADATA
     return Array.from({ length: 12 }, (_, index) => {
@@ -819,11 +863,11 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
 
   const activeSceneIndex = useMemo(() => {
     const foundIndex = playbackScenes.findIndex(
-      (scene) => videoCurrentSeconds >= scene.start && videoCurrentSeconds < scene.end
+      (scene) => panelTimelineSeconds >= scene.start && panelTimelineSeconds < scene.end
     )
     if (foundIndex >= 0) return foundIndex
     return playbackScenes.length - 1
-  }, [playbackScenes, videoCurrentSeconds])
+  }, [playbackScenes, panelTimelineSeconds])
 
   const activeScene = playbackScenes[activeSceneIndex]
   const productEntries = useMemo(
@@ -876,7 +920,9 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
 
   useEffect(() => {
     if (currentView !== 'demo' || !isVideoPlaying) return
-    const progress = Math.min(1, videoCurrentSeconds / playbackDurationSeconds)
+    const progress = isSyncImpulseMode
+      ? Math.min(1, videoCurrentSeconds / playbackDurationSeconds)
+      : nonImpulsePanelProgress
 
     if (visiblePanels.includes('taxonomy')) {
       const taxonomyContainer = taxonomyScrollContainerRef.current
@@ -899,6 +945,8 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     videoCurrentSeconds,
     playbackDurationSeconds,
     visiblePanelsKey,
+    isSyncImpulseMode,
+    nonImpulsePanelProgress,
   ])
 
   useEffect(() => {
@@ -910,7 +958,9 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     const progress =
       isSyncImpulseMode && isAdBreakPlayback
         ? adBreakSegmentProgress
-        : Math.min(1, (videoCurrentSeconds / playbackDurationSeconds) * 2)
+        : isSyncImpulseMode
+          ? Math.min(1, (videoCurrentSeconds / playbackDurationSeconds) * 2)
+          : nonImpulsePanelProgress
     panelScrollTargetsRef.current.json = maxScroll * progress
   }, [
     currentView,
@@ -921,6 +971,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     isSyncImpulseMode,
     isAdBreakPlayback,
     adBreakSegmentProgress,
+    nonImpulsePanelProgress,
   ])
 
   useEffect(() => {
@@ -971,9 +1022,14 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     height: 26,
     p: 0,
     color: '#ED005E',
-    '& svg': { fontSize: 13 },
     '&:hover': { bgcolor: 'rgba(237,0,94,0.08)' },
   }
+  const panelHeaderIconButtonDarkStyles = {
+    ...panelHeaderIconButtonStyles,
+    color: '#ffffff',
+    '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
+  }
+  const panelHeaderActionIconSx = { fontSize: 14 }
   const dropdownMagentaStyles = {
     '& .MuiInputLabel-root.Mui-focused': {
       color: '#ED005E',
@@ -1053,50 +1109,149 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
     return `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`
   }
 
+  const getTaxonomySceneData = (scene: SceneMetadata, index: number, taxonomy: TaxonomyOption) => {
+    const iabValues = ['Home & Garden', 'Food & Drink', 'Entertainment', 'Travel', 'Retail', 'Family']
+    const locationValues = ['Kitchen', 'Dining Room', 'Retail Floor', 'Living Room', 'Studio Set', 'Outdoor Patio']
+    const sentimentValues = ['Positive', 'Neutral Positive', 'Optimistic', 'Curious', 'Comforting', 'Elevated']
+    const brandSafetyValues = ['Low Risk', 'Suitable', 'Context Safe', 'No Sensitive Content', 'Family Safe', 'Advertiser Friendly']
+    const faceValues = ['3 primary faces', '2 primary faces', '1 featured face', '4 background faces', '2 speaking faces', 'Group crowd']
+    const objectValues = ['Cookware, counter, produce', 'Tabletop, decor, chair', 'Packaging, product display', 'Sofa, lamp, shelf', 'Wardrobe, accessories', 'Glassware, utensils']
+
+    switch (taxonomy) {
+      case 'IAB':
+        return {
+          headline: iabValues[index % iabValues.length],
+          chip: `${0.78 + index * 0.02 > 0.96 ? 0.96 : 0.78 + index * 0.02}`,
+          sections: [
+            { label: 'Primary Category:', value: iabValues[index % iabValues.length] },
+            { label: 'Considered:', value: 'Retail, Lifestyle, Entertainment' },
+            { label: 'Reasoning:', value: `Scene cues and on-screen context align most closely with the ${iabValues[index % iabValues.length]} taxonomy bucket.` },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Confidence:', value: `${(0.78 + index * 0.02 > 0.96 ? 0.96 : 0.78 + index * 0.02).toFixed(2)}` },
+          ],
+        }
+      case 'Location':
+        return {
+          headline: locationValues[index % locationValues.length],
+          chip: `${(0.73 + index * 0.03 > 0.94 ? 0.94 : 0.73 + index * 0.03).toFixed(2)}`,
+          sections: [
+            { label: 'Detected Location:', value: locationValues[index % locationValues.length] },
+            { label: 'Considered:', value: 'Interior, Domestic Space, Branded Environment' },
+            { label: 'Reasoning:', value: 'Foreground objects, layout, and scene composition indicate a consistent location classification.' },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Confidence:', value: `${(0.73 + index * 0.03 > 0.94 ? 0.94 : 0.73 + index * 0.03).toFixed(2)}` },
+          ],
+        }
+      case 'Sentiment':
+        return {
+          headline: sentimentValues[index % sentimentValues.length],
+          chip: `${(0.75 + index * 0.025 > 0.95 ? 0.95 : 0.75 + index * 0.025).toFixed(2)}`,
+          sections: [
+            { label: 'Sentiment:', value: sentimentValues[index % sentimentValues.length] },
+            { label: 'Considered:', value: 'Uplifting, Calm, Motivational' },
+            { label: 'Reasoning:', value: 'Visual pacing, framing, and tone suggest a stable sentiment signal across the scene.' },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Music Emotion:', value: `${scene.musicEmotion} (${scene.musicScore.toFixed(2)})` },
+          ],
+        }
+      case 'Brand Safety':
+        return {
+          headline: brandSafetyValues[index % brandSafetyValues.length],
+          chip: `${(0.84 + index * 0.015 > 0.97 ? 0.97 : 0.84 + index * 0.015).toFixed(2)}`,
+          sections: [
+            { label: 'Brand Safety:', value: brandSafetyValues[index % brandSafetyValues.length] },
+            { label: 'Considered:', value: 'Violence, Adult Themes, Sensitive Issues' },
+            { label: 'Reasoning:', value: 'No sensitive visual or verbal cues are present, keeping the scene advertiser-safe.' },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Confidence:', value: `${(0.84 + index * 0.015 > 0.97 ? 0.97 : 0.84 + index * 0.015).toFixed(2)}` },
+          ],
+        }
+      case 'Faces':
+        return {
+          headline: faceValues[index % faceValues.length],
+          chip: `${(0.71 + index * 0.03 > 0.93 ? 0.93 : 0.71 + index * 0.03).toFixed(2)}`,
+          sections: [
+            { label: 'Face Detection:', value: faceValues[index % faceValues.length] },
+            { label: 'Considered:', value: 'Primary cast, background cast, speaking roles' },
+            { label: 'Reasoning:', value: 'Detected faces and shot composition indicate the listed visible subject count and prominence.' },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Confidence:', value: `${(0.71 + index * 0.03 > 0.93 ? 0.93 : 0.71 + index * 0.03).toFixed(2)}` },
+          ],
+        }
+      case 'Object':
+        return {
+          headline: objectValues[index % objectValues.length],
+          chip: `${(0.74 + index * 0.025 > 0.95 ? 0.95 : 0.74 + index * 0.025).toFixed(2)}`,
+          sections: [
+            { label: 'Objects:', value: objectValues[index % objectValues.length] },
+            { label: 'Considered:', value: 'Furniture, product, decor, utility items' },
+            { label: 'Reasoning:', value: 'The object group reflects the most persistent physical items visible in the scene.' },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Confidence:', value: `${(0.74 + index * 0.025 > 0.95 ? 0.95 : 0.74 + index * 0.025).toFixed(2)}` },
+          ],
+        }
+      case 'Emotion':
+      default:
+        return {
+          headline: scene.emotion,
+          chip: scene.emotionScore.toFixed(2),
+          sections: [
+            { label: 'Considered:', value: scene.considered },
+            { label: 'Reasoning:', value: scene.reasoning },
+            { label: 'Text Data:', value: scene.textData },
+            { label: 'Music Emotion:', value: `${scene.musicEmotion} (${scene.musicScore.toFixed(2)})` },
+          ],
+        }
+    }
+  }
+
   const renderExpandedPanelContent = () => {
     if (expandedPanel === 'taxonomy') {
       return (
         <Box sx={{ px: 2.5, py: 2, height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Box sx={{ px: 0.5, pb: 1.25 }}>
             <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
-              <InputLabel id="taxonomy-playback-mode-label-expanded">Playback Mode</InputLabel>
+              <InputLabel id="taxonomy-playback-mode-label-expanded">Taxonomies</InputLabel>
               <Select
                 labelId="taxonomy-playback-mode-label-expanded"
-                value={activeScene.emotion}
-                label="Playback Mode"
+                value={selectedTaxonomy}
+                label="Taxonomies"
+                onChange={(event) => setSelectedTaxonomy(event.target.value as TaxonomyOption)}
                 sx={{ height: 40 }}
               >
-                <MenuItem value={activeScene.emotion}>{activeScene.emotion}</MenuItem>
+                {taxonomyOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
           <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 1 }}>
             <Stack spacing={0.9}>
-              {playbackScenes.map((scene) => (
+              {playbackScenes.map((scene, index) => {
+                const taxonomyData = getTaxonomySceneData(scene, index, selectedTaxonomy)
+                return (
                 <Box key={`expanded-${scene.id}`} sx={{ p: 1.1 }}>
                   <Typography sx={{ fontSize: 28, color: '#A1A1A1', lineHeight: 1, mb: 0.35, opacity: 0.95 }}>
                     {scene.sceneLabel}
                   </Typography>
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>Emotion</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{selectedTaxonomy}</Typography>
                   <Chip
-                    label={`${scene.emotion} (${scene.emotionScore.toFixed(2)})`}
+                    label={`${taxonomyData.headline} (${taxonomyData.chip})`}
                     size="small"
                     sx={{ height: 25.27, borderRadius: '104.48px', mt: 0.4, mb: 0.8, fontSize: 11.5 }}
                   />
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>Considered:</Typography>
-                  <Typography sx={{ fontSize: 12, mb: 0.7, opacity: 0.87 }}>{scene.considered}</Typography>
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>Reasoning:</Typography>
-                  <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                    {scene.reasoning}
-                  </Typography>
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>Text Data:</Typography>
-                  <Typography sx={{ fontSize: 12, mb: 0.7, opacity: 0.87 }}>{scene.textData}</Typography>
-                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>Music Emotion:</Typography>
-                  <Typography sx={{ fontSize: 12, opacity: 0.87 }}>
-                    {scene.musicEmotion} ({scene.musicScore.toFixed(2)})
-                  </Typography>
+                  {taxonomyData.sections.map((section) => (
+                    <Box key={`${scene.id}-${selectedTaxonomy}-${section.label}`}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{section.label}</Typography>
+                      <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
+                        {section.value}
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
-              ))}
+              )})}
             </Stack>
           </Box>
         </Box>
@@ -1850,27 +2005,32 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                               sx={panelHeaderIconButtonStyles}
                               onClick={() => openExpandedPanel('taxonomy')}
                             >
-                              <OpenInFullOutlinedIcon />
+                              <PanelGlyph variant="expand" color="#ED005E" />
                             </IconButton>
                             <IconButton
                               size="small"
                               sx={panelHeaderIconButtonStyles}
                               onClick={() => closeDemoPanel('taxonomy')}
                             >
-                              <CloseOutlinedIcon />
+                              <CloseOutlinedIcon sx={panelHeaderActionIconSx} />
                             </IconButton>
                           </Stack>
                         </Stack>
                         <Box sx={{ px: 1.25, pt: 1.05, pb: 0.9 }}>
                           <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
-                            <InputLabel id="taxonomy-playback-mode-label">Playback Mode</InputLabel>
+                            <InputLabel id="taxonomy-playback-mode-label">Taxonomies</InputLabel>
                             <Select
                               labelId="taxonomy-playback-mode-label"
-                              value={activeScene.emotion}
-                              label="Playback Mode"
+                              value={selectedTaxonomy}
+                              label="Taxonomies"
+                              onChange={(event) => setSelectedTaxonomy(event.target.value as TaxonomyOption)}
                               sx={{ height: 40 }}
                             >
-                              <MenuItem value={activeScene.emotion}>{activeScene.emotion}</MenuItem>
+                              {taxonomyOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                  {option}
+                                </MenuItem>
+                              ))}
                             </Select>
                           </FormControl>
                         </Box>
@@ -1880,6 +2040,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                         >
                           <Stack spacing={0.7}>
                             {playbackScenes.map((scene, index) => {
+                              const taxonomyData = getTaxonomySceneData(scene, index, selectedTaxonomy)
                               return (
                                 <Box
                                   key={scene.id}
@@ -1905,10 +2066,10 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                                     {scene.sceneLabel}
                                   </Typography>
                                   <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                    Emotion
+                                    {selectedTaxonomy}
                                   </Typography>
                                   <Chip
-                                    label={`${scene.emotion} (${scene.emotionScore.toFixed(2)})`}
+                                    label={`${taxonomyData.headline} (${taxonomyData.chip})`}
                                     size="small"
                                     sx={{
                                       height: 25.27,
@@ -1918,30 +2079,18 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                                       fontSize: 11.5,
                                     }}
                                   />
-                                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                    Considered:
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, mb: 0.7, opacity: 0.87 }}>
-                                    {scene.considered}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                    Reasoning:
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                                    {scene.reasoning}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                    Text Data:
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, mb: 0.7, opacity: 0.87 }}>
-                                    {scene.textData}
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                    Music Emotion:
-                                  </Typography>
-                                  <Typography sx={{ fontSize: 12, opacity: 0.87 }}>
-                                    {scene.musicEmotion} ({scene.musicScore.toFixed(2)})
-                                  </Typography>
+                                  {taxonomyData.sections.map((section) => (
+                                    <Box key={`${scene.id}-${selectedTaxonomy}-${section.label}`}>
+                                      <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
+                                        {section.label}
+                                      </Typography>
+                                      <Typography
+                                        sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}
+                                      >
+                                        {section.value}
+                                      </Typography>
+                                    </Box>
+                                  ))}
                                 </Box>
                               )
                             })}
@@ -1973,14 +2122,14 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                               sx={panelHeaderIconButtonStyles}
                               onClick={() => openExpandedPanel('product')}
                             >
-                              <OpenInFullOutlinedIcon />
+                              <PanelGlyph variant="expand" color="#ED005E" />
                             </IconButton>
                             <IconButton
                               size="small"
                               sx={panelHeaderIconButtonStyles}
                               onClick={() => closeDemoPanel('product')}
                             >
-                              <CloseOutlinedIcon />
+                              <CloseOutlinedIcon sx={panelHeaderActionIconSx} />
                             </IconButton>
                           </Stack>
                         </Stack>
@@ -2072,36 +2221,24 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                           <Stack direction="row" spacing={0.25}>
                             <IconButton
                               size="small"
-                              sx={{
-                                ...panelHeaderIconButtonStyles,
-                                color: '#ffffff',
-                                '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
-                              }}
+                              sx={panelHeaderIconButtonDarkStyles}
                               onClick={() => openExpandedPanel('json')}
                             >
-                              <OpenInFullOutlinedIcon />
+                              <PanelGlyph variant="expand" color="#ffffff" />
                             </IconButton>
                             <IconButton
                               size="small"
-                              sx={{
-                                ...panelHeaderIconButtonStyles,
-                                color: '#ffffff',
-                                '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
-                              }}
+                              sx={panelHeaderIconButtonDarkStyles}
                               onClick={() => setIsJsonDownloadModalOpen(true)}
                             >
-                              <DownloadOutlinedIcon />
+                              <DownloadOutlinedIcon sx={panelHeaderActionIconSx} />
                             </IconButton>
                             <IconButton
                               size="small"
-                              sx={{
-                                ...panelHeaderIconButtonStyles,
-                                color: '#ffffff',
-                                '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
-                              }}
+                              sx={panelHeaderIconButtonDarkStyles}
                               onClick={() => closeDemoPanel('json')}
                             >
-                              <CloseOutlinedIcon />
+                              <CloseOutlinedIcon sx={panelHeaderActionIconSx} />
                             </IconButton>
                           </Stack>
                         </Stack>
@@ -2517,17 +2654,24 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
                   : 'JSON'}
             </Typography>
           </Stack>
-          <IconButton
-            size="small"
-            onClick={closeExpandedPanel}
-            sx={
-              expandedPanel === 'json'
-                ? { ...panelHeaderIconButtonStyles, color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' } }
-                : panelHeaderIconButtonStyles
-            }
-          >
-            <CloseOutlinedIcon />
-          </IconButton>
+          <Stack direction="row" spacing={0.25}>
+            {expandedPanel === 'json' && (
+              <IconButton
+                size="small"
+                onClick={() => setIsJsonDownloadModalOpen(true)}
+                sx={panelHeaderIconButtonDarkStyles}
+              >
+                <DownloadOutlinedIcon sx={panelHeaderActionIconSx} />
+              </IconButton>
+            )}
+            <IconButton
+              size="small"
+              onClick={closeExpandedPanel}
+              sx={expandedPanel === 'json' ? panelHeaderIconButtonDarkStyles : panelHeaderIconButtonStyles}
+            >
+              <PanelGlyph variant="collapse" color={expandedPanel === 'json' ? '#ffffff' : '#ED005E'} />
+            </IconButton>
+          </Stack>
         </Stack>
         <Box sx={{ flex: 1, minHeight: 0, bgcolor: expandedPanel === 'json' ? '#303841' : '#fff' }}>
           {renderExpandedPanelContent()}
@@ -2646,20 +2790,29 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
         maxWidth={false}
         PaperProps={{
           sx: {
-            width: 450,
+            width: 460,
             maxWidth: '95vw',
             borderRadius: 1,
+            overflow: 'hidden',
             boxShadow:
               '0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12)',
           },
         }}
       >
-        <DialogTitle sx={{ px: 3, py: 2, color: 'rgba(0,0,0,0.87)', fontSize: 28 }}>
+        <DialogTitle
+          sx={{ px: 3, pt: 2.25, pb: 1.75, color: 'rgba(0,0,0,0.87)', fontSize: 28, lineHeight: 1.2 }}
+        >
           Schedule Report
         </DialogTitle>
-        <DialogContent sx={{ px: 2.5, pb: 2 }}>
+        <DialogContent sx={{ px: 2.5, pt: 0.5, pb: 2, overflow: 'visible' }}>
           <FormControl fullWidth size="medium" sx={dropdownMagentaStyles}>
-            <InputLabel id="json-download-select-label">Download Type</InputLabel>
+            <InputLabel
+              id="json-download-select-label"
+              shrink
+              sx={{ px: 0.55, backgroundColor: '#fff', fontSize: 12 }}
+            >
+              Download Type
+            </InputLabel>
             <Select
               labelId="json-download-select-label"
               value={selectedJsonDownloadOption}
@@ -2667,6 +2820,7 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
               onChange={(event) =>
                 setSelectedJsonDownloadOption(event.target.value as JsonDownloadOption)
               }
+              sx={{ minHeight: 52, fontSize: 16 }}
             >
               {jsonDownloadOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -2680,14 +2834,28 @@ ${JSON.stringify(adDecisionPayload, null, 2)}
           <Button
             variant="outlined"
             onClick={() => setIsJsonDownloadModalOpen(false)}
-            sx={{ borderColor: '#ED005E80', color: '#ED005E', minWidth: 88 }}
+            sx={{
+              borderColor: '#ED005E80',
+              color: '#ED005E',
+              minWidth: 88,
+              height: 32,
+              fontSize: 12,
+              fontWeight: 500,
+            }}
           >
             CANCEL
           </Button>
           <Button
             variant="contained"
             onClick={handleDownloadJson}
-            sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, minWidth: 119 }}
+            sx={{
+              bgcolor: '#ED005E',
+              '&:hover': { bgcolor: '#cf0052' },
+              minWidth: 119,
+              height: 32,
+              fontSize: 12,
+              fontWeight: 500,
+            }}
           >
             DOWNLOAD
           </Button>
