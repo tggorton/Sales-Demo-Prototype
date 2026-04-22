@@ -1,50 +1,128 @@
-# React + TypeScript + Vite
+# Sales Demo Prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive React + MUI prototype for the KERV sales demo experience. This project includes:
 
-Currently, two official plugins are available:
+- login flow
+- content selection flow
+- demo playback view
+- taxonomy, product, and JSON side panels
+- expanded panel dialogs
+- user profile and verification dialogs
+- special `Exact Product Match` + `Sync: Impulse` playback handling
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
+- React 18
+- TypeScript
+- Vite
+- MUI
+- Emotion
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Run Locally
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Local development server:
+- `http://localhost:5173/`
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Useful scripts:
+- `npm run dev`
+- `npm run build`
+- `npm run lint`
+- `npm run preview`
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+## Project Structure
+```text
+src/
+  App.tsx                  # top-level app orchestration
+  main.tsx                 # app entry
+  index.css                # global base styles
+  components/
+    PanelGlyph.tsx         # shared expand/collapse panel icon
+  demo/
+    types.ts               # shared demo/app types
+    constants.ts           # option lists, timing values, URLs, defaults
+    contentItems.ts        # content selection tile data
+    sceneMetadata.ts       # primary playback scene fixture data
+    adFixtures.ts          # ad-break JSON fixture data
+    taxonomySceneData.ts   # taxonomy display shaping helpers
+    jsonExport.ts          # JSON payload/export builders
+    styles.ts              # shared MUI sx tokens/helpers
+    useDemoPlayback.ts     # playback timing, panel sync, derived demo state
+    components/
+      AuthenticatedHeader.tsx
+      LoginView.tsx
+      ContentSelectionView.tsx
+      DemoView.tsx
+      ExpandedPanelDialog.tsx
+      SelectorDialog.tsx
+      JsonDownloadDialog.tsx
+      CompanionDialog.tsx
+      ProfileDrawer.tsx
+      VerifyEmailDialog.tsx
+  utils/
+    formatTime.ts          # viewer-facing mm:ss formatting helper
+```
+
+## Where To Make Changes
+
+### App Flow
+- `src/App.tsx`
+- high-level state orchestration
+- login / selection / demo view switching
+- dialog and drawer wiring
+
+### Demo Playback Logic
+- `src/demo/useDemoPlayback.ts`
+- scene progression
+- panel scroll syncing
+- video timing
+- sync impulse special-case logic
+
+### Demo Data / Fixtures
+- `src/demo/contentItems.ts`
+- `src/demo/sceneMetadata.ts`
+- `src/demo/adFixtures.ts`
+- `src/demo/constants.ts`
+
+### UI Components
+- `src/demo/components/`
+- main views and modal/drawer components are split by feature
+
+### Styling
+- `src/demo/styles.ts`
+- shared MUI `sx` objects and control tokens
+
+### Taxonomy Display
+- `src/demo/taxonomySceneData.ts`
+- maps scene metadata into display-friendly taxonomy panel content
+
+### JSON Export / JSON Panel Helpers
+- `src/demo/jsonExport.ts`
+
+## Behavior Notes
+- The protected special-case playback mode is:
+  - `Tier Selection = Exact Product Match`
+  - `Ad Playback Mode = Sync: Impulse`
+- That mode includes the current ad-break splice/transition behavior.
+- Other modes currently reuse the primary data scrolling behavior without alternate ad overlays yet.
+
+## Handoff Notes
+- `App.tsx` should stay relatively thin.
+- New UI work should usually go into `src/demo/components/`.
+- New demo constants/fixtures should go into `src/demo/`.
+- If a new feature changes structure, flows, or file ownership, update this README in the same change.
+
+## Verification
+Before handing off changes, prefer:
+
+```bash
+npm run build
+```
+
+And when appropriate:
+
+```bash
+npm run lint
 ```
