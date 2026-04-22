@@ -107,10 +107,18 @@ export const DHYH_AD_BREAK_DURATIONS_SECONDS: Record<'Sync: Impulse' | 'Sync: L-
 // the source file). The scrubber UI displays a 7-minute clip, but internally it also
 // reserves a 30s slot at 3:32 for the single Sync:Impulse ad break so the user can see
 // (and scrub into) the break without extending the displayed duration.
-export const DHYH_CLIP_START_SECONDS = 18 * 60 // 18:00 – video element seeks here on mount
-export const DHYH_CLIP_END_SECONDS = 25 * 60 // 25:00 – playback stops here
+// The demo window in the original DHYH source video (18:00 – 25:00). These values
+// still drive *scene JSON re-anchoring* because the upstream tier JSONs index scene
+// times against the original full-length video.
+export const DHYH_CLIP_START_SECONDS = 18 * 60 // 18:00 – scene-JSON window start
+export const DHYH_CLIP_END_SECONDS = 25 * 60 // 25:00 – scene-JSON window end
 export const DHYH_CLIP_DURATION_SECONDS = DHYH_CLIP_END_SECONDS - DHYH_CLIP_START_SECONDS
 export const DHYH_AD_BREAK_CLIP_SECONDS = (21 - 18) * 60 + 32 // 3:32 inside the clip
+
+// Where the demo window begins inside the actual `.mp4` we ship. The shipped file is
+// pre-clipped to 0–420s to stay under GitHub's 100MB per-file limit, so this offset is 0.
+// If you swap the source back to the full 44-minute render, set this to 18 * 60.
+export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = 0
 // Scrubber segments and internal duration are computed dynamically per playback mode
 // in `useDemoPlayback` (Impulse/L-Bar = 30s, Sync = 45s). The time readout still shows
 // the unchanged 7:00 clip duration because displayedCurrentSeconds subtracts ad time.

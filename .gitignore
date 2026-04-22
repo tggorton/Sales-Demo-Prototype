@@ -23,9 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Large media files we keep locally but don't commit
-public/assets/video/dhyh-cmp.mp4
-public/assets/ads/SD-HD-Tools-L-bar.mp4
+# Local-only media (too large for GitHub, regenerate from source)
+public/assets/video/dhyh-cmp-source-backup.mp4
 public/assets/ads/scott-brothers-home-depot-lbar.mp4
 _Temp/
 _Temp_Ads/

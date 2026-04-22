@@ -14,8 +14,7 @@ import {
   DHYH_AD_BREAK_CLIP_SECONDS,
   DHYH_AD_BREAK_DURATIONS_SECONDS,
   DHYH_CLIP_DURATION_SECONDS,
-  DHYH_CLIP_END_SECONDS,
-  DHYH_CLIP_START_SECONDS,
+  DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
   DHYH_CONTENT_ID,
   DHYH_IMPULSE_AD_COMPANION_URL,
   DHYH_IMPULSE_AD_VIDEO_URL,
@@ -495,7 +494,7 @@ export function useDemoPlayback({
       if (ctx.isDhyhContent && !ctx.inAdBreak) {
         const videoEl = contentVideoRef.current
         if (videoEl && !Number.isNaN(videoEl.currentTime)) {
-          const raw = videoEl.currentTime - DHYH_CLIP_START_SECONDS
+          const raw = videoEl.currentTime - DHYH_VIDEO_SOURCE_OFFSET_SECONDS
           if (raw > 0 && raw < DHYH_CLIP_DURATION_SECONDS) {
             liveTimeline = raw
           }
@@ -689,8 +688,9 @@ export function useDemoPlayback({
     let targetTime: number
     if (isDhyhContent) {
       // Map the scrubber (or, in Sync:Impulse, the clip-adjusted position) into the
-      // 18:00 – 25:00 window of the source file.
-      targetTime = Math.min(duration - 0.05, DHYH_CLIP_START_SECONDS + dhyhClipSeconds)
+      // shipped video file. The shipped file is pre-clipped to 0..420s so the offset is 0;
+      // see DHYH_VIDEO_SOURCE_OFFSET_SECONDS if we ever switch back to the full-length render.
+      targetTime = Math.min(duration - 0.05, DHYH_VIDEO_SOURCE_OFFSET_SECONDS + dhyhClipSeconds)
     } else if (usesNativeTimeline) {
       targetTime = Math.min(videoCurrentSeconds, duration - 0.05)
     } else {
@@ -720,7 +720,10 @@ export function useDemoPlayback({
       const t = videoEl.currentTime
       if (Number.isNaN(t)) return
       if (isDhyhContent) {
-        const clipPos = Math.max(0, Math.min(DHYH_CLIP_DURATION_SECONDS, t - DHYH_CLIP_START_SECONDS))
+        const clipPos = Math.max(
+          0,
+          Math.min(DHYH_CLIP_DURATION_SECONDS, t - DHYH_VIDEO_SOURCE_OFFSET_SECONDS)
+        )
         if (isSyncImpulseMode) {
           const adStart = DHYH_AD_BREAK_CLIP_SECONDS
           const adEnd = adStart + dhyhAdBreakDurationSeconds
@@ -740,7 +743,7 @@ export function useDemoPlayback({
             if (prev < adStart) {
               videoEl.pause()
               try {
-                videoEl.currentTime = DHYH_CLIP_START_SECONDS + adStart
+                videoEl.currentTime = DHYH_VIDEO_SOURCE_OFFSET_SECONDS + adStart
               } catch {
                 /* ignore seek errors */
               }
@@ -751,7 +754,7 @@ export function useDemoPlayback({
         } else {
           setVideoCurrentSeconds(clipPos)
         }
-        if (t >= DHYH_CLIP_END_SECONDS) videoEl.pause()
+        if (t >= DHYH_VIDEO_SOURCE_OFFSET_SECONDS + DHYH_CLIP_DURATION_SECONDS) videoEl.pause()
       } else {
         setVideoCurrentSeconds(t)
       }
