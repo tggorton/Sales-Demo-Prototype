@@ -78,7 +78,6 @@ export function useDemoPlayback({
 
   const orderedPanels: DemoPanel[] = ['taxonomy', 'product', 'json']
   const visiblePanels = orderedPanels.filter((panel) => activeDemoPanels.includes(panel))
-  const visiblePanelsKey = visiblePanels.join('|')
 
   const isDhyhContent = selectedContent?.id === DHYH_CONTENT_ID
 
