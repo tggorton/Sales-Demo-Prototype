@@ -23,8 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
-# Local-only media (too large for GitHub, regenerate from source)
-public/assets/video/dhyh-cmp-source-backup.mp4
+# Environment overrides (see .env.example for template)
+.env.local
+.env.*.local
+
+# Local-only media (too large for GitHub – reference via VITE_* overrides instead)
+public/assets/video/dhyh-cmp-full.mp4
 public/assets/ads/scott-brothers-home-depot-lbar.mp4
 _Temp/
 _Temp_Ads/

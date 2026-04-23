@@ -83,16 +83,48 @@ export const AD_QR_DESTINATION_1 = 'https://kerv.social/embed/3/32014'
 export const AD_QR_DESTINATION_2 = 'https://kerv.social/embed/3/32015'
 export const AD_QR_IMAGE_1 = `https://quickchart.io/qr?size=260&margin=0&text=${encodeURIComponent(AD_QR_DESTINATION_1)}`
 export const AD_QR_IMAGE_2 = `https://quickchart.io/qr?size=260&margin=0&text=${encodeURIComponent(AD_QR_DESTINATION_2)}`
-export const PLACEHOLDER_VIDEO_URL = '/assets/video/Placeholder-SalesDemo-Content_Compresssed.mp4'
 
 export const PRODUCT_PLACEHOLDER_IMAGE = '/assets/elements/product-placeholder.svg'
 
+// ---------- Media URL overrides -----------------------------------------------------
+// Every video asset reads from an environment variable first so individual machines
+// (or future staging/prod builds backed by S3/CloudFront) can point the player at
+// higher-fidelity or hosted files without any code changes. Defaults resolve to the
+// web-optimized files committed under `public/assets/`.
+//
+// Override locally by copying `.env.example` to `.env.local` and uncommenting the
+// keys you want. See `.env.example` for the full list.
+const envString = (key: string, fallback: string): string => {
+  const value = (import.meta.env as Record<string, string | undefined>)[key]
+  return value && value.length > 0 ? value : fallback
+}
+const envNumber = (key: string, fallback: number): number => {
+  const value = (import.meta.env as Record<string, string | undefined>)[key]
+  if (!value) return fallback
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+export const PLACEHOLDER_VIDEO_URL = envString(
+  'VITE_PLACEHOLDER_VIDEO_URL',
+  '/assets/video/Placeholder-SalesDemo-Content_Compresssed.mp4'
+)
+
 // Don't Hate Your House content-specific assets
 export const DHYH_CONTENT_ID = 'dhyh'
-export const DHYH_VIDEO_URL = '/assets/video/dhyh-cmp.mp4'
-export const DHYH_IMPULSE_AD_VIDEO_URL = '/assets/ads/SD-HD-Tools-Impulse-1080.mp4'
-export const DHYH_LBAR_AD_VIDEO_URL = '/assets/ads/SD-HD-Tools-L-bar.mp4'
-export const DHYH_SYNC_AD_VIDEO_URL = '/assets/ads/SD-HD-Tools-Sync.mp4'
+export const DHYH_VIDEO_URL = envString('VITE_DHYH_VIDEO_URL', '/assets/video/dhyh-cmp.mp4')
+export const DHYH_IMPULSE_AD_VIDEO_URL = envString(
+  'VITE_DHYH_IMPULSE_AD_VIDEO_URL',
+  '/assets/ads/SD-HD-Tools-Impulse-1080.mp4'
+)
+export const DHYH_LBAR_AD_VIDEO_URL = envString(
+  'VITE_DHYH_LBAR_AD_VIDEO_URL',
+  '/assets/ads/SD-HD-Tools-L-bar.mp4'
+)
+export const DHYH_SYNC_AD_VIDEO_URL = envString(
+  'VITE_DHYH_SYNC_AD_VIDEO_URL',
+  '/assets/ads/SD-HD-Tools-Sync.mp4'
+)
 export const DHYH_IMPULSE_AD_COMPANION_URL = 'https://kerv.social/embed/3/32014'
 
 // Per-mode DHYH ad-break durations (wall-clock). Matches the actual mp4 lengths so the
@@ -115,10 +147,14 @@ export const DHYH_CLIP_END_SECONDS = 25 * 60 // 25:00 – scene-JSON window end
 export const DHYH_CLIP_DURATION_SECONDS = DHYH_CLIP_END_SECONDS - DHYH_CLIP_START_SECONDS
 export const DHYH_AD_BREAK_CLIP_SECONDS = (21 - 18) * 60 + 32 // 3:32 inside the clip
 
-// Where the demo window begins inside the actual `.mp4` we ship. The shipped file is
-// pre-clipped to 0–420s to stay under GitHub's 100MB per-file limit, so this offset is 0.
-// If you swap the source back to the full 44-minute render, set this to 18 * 60.
-export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = 0
+// Where the demo window begins inside the actual `.mp4` the player loads. The shipped
+// file is pre-clipped to 0–420s to stay under GitHub's 100MB per-file limit, so the
+// default is 0. When running locally against the full 44-minute source (or a hosted
+// original), set VITE_DHYH_VIDEO_SOURCE_OFFSET_SECONDS=1080 in `.env.local`.
+export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = envNumber(
+  'VITE_DHYH_VIDEO_SOURCE_OFFSET_SECONDS',
+  0
+)
 // Scrubber segments and internal duration are computed dynamically per playback mode
 // in `useDemoPlayback` (Impulse/L-Bar = 30s, Sync = 45s). The time readout still shows
 // the unchanged 7:00 clip duration because displayedCurrentSeconds subtracts ad time.

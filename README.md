@@ -32,6 +32,31 @@ Useful scripts:
 - `npm run lint`
 - `npm run preview`
 
+## Environment Variables & Media Overrides
+
+Every video asset used by the player is resolved through a `VITE_*` env variable
+before falling back to the committed default under `public/assets/`. This keeps the
+repo (and Vercel deploys) lean while letting individual machines — and later a
+staging/prod deploy backed by S3 / CloudFront — point the player at higher-fidelity
+or hosted files without any code change.
+
+To override on your machine:
+
+1. Copy `.env.example` to `.env.local` (already gitignored).
+2. Uncomment the keys you want to override.
+3. Restart `npm run dev`.
+
+Full-quality DHYH source example (requires the 1.2GB file at the referenced path):
+
+```bash
+# .env.local
+VITE_DHYH_VIDEO_URL=/assets/video/dhyh-cmp-full.mp4
+VITE_DHYH_VIDEO_SOURCE_OFFSET_SECONDS=1080
+```
+
+All defaults live in `src/demo/constants.ts`; each override is documented in
+`.env.example`.
+
 ## Project Structure
 ```text
 src/
