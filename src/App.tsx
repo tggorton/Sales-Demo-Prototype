@@ -63,6 +63,7 @@ function App() {
   const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>(null)
   const [activeDemoPanels, setActiveDemoPanels] = useState<DemoPanel[]>([])
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [isVideoMuted, setIsVideoMuted] = useState(true)
   const [videoCurrentSeconds, setVideoCurrentSeconds] = useState(DEFAULT_START_SECONDS)
   const [videoElementDuration, setVideoElementDuration] = useState(0)
 
@@ -119,6 +120,7 @@ function App() {
     if (!selectedContent) return
     setIsSelectorModalOpen(false)
     setIsVideoPlaying(false)
+    setIsVideoMuted(true)
     const isDhyh = selectedContent.id === 'dhyh'
     const initialSeconds = demoPlayback.isSyncImpulseMode ? 0 : isDhyh ? 0 : DEFAULT_START_SECONDS
     setVideoCurrentSeconds(initialSeconds)
@@ -171,6 +173,7 @@ function App() {
     setIsProfileDrawerOpen(false)
     setIsVerifyEmailDialogOpen(false)
     setIsVideoPlaying(false)
+    setIsVideoMuted(true)
     setIsSelectorModalOpen(false)
     setIsJsonDownloadModalOpen(false)
     setIsCompanionModalOpen(false)
@@ -279,6 +282,7 @@ function App() {
                   activeScene={demoPlayback.activeScene}
                   productEntries={demoPlayback.productEntries}
                   isVideoPlaying={isVideoPlaying}
+                  isVideoMuted={isVideoMuted}
                   videoCurrentSeconds={videoCurrentSeconds}
                   playbackDurationSeconds={demoPlayback.playbackDurationSeconds}
                   displayedCurrentSeconds={demoPlayback.displayedCurrentSeconds}
@@ -316,6 +320,7 @@ function App() {
                   onAdPlaybackChange={setSelectedAdPlayback}
                   onTaxonomyChange={setSelectedTaxonomy}
                   onToggleVideoPlaying={() => setIsVideoPlaying((prev) => !prev)}
+                  onToggleVideoMuted={() => setIsVideoMuted((prev) => !prev)}
                   onVideoTimeChange={setVideoCurrentSeconds}
                   onVideoMetadataLoaded={setVideoElementDuration}
                   onToggleDemoPanel={toggleDemoPanel}

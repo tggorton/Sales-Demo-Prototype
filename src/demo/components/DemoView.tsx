@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PauseRoundedIcon from '@mui/icons-material/PauseRounded'
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
+import VolumeOffRoundedIcon from '@mui/icons-material/VolumeOffRounded'
 import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded'
 import {
   Box,
@@ -63,6 +64,7 @@ type DemoViewProps = {
   activeScene: SceneMetadata
   productEntries: ProductEntry[]
   isVideoPlaying: boolean
+  isVideoMuted: boolean
   videoCurrentSeconds: number
   playbackDurationSeconds: number
   displayedCurrentSeconds: number
@@ -97,6 +99,7 @@ type DemoViewProps = {
   onAdPlaybackChange: (value: AdPlaybackOption) => void
   onTaxonomyChange: (value: TaxonomyOption) => void
   onToggleVideoPlaying: () => void
+  onToggleVideoMuted: () => void
   onVideoTimeChange: (value: number) => void
   onVideoMetadataLoaded: (duration: number) => void
   onToggleDemoPanel: (panel: DemoPanel) => void
@@ -119,6 +122,7 @@ export function DemoView({
   activeScene,
   productEntries,
   isVideoPlaying,
+  isVideoMuted,
   videoCurrentSeconds,
   playbackDurationSeconds,
   displayedCurrentSeconds,
@@ -153,6 +157,7 @@ export function DemoView({
   onAdPlaybackChange,
   onTaxonomyChange,
   onToggleVideoPlaying,
+  onToggleVideoMuted,
   onVideoTimeChange,
   onVideoMetadataLoaded,
   onToggleDemoPanel,
@@ -294,7 +299,7 @@ export function DemoView({
                       component="video"
                       ref={adVideoRef}
                       src={activeAdVideoUrl}
-                      muted
+                      muted={isVideoMuted}
                       playsInline
                       preload="auto"
                       key={activeAdVideoUrl}
@@ -321,7 +326,7 @@ export function DemoView({
                     ref={contentVideoRef}
                     src={mainVideoSrc}
                     key={mainVideoSrc}
-                    muted
+                    muted={isVideoMuted}
                     playsInline
                     preload="metadata"
                     onLoadedMetadata={(event) => {
@@ -542,9 +547,19 @@ export function DemoView({
                       />
                     </Box>
 
-                    <IconButton sx={{ color: '#fff', p: playerControlTokens.controlButtonPadding }}>
-                      <VolumeUpRoundedIcon sx={{ fontSize: playerControlTokens.secondaryIconSize }} />
-                    </IconButton>
+                    <Tooltip title={isVideoMuted ? 'Unmute' : 'Mute'} arrow>
+                      <IconButton
+                        onClick={onToggleVideoMuted}
+                        aria-label={isVideoMuted ? 'Unmute' : 'Mute'}
+                        sx={{ color: '#fff', p: playerControlTokens.controlButtonPadding }}
+                      >
+                        {isVideoMuted ? (
+                          <VolumeOffRoundedIcon sx={{ fontSize: playerControlTokens.secondaryIconSize }} />
+                        ) : (
+                          <VolumeUpRoundedIcon sx={{ fontSize: playerControlTokens.secondaryIconSize }} />
+                        )}
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 </Box>
               </Box>
