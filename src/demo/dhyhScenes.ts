@@ -22,8 +22,24 @@ type DhyhProductMatch = {
   name?: string
   price?: string
   image?: string
+  image_url?: string
   link?: string
   confidence?: number
+}
+
+// Product images shipped alongside the app live under `public/assets/products/`
+// using the same relative path the JSON references (e.g. `homedpt/335027444.jpg`).
+// Served from the public root at runtime.
+const PRODUCT_IMAGE_BASE = '/assets/products/'
+
+const resolveProductImage = (match: DhyhProductMatch): string => {
+  if (match.image && match.image.length > 0) {
+    return `${PRODUCT_IMAGE_BASE}${match.image.replace(/^\/+/, '')}`
+  }
+  if (match.image_url && match.image_url.length > 0) {
+    return match.image_url
+  }
+  return PRODUCT_PLACEHOLDER_IMAGE
 }
 
 type DhyhObject = {
@@ -167,7 +183,7 @@ const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct
         id: `dhyh-${scene.scene}-${id}`,
         name: match.name || obj.name,
         description,
-        image: PRODUCT_PLACEHOLDER_IMAGE,
+        image: resolveProductImage(match),
       })
     }
   }

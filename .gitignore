@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+
+# One-off review artifacts generated from source JSON; regenerable on demand.
+/dhyh-products.json
 dist
 dist-ssr
 *.local

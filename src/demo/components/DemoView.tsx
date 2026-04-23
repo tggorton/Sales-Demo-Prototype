@@ -27,7 +27,7 @@ import {
 import type { MutableRefObject } from 'react'
 import { PanelGlyph } from '../../components/PanelGlyph'
 import { formatTime } from '../../utils/formatTime'
-import { adPlaybackOptions, taxonomyOptions, tierOptions } from '../constants'
+import { adPlaybackOptions, PRODUCT_PLACEHOLDER_IMAGE, taxonomyOptions, tierOptions } from '../constants'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../jsonExport'
 import {
   dropdownMagentaStyles,
@@ -744,6 +744,12 @@ export function DemoView({
                           component="img"
                           src={entry.image}
                           alt={entry.name}
+                          onError={(event) => {
+                            const img = event.currentTarget as HTMLImageElement
+                            if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
+                              img.src = PRODUCT_PLACEHOLDER_IMAGE
+                            }
+                          }}
                           sx={{
                             width: 54,
                             height: 54,

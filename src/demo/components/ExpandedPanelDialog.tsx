@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import { PanelGlyph } from '../../components/PanelGlyph'
-import { taxonomyOptions } from '../constants'
+import { PRODUCT_PLACEHOLDER_IMAGE, taxonomyOptions } from '../constants'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../jsonExport'
 import { panelHeaderActionIconSx, panelHeaderIconButtonDarkStyles, panelHeaderIconButtonStyles, taxonomyAutocompleteStyles } from '../styles'
 import { getTaxonomySceneData } from '../taxonomySceneData'
@@ -181,7 +181,18 @@ export function ExpandedPanelDialog({
           {productEntries.map((entry) => (
             <Box key={`expanded-${entry.id}`} sx={{ px: 0.9, py: 1.2, borderBottom: '1px solid #e6e6e6' }}>
               <Stack direction="row" spacing={1.2}>
-                <Box component="img" src={entry.image} alt={entry.name} sx={{ width: 64, height: 64, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }} />
+                <Box
+                  component="img"
+                  src={entry.image}
+                  alt={entry.name}
+                  onError={(event) => {
+                    const img = event.currentTarget as HTMLImageElement
+                    if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
+                      img.src = PRODUCT_PLACEHOLDER_IMAGE
+                    }
+                  }}
+                  sx={{ width: 64, height: 64, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
+                />
                 <Box sx={{ minWidth: 0 }}>
                   <Typography sx={{ fontWeight: 600, fontSize: 17, lineHeight: 1.1 }}>{entry.name}</Typography>
                   <Typography
