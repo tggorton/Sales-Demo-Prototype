@@ -19,6 +19,11 @@ import {
 } from './demo/constants'
 import { CONTENT_ITEMS } from './demo/contentItems'
 import { getJsonDownloadContent } from './demo/jsonExport'
+import {
+  clearPersistedSession,
+  loadPersistedSession,
+  savePersistedSession,
+} from './demo/sessionStorage'
 import { dropdownMagentaStyles } from './demo/styles'
 import type {
   AdPlaybackOption,
@@ -34,14 +39,49 @@ import type {
 import { useDemoPlayback } from './demo/useDemoPlayback'
 
 function App() {
-  const [currentView, setCurrentView] = useState<CurrentView>('login')
+  // Read once on mount – never during render – so we restore the last active session
+  // across a page refresh while keeping React's state contract intact.
+  const persisted = useMemo(() => loadPersistedSession(), [])
+
+  // Recover the content item from its id. If the id no longer exists (content was
+  // renamed/removed across deploys) we fall back to the content-selection screen.
+  const persistedContent = useMemo(
+    () =>
+      persisted.selectedContentId
+        ? CONTENT_ITEMS.find((item) => item.id === persisted.selectedContentId) ?? null
+        : null,
+    [persisted.selectedContentId]
+  )
+
+  const persistedView: CurrentView =
+    persisted.currentView === 'demo' && !persistedContent
+      ? 'selection'
+      : persisted.currentView ?? 'login'
+
+  // Mirror handleStartDemo's initial-time logic for a rehydrated demo view so the
+  // scrubber starts from the content's natural beginning. Without this, the
+  // generic DEFAULT_START_SECONDS (4:31) lands past the DHYH ad break and the
+  // player gets stuck inside an unconsumed ad on refresh.
+  const restoredInitialSeconds = (() => {
+    if (persistedView !== 'demo' || !persistedContent) return DEFAULT_START_SECONDS
+    const isSyncImpulse = persisted.selectedAdPlayback === 'Sync: Impulse'
+    const isDhyh = persistedContent.id === 'dhyh'
+    return isSyncImpulse || isDhyh ? 0 : DEFAULT_START_SECONDS
+  })()
+
+  const [currentView, setCurrentView] = useState<CurrentView>(persistedView)
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory>('All')
-  const [selectedContentIds, setSelectedContentIds] = useState<string[]>([])
-  const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null)
+  const [selectedContentIds, setSelectedContentIds] = useState<string[]>(
+    persistedContent ? [persistedContent.id] : []
+  )
+  const [selectedContent, setSelectedContent] = useState<ContentItem | null>(persistedContent)
   const [isSelectorModalOpen, setIsSelectorModalOpen] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<TierOption>('Basic Scene')
-  const [selectedAdPlayback, setSelectedAdPlayback] =
-    useState<AdPlaybackOption>('Sync: Impulse')
+  const [selectedTier, setSelectedTier] = useState<TierOption>(
+    persisted.selectedTier ?? 'Basic Scene'
+  )
+  const [selectedAdPlayback, setSelectedAdPlayback] = useState<AdPlaybackOption>(
+    persisted.selectedAdPlayback ?? 'Sync: Impulse'
+  )
   const [selectedTaxonomy, setSelectedTaxonomy] = useState<TaxonomyOption>('Emotion')
   const [expandedSelectedTaxonomies, setExpandedSelectedTaxonomies] = useState<TaxonomyOption[]>(['Emotion'])
   const [isTitlePanelExpanded, setIsTitlePanelExpanded] = useState(true)
@@ -64,7 +104,7 @@ function App() {
   const [activeDemoPanels, setActiveDemoPanels] = useState<DemoPanel[]>([])
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [isVideoMuted, setIsVideoMuted] = useState(true)
-  const [videoCurrentSeconds, setVideoCurrentSeconds] = useState(DEFAULT_START_SECONDS)
+  const [videoCurrentSeconds, setVideoCurrentSeconds] = useState(restoredInitialSeconds)
   const [videoElementDuration, setVideoElementDuration] = useState(0)
 
   const wasVideoPlayingBeforeExpandRef = useRef(false)
@@ -108,6 +148,23 @@ function App() {
     })
     return () => window.cancelAnimationFrame(frame)
   }, [currentView, isTitlePanelExpanded])
+
+  // Remember just enough about the session to land the user back on the same page
+  // after a browser refresh. Everything else (scrubber position, panels, mute,
+  // taxonomy selection, etc.) is deliberately left out so a refresh behaves like a
+  // fresh load of the current page rather than a resume.
+  useEffect(() => {
+    if (currentView === 'login') {
+      clearPersistedSession()
+      return
+    }
+    savePersistedSession({
+      currentView,
+      selectedContentId: selectedContent?.id ?? null,
+      selectedTier,
+      selectedAdPlayback,
+    })
+  }, [currentView, selectedContent, selectedTier, selectedAdPlayback])
 
   const openSelectorForContent = (item: ContentItem) => {
     const { id } = item
@@ -180,6 +237,9 @@ function App() {
     setExpandedPanel(null)
     setActiveDemoPanels([])
     setCurrentView('login')
+    // Drop any persisted session so a subsequent refresh lands back on login
+    // rather than rehydrating the previously-signed-in state.
+    clearPersistedSession()
   }
 
   const toggleDemoPanel = (panel: DemoPanel) => {
