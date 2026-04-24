@@ -3,6 +3,7 @@ import { Box, Button, Paper, Stack, TextField, Typography } from '@mui/material'
 type LoginViewProps = {
   loginUsername: string
   loginPassword: string
+  loginError?: string | null
   onUsernameChange: (value: string) => void
   onPasswordChange: (value: string) => void
   onLogin: () => void
@@ -11,6 +12,7 @@ type LoginViewProps = {
 export function LoginView({
   loginUsername,
   loginPassword,
+  loginError,
   onUsernameChange,
   onPasswordChange,
   onLogin,
@@ -29,55 +31,88 @@ export function LoginView({
         gridTemplateColumns: '1fr 1fr',
       }}
     >
-      <Box sx={{ p: { xs: 4, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 4.5 }}>
-          <Box component="img" src="/assets/kerv-logo.svg" alt="Kerv logo" sx={{ width: 40, height: 40 }} />
-          <Typography color="text.primary" sx={{ fontWeight: 500, fontSize: 34, lineHeight: 1, opacity: 0.87 }}>
-            | Sales Demo Tool
+      {/* Left pane: matches the Figma export – px 120 / py 0 outer frame with
+          gap-20 (80px) between header and login section. Typography uses the MUI
+          theme variants (h4 / h6 / button) rather than custom pixel sizes so the
+          lock-up stays in sync with the rest of the app. */}
+      <Box
+        sx={{
+          px: { xs: 6, md: '120px' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '80px',
+        }}
+      >
+        <Stack spacing={3} component="header">
+          <Stack direction="row" alignItems="center" spacing="15px" sx={{ width: 356 }}>
+            <Box component="img" src="/assets/kerv-logo.svg" alt="Kerv logo" sx={{ width: 40, height: 40 }} />
+            <Typography variant="h6" color="text.primary" noWrap>
+              |&nbsp;&nbsp;Sales Demo Tool
+            </Typography>
+          </Stack>
+          <Typography variant="h4" component="h1" color="text.primary">
+            Welcome&nbsp;&nbsp;back!
+            <br />
+            Log in to your account.
           </Typography>
         </Stack>
 
-        <Typography sx={{ fontSize: { xs: 42, md: 50 }, lineHeight: 1.2, color: 'rgba(0,0,0,0.87)', mb: 6 }}>
-          Welcome back!
-          <br />
-          Log in to your account.
-        </Typography>
-
-        <Box sx={{ width: 'min(100%, 420px)' }}>
-          <Typography sx={{ fontWeight: 600, fontSize: 36, color: 'rgba(0,0,0,0.87)', mb: 2.5 }}>
+        <Stack spacing={3} component="section" aria-labelledby="login-heading">
+          <Typography variant="h6" component="h2" id="login-heading" color="text.primary">
             Log in
           </Typography>
-          <Stack spacing={1.4}>
-            <TextField
-              size="small"
-              value={loginUsername}
-              onChange={(event) => onUsernameChange(event.target.value)}
-              placeholder="Email"
-              fullWidth
-            />
-            <TextField
-              size="small"
-              value={loginPassword}
-              onChange={(event) => onPasswordChange(event.target.value)}
-              placeholder="Password"
-              type="password"
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              onClick={onLogin}
-              sx={{ mt: 1.2, bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, height: 42, fontWeight: 600 }}
-            >
-              LOG IN
-            </Button>
-            <Button
-              variant="text"
-              sx={{ mt: 0.2, color: '#A0245D', p: 0, justifyContent: 'flex-start', width: 'fit-content', fontWeight: 700 }}
-            >
-              FORGOT YOUR PASSWORD?
-            </Button>
+          <Stack
+            component="form"
+            spacing={3}
+            onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault()
+              onLogin()
+            }}
+          >
+            <Stack spacing={2}>
+              <TextField
+                size="small"
+                value={loginUsername}
+                onChange={(event) => onUsernameChange(event.target.value)}
+                placeholder="Email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                error={Boolean(loginError)}
+                fullWidth
+              />
+              <TextField
+                size="small"
+                value={loginPassword}
+                onChange={(event) => onPasswordChange(event.target.value)}
+                placeholder="Password"
+                type="password"
+                autoComplete="current-password"
+                error={Boolean(loginError)}
+                helperText={loginError || ' '}
+                FormHelperTextProps={{ sx: { mx: 0 } }}
+                fullWidth
+              />
+            </Stack>
+            <Stack spacing={1.5}>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' } }}
+              >
+                LOG IN
+              </Button>
+              <Button
+                type="button"
+                variant="text"
+                sx={{ color: '#ED005E', alignSelf: 'flex-start', px: 1, py: 0.75 }}
+              >
+                FORGOT YOUR PASSWORD?
+              </Button>
+            </Stack>
           </Stack>
-        </Box>
+        </Stack>
       </Box>
       <Box
         component="img"

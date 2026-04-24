@@ -16,6 +16,8 @@ import {
   DEFAULT_START_SECONDS,
   DEFAULT_USER_EMAIL,
   DEFAULT_USER_NAME,
+  DEMO_LOGIN_EMAIL,
+  DEMO_LOGIN_PASSWORD,
 } from './demo/constants'
 import { CONTENT_ITEMS } from './demo/contentItems'
 import { getJsonDownloadContent } from './demo/jsonExport'
@@ -98,8 +100,9 @@ function App() {
   const [profileNameDraft, setProfileNameDraft] = useState(DEFAULT_USER_NAME)
   const [profileEmailDraft, setProfileEmailDraft] = useState(DEFAULT_USER_EMAIL)
   const [isVerifyEmailDialogOpen, setIsVerifyEmailDialogOpen] = useState(false)
-  const [loginUsername, setLoginUsername] = useState('user@kerv.ai')
-  const [loginPassword, setLoginPassword] = useState('SalesDemoTest')
+  const [loginUsername, setLoginUsername] = useState(DEMO_LOGIN_EMAIL)
+  const [loginPassword, setLoginPassword] = useState(DEMO_LOGIN_PASSWORD)
+  const [loginError, setLoginError] = useState<string | null>(null)
   const [expandedPanel, setExpandedPanel] = useState<ExpandedPanel>(null)
   const [activeDemoPanels, setActiveDemoPanels] = useState<DemoPanel[]>([])
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
@@ -185,7 +188,28 @@ function App() {
   }
 
   const handleLogin = () => {
+    // Prototype auth: the only accepted credentials are the autofilled pair.
+    // Trim + case-insensitive email match so trivial whitespace/case tweaks
+    // still pass, but anything actually different is rejected.
+    const emailMatches =
+      loginUsername.trim().toLowerCase() === DEMO_LOGIN_EMAIL.toLowerCase()
+    const passwordMatches = loginPassword === DEMO_LOGIN_PASSWORD
+    if (!emailMatches || !passwordMatches) {
+      setLoginError('Invalid email or password. Please try again.')
+      return
+    }
+    setLoginError(null)
     setCurrentView('selection')
+  }
+
+  const handleLoginUsernameChange = (value: string) => {
+    setLoginUsername(value)
+    if (loginError) setLoginError(null)
+  }
+
+  const handleLoginPasswordChange = (value: string) => {
+    setLoginPassword(value)
+    if (loginError) setLoginError(null)
   }
 
   const openProfileMenu = (event: ReactMouseEvent<HTMLElement>) => {
@@ -306,8 +330,9 @@ function App() {
             <LoginView
               loginUsername={loginUsername}
               loginPassword={loginPassword}
-              onUsernameChange={setLoginUsername}
-              onPasswordChange={setLoginPassword}
+              loginError={loginError}
+              onUsernameChange={handleLoginUsernameChange}
+              onPasswordChange={handleLoginPasswordChange}
               onLogin={handleLogin}
             />
           ) : (

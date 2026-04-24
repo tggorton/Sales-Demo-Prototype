@@ -200,6 +200,13 @@ export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = envNumber(
 export const DEFAULT_USER_NAME = 'John Doe'
 export const DEFAULT_USER_EMAIL = 'John.doe@kerv.ai'
 
+// Login credentials accepted by the demo. These are also the values autofilled
+// into the login form on load – if the user clears/edits either field away from
+// these exact values the login is rejected. This is intentionally hard-coded
+// because the sales demo is a prototype without a real auth backend.
+export const DEMO_LOGIN_EMAIL = 'user@kerv.ai'
+export const DEMO_LOGIN_PASSWORD = 'SalesDemoTest'
+
 // REFERENCE: tune these if we revisit collapsed-title viewport centering behavior.
 export const DEFAULT_MACBOOK_VIEWPORT_MAX_WIDTH = 1600
 export const DEFAULT_MACBOOK_VIEWPORT_MAX_HEIGHT = 1000
