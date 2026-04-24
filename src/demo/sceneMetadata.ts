@@ -19,18 +19,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p1',
+        productKey: 'p1',
         name: 'Bed',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/parks-and-rec.png',
       },
       {
         id: 'p2',
+        productKey: 'p2',
         name: 'Chair',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/ap-bio.png',
       },
       {
         id: 'p3',
+        productKey: 'p3',
         name: 'Desk',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/yellowstone.png',
@@ -54,18 +57,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p4',
+        productKey: 'p4',
         name: 'Desk 2',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/below-deck.png',
       },
       {
         id: 'p5',
+        productKey: 'p5',
         name: 'Lamp',
         description: 'Modern accent lamp with soft warm tone.',
         image: '/assets/posters/wolf-like-me.png',
       },
       {
         id: 'p6',
+        productKey: 'p6',
         name: 'Storage Bin',
         description: 'Compact and durable storage utility piece.',
         image: '/assets/posters/big-brother.png',
@@ -89,18 +95,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p7',
+        productKey: 'p7',
         name: 'Shelf',
         description: 'Open shelving for decor and essentials.',
         image: '/assets/posters/everybody-loves-raymond.png',
       },
       {
         id: 'p8',
+        productKey: 'p8',
         name: 'Wall Art',
         description: 'Minimal framed wall pieces for calm interiors.',
         image: '/assets/posters/ted.png',
       },
       {
         id: 'p9',
+        productKey: 'p9',
         name: 'Rug',
         description: 'Soft low-pile rug with neutral tones.',
         image: '/assets/posters/parks-and-rec.png',
@@ -124,18 +133,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p10',
+        productKey: 'p10',
         name: 'Bed',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/yellowstone.png',
       },
       {
         id: 'p11',
+        productKey: 'p11',
         name: 'Desk 2',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/ap-bio.png',
       },
       {
         id: 'p12',
+        productKey: 'p12',
         name: 'Chair',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/below-deck.png',
@@ -159,18 +171,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p13',
+        productKey: 'p13',
         name: 'Desk',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/big-brother.png',
       },
       {
         id: 'p14',
+        productKey: 'p14',
         name: 'Bed',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/wolf-like-me.png',
       },
       {
         id: 'p15',
+        productKey: 'p15',
         name: 'Desk 2',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/everybody-loves-raymond.png',
@@ -194,18 +209,21 @@ export const SCENE_METADATA: SceneMetadata[] = [
     products: [
       {
         id: 'p16',
+        productKey: 'p16',
         name: 'Chair',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/ted.png',
       },
       {
         id: 'p17',
+        productKey: 'p17',
         name: 'Desk',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/parks-and-rec.png',
       },
       {
         id: 'p18',
+        productKey: 'p18',
         name: 'Bed',
         description: 'Sturdy and stylish, holds a vast collection of books.',
         image: '/assets/posters/ap-bio.png',

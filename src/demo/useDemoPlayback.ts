@@ -20,7 +20,9 @@ import {
   DHYH_IMPULSE_AD_VIDEO_URL,
   DHYH_LBAR_AD_VIDEO_URL,
   DHYH_SYNC_AD_VIDEO_URL,
+  PANEL_MANUAL_SCROLL_PAUSE_MS,
   PLACEHOLDER_VIDEO_URL,
+  PRODUCT_DEDUPE_WINDOW_SECONDS,
   SYNC_IMPULSE_DURATION_SECONDS,
   SYNC_IMPULSE_SEGMENTS,
   taxonomyOptions,
@@ -74,6 +76,10 @@ export function useDemoPlayback({
   const productScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const jsonScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const panelScrollRafRef = useRef<number | null>(null)
+  // Epoch timestamp (ms). While Date.now() < this value, the RAF skips writing
+  // scrollTop on the panels, letting the user scroll freely. Updated by DOM
+  // listeners (wheel/touch/pointer) attached to each panel's scroll container.
+  const manualScrollPauseUntilRef = useRef<number>(0)
 
   const orderedPanels: DemoPanel[] = ['taxonomy', 'product', 'json']
   const visiblePanels = orderedPanels.filter((panel) => activeDemoPanels.includes(panel))
@@ -181,15 +187,19 @@ export function useDemoPlayback({
   ])
 
   // For DHYH sync-ad-break modes, map the internal scrubber position (which includes a
-  // 30-45s ad block anchored at 3:32) back to a clip-relative content position
-  // (0..420s). Inside the ad block the helper freezes at 3:32; after it, content
-  // advances 1:1.
+  // 30-45s ad block at the Segment A / Segment B splice point) back onto the spliced
+  // clip timeline (0 .. DHYH_CLIP_DURATION_SECONDS). Inside the ad block the helper
+  // freezes just *before* the splice point – that keeps the Taxonomy / Product / JSON
+  // panels anchored to the last Segment A scene for the duration of the ad instead
+  // of flipping to Segment B the instant the scrubber enters the break (Segment B
+  // scenes start at clip-time === DHYH_AD_BREAK_CLIP_SECONDS, so even a 0-length nudge
+  // matters for scene-window selection).
   const dhyhClipSeconds = useMemo(() => {
     if (!isDhyhContent) return videoCurrentSeconds
     if (!isSyncImpulseMode) return videoCurrentSeconds
-    if (videoCurrentSeconds <= DHYH_AD_BREAK_CLIP_SECONDS) return videoCurrentSeconds
-    if (videoCurrentSeconds <= DHYH_AD_BREAK_CLIP_SECONDS + dhyhAdBreakDurationSeconds) {
-      return DHYH_AD_BREAK_CLIP_SECONDS
+    if (videoCurrentSeconds < DHYH_AD_BREAK_CLIP_SECONDS) return videoCurrentSeconds
+    if (videoCurrentSeconds < DHYH_AD_BREAK_CLIP_SECONDS + dhyhAdBreakDurationSeconds) {
+      return Math.max(0, DHYH_AD_BREAK_CLIP_SECONDS - 0.001)
     }
     return videoCurrentSeconds - dhyhAdBreakDurationSeconds
   }, [isDhyhContent, isSyncImpulseMode, videoCurrentSeconds, dhyhAdBreakDurationSeconds])
@@ -319,18 +329,36 @@ export function useDemoPlayback({
 
   const activeScene = playbackScenes[activeSceneIndex] ?? playbackScenes[0]
 
-  const productEntries = useMemo<ProductEntry[]>(
-    () =>
-      playbackScenes.flatMap((scene) =>
-        scene.products.map((product) => ({
+  // Time-windowed dedupe: if a product already emitted within the last
+  // PRODUCT_DEDUPE_WINDOW_SECONDS (on the playback timeline), skip subsequent
+  // occurrences. A gap larger than the window lets the product reappear so
+  // recurring on-screen items still show up naturally later in the clip. Set
+  // PRODUCT_DEDUPE_WINDOW_SECONDS to 0 in constants.ts to disable.
+  const productEntries = useMemo<ProductEntry[]>(() => {
+    const result: ProductEntry[] = []
+    const lastEmittedAt = new Map<string, number>()
+    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
+    for (const scene of playbackScenes) {
+      for (const product of scene.products) {
+        const previous = lastEmittedAt.get(product.productKey)
+        if (
+          windowSeconds > 0 &&
+          previous !== undefined &&
+          scene.start - previous < windowSeconds
+        ) {
+          continue
+        }
+        result.push({
           ...product,
           sceneId: scene.id,
           sceneLabel: scene.sceneLabel,
           sceneStart: scene.start,
-        }))
-      ),
-    [playbackScenes]
-  )
+        })
+        lastEmittedAt.set(product.productKey, scene.start)
+      }
+    }
+    return result
+  }, [playbackScenes])
 
   const productsUnavailableMessage =
     isDhyhContent && dhyhBundle && !dhyhBundle.hasProductData
@@ -455,6 +483,10 @@ export function useDemoPlayback({
     const SNAP_THRESHOLD_PX = 0.25
 
     const applyScroll = (el: HTMLDivElement, target: number) => {
+      // Honor a brief pause when the user has just scrolled manually; the RAF
+      // still runs (so the next ease continues from wherever the user left off)
+      // but we don't fight their scroll input during the pause window.
+      if (Date.now() < manualScrollPauseUntilRef.current) return
       const delta = target - el.scrollTop
       if (Math.abs(delta) < SNAP_THRESHOLD_PX) {
         if (delta !== 0) el.scrollTop = target
@@ -493,9 +525,19 @@ export function useDemoPlayback({
       let liveTimeline = ctx.timelineSeconds
       if (ctx.isDhyhContent && !ctx.inAdBreak) {
         const videoEl = contentVideoRef.current
-        if (videoEl && !Number.isNaN(videoEl.currentTime)) {
+        if (videoEl && !videoEl.seeking && !Number.isNaN(videoEl.currentTime)) {
           const raw = videoEl.currentTime - DHYH_VIDEO_SOURCE_OFFSET_SECONDS
-          if (raw > 0 && raw < DHYH_CLIP_DURATION_SECONDS) {
+          // Only prefer the element's currentTime when it's already close to the
+          // scrubber state – that's the "normal playback drift" case where the
+          // element gives us a true 60fps signal. During scrubs the state jumps
+          // immediately to the new slider value while the <video> is still
+          // seeking to it; in that case we stay on state so panels jump with the
+          // scrubber instead of stalling until the seek completes.
+          if (
+            raw > 0 &&
+            raw < DHYH_CLIP_DURATION_SECONDS &&
+            Math.abs(raw - ctx.timelineSeconds) < 1
+          ) {
             liveTimeline = raw
           }
         }
@@ -576,13 +618,43 @@ export function useDemoPlayback({
     }
 
     panelScrollRafRef.current = window.requestAnimationFrame(animate)
+
+    // Manual-scroll override: if the user scrolls any panel, pause auto-scroll
+    // for PANEL_MANUAL_SCROLL_PAUSE_MS so they can browse. After the pause the
+    // RAF smoothly eases the panel back to the live playback position.
+    const markInteraction = () => {
+      manualScrollPauseUntilRef.current = Date.now() + PANEL_MANUAL_SCROLL_PAUSE_MS
+    }
+    const interactionEvents: Array<keyof HTMLElementEventMap> = [
+      'wheel',
+      'touchstart',
+      'touchmove',
+      'pointerdown',
+      'keydown',
+    ]
+    const panelContainers = [
+      taxonomyScrollContainerRef.current,
+      productScrollContainerRef.current,
+      jsonScrollContainerRef.current,
+    ].filter((el): el is HTMLDivElement => el !== null)
+    for (const el of panelContainers) {
+      for (const evt of interactionEvents) {
+        el.addEventListener(evt, markInteraction, { passive: true })
+      }
+    }
+
     return () => {
       if (panelScrollRafRef.current !== null) {
         window.cancelAnimationFrame(panelScrollRafRef.current)
         panelScrollRafRef.current = null
       }
+      for (const el of panelContainers) {
+        for (const evt of interactionEvents) {
+          el.removeEventListener(evt, markInteraction)
+        }
+      }
     }
-  }, [currentView])
+  }, [currentView, visiblePanels.join(',')])
 
   // Synthetic timeline advance – used when not riding the native element time. For DHYH
   // this fires during the ad break (scrubber 212..242) so the ad segment progresses in

@@ -179,7 +179,7 @@ export function ExpandedPanelDialog({
       return (
         <Box sx={{ px: 2, py: 1.25, height: '100%', overflowY: 'auto' }}>
           {productEntries.map((entry) => (
-            <Box key={`expanded-${entry.id}`} sx={{ px: 0.9, py: 1.2, borderBottom: '1px solid #e6e6e6' }}>
+            <Box key={`expanded-${entry.sceneId}-${entry.id}`} sx={{ px: 0.9, py: 1.2, borderBottom: '1px solid #e6e6e6' }}>
               <Stack direction="row" spacing={1.2}>
                 <Box
                   component="img"

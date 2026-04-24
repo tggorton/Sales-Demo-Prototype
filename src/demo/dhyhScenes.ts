@@ -1,7 +1,10 @@
 import {
   DHYH_CLIP_DURATION_SECONDS,
-  DHYH_CLIP_END_SECONDS,
-  DHYH_CLIP_START_SECONDS,
+  DHYH_SEGMENT_A_DURATION,
+  DHYH_SEGMENT_A_SOURCE_END,
+  DHYH_SEGMENT_A_SOURCE_START,
+  DHYH_SEGMENT_B_SOURCE_END,
+  DHYH_SEGMENT_B_SOURCE_START,
   PRODUCT_PLACEHOLDER_IMAGE,
 } from './constants'
 import type {
@@ -181,6 +184,7 @@ const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct
       const description = [match.price, obj.name].filter(Boolean).join(' · ') || obj.name
       products.push({
         id: `dhyh-${scene.scene}-${id}`,
+        productKey: id,
         name: match.name || obj.name,
         description,
         image: resolveProductImage(match),
@@ -430,7 +434,40 @@ const isSceneMeaningful = (scene: DhyhScene) =>
       scene.logos?.length
   )
 
-const buildScene = (scene: DhyhScene, index: number, tier: TierOption): SceneMetadata => {
+// ---------- Source → spliced-clip time remapping -----------------------------------
+// The shipped video is a concat of two source ranges (Segment A + Segment B). This
+// helper maps a scene's source-time window onto the spliced clip timeline, or
+// returns null if the scene doesn't intersect either segment and should be dropped.
+type ClipRange = { start: number; end: number }
+
+const remapSceneToClipTime = (sourceStart: number, sourceEnd: number): ClipRange | null => {
+  // Segment A: source [SEG_A_START, SEG_A_END] → clip [0, SEG_A_DURATION]
+  if (sourceEnd > DHYH_SEGMENT_A_SOURCE_START && sourceStart < DHYH_SEGMENT_A_SOURCE_END) {
+    const start = Math.max(0, sourceStart - DHYH_SEGMENT_A_SOURCE_START)
+    const end = Math.min(DHYH_SEGMENT_A_DURATION, sourceEnd - DHYH_SEGMENT_A_SOURCE_START)
+    return { start, end }
+  }
+  // Segment B: source [SEG_B_START, SEG_B_END] → clip [SEG_A_DURATION, CLIP_DURATION]
+  if (sourceEnd > DHYH_SEGMENT_B_SOURCE_START && sourceStart < DHYH_SEGMENT_B_SOURCE_END) {
+    const start = Math.max(
+      DHYH_SEGMENT_A_DURATION,
+      DHYH_SEGMENT_A_DURATION + (sourceStart - DHYH_SEGMENT_B_SOURCE_START)
+    )
+    const end = Math.min(
+      DHYH_CLIP_DURATION_SECONDS,
+      DHYH_SEGMENT_A_DURATION + (sourceEnd - DHYH_SEGMENT_B_SOURCE_START)
+    )
+    return { start, end }
+  }
+  return null
+}
+
+const buildScene = (
+  scene: DhyhScene,
+  index: number,
+  tier: TierOption,
+  clipRange: ClipRange
+): SceneMetadata => {
   const sentimentRaw = Array.isArray(scene.sentiment_analysis)
     ? scene.sentiment_analysis[0]
     : scene.sentiment_analysis
@@ -444,18 +481,10 @@ const buildScene = (scene: DhyhScene, index: number, tier: TierOption): SceneMet
   const meaningful = isSceneMeaningful(scene)
   const taxonomyData = buildTaxonomyData(scene)
 
-  // DHYH scene times are clipped to the configured demo window (18:00 – 25:00) and
-  // translated to clip-relative seconds (0 – 420) so they line up with the scrubber.
-  const clippedStart = Math.max(0, scene.startTime - DHYH_CLIP_START_SECONDS)
-  const clippedEnd = Math.min(
-    DHYH_CLIP_DURATION_SECONDS,
-    scene.endTime - DHYH_CLIP_START_SECONDS
-  )
-
   return {
     id: `dhyh-scene-${scene.scene}`,
-    start: clippedStart,
-    end: clippedEnd,
+    start: clipRange.start,
+    end: clipRange.end,
     sceneLabel: `Scene ${index + 1}`,
     emotion: music?.name ?? sentimentRaw?.name ?? 'Neutral',
     emotionScore: clamp(music?.confidence ?? sentimentRaw?.confidence ?? 0.75, 0, 1),
@@ -476,12 +505,18 @@ const buildScene = (scene: DhyhScene, index: number, tier: TierOption): SceneMet
 }
 
 const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle => {
-  // Only carry the scenes that intersect the demo clip window into the bundle, and
-  // reindex them so the user-facing labels read "Scene 1 .. N" starting at the clip.
-  const clippedScenes = payload.Scenes.filter(
-    (scene) => scene.endTime > DHYH_CLIP_START_SECONDS && scene.startTime < DHYH_CLIP_END_SECONDS
+  // Each source scene is either dropped (not inside either segment) or remapped onto
+  // the spliced clip timeline. After remapping we sort by clip start so Segment A
+  // scenes precede Segment B scenes and both sections advance monotonically as the
+  // video plays through the splice.
+  const remapped = payload.Scenes.map((scene) => ({
+    scene,
+    range: remapSceneToClipTime(scene.startTime, scene.endTime),
+  })).filter(
+    (entry): entry is { scene: DhyhScene; range: ClipRange } => entry.range !== null
   )
-  const scenes = clippedScenes.map((scene, index) => buildScene(scene, index, tier))
+  remapped.sort((a, b) => a.range.start - b.range.start)
+  const scenes = remapped.map(({ scene, range }, index) => buildScene(scene, index, tier, range))
   return {
     tier,
     duration: DHYH_CLIP_DURATION_SECONDS,

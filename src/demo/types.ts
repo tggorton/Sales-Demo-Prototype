@@ -43,6 +43,11 @@ export type ContentItem = {
 
 export type SceneProduct = {
   id: string
+  // Stable cross-scene identifier for the *product itself* (e.g. the Home Depot SKU).
+  // `id` is unique per scene/product emission and is used for React keys; `productKey`
+  // is shared across every scene that references the same underlying product and is
+  // used by the time-windowed dedupe in useDemoPlayback.
+  productKey: string
   name: string
   description: string
   image: string

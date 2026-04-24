@@ -727,7 +727,7 @@ export function DemoView({
                   ) : (
                     productEntries.map((entry, index) => (
                     <Box
-                      key={entry.id}
+                      key={`${entry.sceneId}-${entry.id}`}
                       ref={(el: HTMLDivElement | null) => {
                         productRefs.current[index] = el
                       }}
