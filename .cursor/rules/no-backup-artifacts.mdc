@@ -1,0 +1,47 @@
+---
+description: Keep backup/alternate assets out of the repo and the Vercel build.
+alwaysApply: true
+---
+
+# No Backup Artifacts in the Shipped App
+
+The deployed Vercel build must contain **only** the assets actually imported
+or served by the live demo. Prior/experimental versions are preserved as
+untracked, gitignored sidecars on the maintainer's machine — never in source
+control, never in `dist/`.
+
+## Naming convention
+
+Anything intentionally kept as a local-only reference uses these patterns
+(all covered by `.gitignore`):
+
+- `*.backup.*` — e.g. `dhyh-tier3.backup.json`, `dhyh-cmp.backup.mp4`
+- `_backups/` — ad-hoc folder for larger snapshots
+- `_Temp/` and `_Temp_Ads/` — reserved for in-flight asset moves only
+
+## Rules for the agent
+
+- **Never** `git add` a file matching `*.backup.*`, `_backups/**`, or
+  `_Temp*/**`. Warn the user and skip it, even when they ask for `git add .`.
+- When replacing a committed asset (JSON, MP4, JPG), make the backup a
+  `*.backup.*` sidecar in the same directory. Do not stage it.
+- Media under `public/assets/` is copied verbatim into `dist/`. Treat every
+  file there as a bandwidth cost on Vercel — confirm with the user before
+  committing anything > 10 MB.
+- `src/assets/data/*.json` is imported dynamically via `await import(...)`.
+  Only the files that are referenced in `src/demo/dhyhScenes.ts` may live
+  under `src/assets/data/` without the `.backup.json` suffix.
+
+## Canonical asset map (live / deployed)
+
+| Purpose | Deployed path |
+|---|---|
+| Tier 1 (Basic Scene) JSON | `src/assets/data/dhyh-tier1.json` |
+| Tier 2 (Advanced Scene) JSON | `src/assets/data/dhyh-tier2.json` |
+| Tier 3 (Exact Match) JSON | `src/assets/data/dhyh-tier3.json` |
+| DHYH video (web-optimized) | `public/assets/video/dhyh-cmp.mp4` |
+| Ad creatives | `public/assets/ads/SD-HD-Tools-*.mp4` |
+| Product images | `public/assets/products/homedpt/*.jpg` |
+
+Anything else in those directories — including files whose name contains
+`backup`, `old`, `temp`, `_v2`, `-copy`, or a date stamp — is not shipped.

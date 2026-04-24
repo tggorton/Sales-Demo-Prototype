@@ -35,3 +35,12 @@ public/assets/video/dhyh-cmp-full.mp4
 public/assets/ads/scott-brothers-home-depot-lbar.mp4
 _Temp/
 _Temp_Ads/
+
+# Backup artifacts — never shipped in the repo or the Vercel build.
+# Keep a local copy for your own reference, but the deployed app must only
+# reference the active, imported sources. See
+# .cursor/rules/no-backup-artifacts.mdc for the full convention.
+*.backup.*
+**/_backups/
+**/*.backup.json
+**/*.backup.mp4
