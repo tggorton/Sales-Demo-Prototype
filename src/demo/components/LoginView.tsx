@@ -88,7 +88,7 @@ export function LoginView({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          objectPosition: 'calc(100% + 150px) center',
+          objectPosition: 'calc(100% + 250px) center',
           display: 'block',
         }}
       />
