@@ -79,7 +79,19 @@ export function LoginView({
           </Stack>
         </Box>
       </Box>
-      <Box sx={{ bgcolor: '#ED005E' }} />
+      <Box
+        component="img"
+        src="/assets/login-hero.png"
+        alt=""
+        aria-hidden
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'calc(100% + 150px) center',
+          display: 'block',
+        }}
+      />
     </Paper>
   )
 }
