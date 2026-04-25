@@ -1,4 +1,4 @@
-import type { AdDecisioningTailItem } from './types'
+import type { AdDecisioningTailItem } from '../types'
 
 export const adDecisionPayload = {
   status: 'success',

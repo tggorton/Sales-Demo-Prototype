@@ -25,10 +25,10 @@ import {
   Button,
 } from '@mui/material'
 import type { MutableRefObject } from 'react'
-import { PanelGlyph } from '../../components/PanelGlyph'
-import { formatTime } from '../../utils/formatTime'
-import { adPlaybackOptions, PRODUCT_PLACEHOLDER_IMAGE, taxonomyOptions, tierOptions } from '../constants'
-import { buildAdBreakJsonString, buildSceneJsonPayload } from '../jsonExport'
+import { PanelGlyph } from './PanelGlyph'
+import { adPlaybackOptions, PRODUCT_PLACEHOLDER_IMAGE, tierOptions } from '../constants'
+import { formatTime } from '../utils/formatTime'
+import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import {
   dropdownMagentaStyles,
   navButtonStyles,
@@ -38,7 +38,7 @@ import {
   panelPaperStyles,
   tooltipStyles,
 } from '../styles'
-import { getTaxonomySceneData } from '../taxonomySceneData'
+import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import type {
   AdDecisioningTailItem,
   AdPlaybackOption,
@@ -80,6 +80,7 @@ type DemoViewProps = {
   productsUnavailableMessage: string | null
   hasReachedFirstProduct: boolean
   taxonomyAvailability: Record<TaxonomyOption, boolean>
+  availableTaxonomies: TaxonomyOption[]
   activeSceneIndex: number
   shouldShowInContentCta: boolean
   activeAdBreakLabel: string
@@ -138,6 +139,7 @@ export function DemoView({
   productsUnavailableMessage,
   hasReachedFirstProduct,
   taxonomyAvailability,
+  availableTaxonomies,
   activeSceneIndex,
   shouldShowInContentCta,
   activeAdBreakLabel,
@@ -598,7 +600,7 @@ export function DemoView({
                       onChange={(event) => onTaxonomyChange(event.target.value as TaxonomyOption)}
                       sx={{ height: 40 }}
                     >
-                      {taxonomyOptions.map((option) => (
+                      {availableTaxonomies.map((option) => (
                         <MenuItem key={option} value={option}>
                           {option}
                         </MenuItem>

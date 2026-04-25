@@ -1,11 +1,11 @@
-import { SYNC_IMPULSE_SEGMENTS } from './constants'
+import { SYNC_IMPULSE_SEGMENTS } from '../constants'
 import type {
   AdDecisioningTailItem,
   AdPlaybackOption,
   JsonDownloadOption,
   SceneMetadata,
   TierOption,
-} from './types'
+} from '../types'
 
 export const buildSceneJsonPayload = (scene: SceneMetadata, index: number) => {
   if (scene.rawJson !== undefined) {

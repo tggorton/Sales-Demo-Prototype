@@ -1,9 +1,12 @@
+import CheckBoxIcon from '@mui/icons-material/CheckBox'
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import {
   Autocomplete,
   Box,
+  Checkbox,
   Chip,
   Dialog,
   IconButton,
@@ -11,11 +14,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { PanelGlyph } from '../../components/PanelGlyph'
-import { PRODUCT_PLACEHOLDER_IMAGE, taxonomyOptions } from '../constants'
-import { buildAdBreakJsonString, buildSceneJsonPayload } from '../jsonExport'
+import { PanelGlyph } from './PanelGlyph'
+import { PRODUCT_PLACEHOLDER_IMAGE } from '../constants'
+import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import { panelHeaderActionIconSx, panelHeaderIconButtonDarkStyles, panelHeaderIconButtonStyles, taxonomyAutocompleteStyles } from '../styles'
-import { getTaxonomySceneData } from '../taxonomySceneData'
+import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import type {
   AdDecisioningTailItem,
   ExpandedPanel,
@@ -23,7 +26,7 @@ import type {
   SceneMetadata,
   TaxonomyOption,
 } from '../types'
-import { formatTime } from '../../utils/formatTime'
+import { formatTime } from '../utils/formatTime'
 
 type ExpandedPanelDialogProps = {
   expandedPanel: ExpandedPanel
@@ -33,6 +36,7 @@ type ExpandedPanelDialogProps = {
   productsUnavailableMessage: string | null
   hasReachedFirstProduct: boolean
   taxonomyAvailability: Record<TaxonomyOption, boolean>
+  availableTaxonomies: TaxonomyOption[]
   activeSceneIndex: number
   isSyncImpulseMode: boolean
   isAdBreakPlayback: boolean
@@ -54,6 +58,7 @@ export function ExpandedPanelDialog({
   productsUnavailableMessage,
   hasReachedFirstProduct,
   taxonomyAvailability,
+  availableTaxonomies,
   activeSceneIndex,
   isSyncImpulseMode,
   isAdBreakPlayback,
@@ -71,12 +76,23 @@ export function ExpandedPanelDialog({
       return (
         <Box sx={{ px: 2.5, py: 2, height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Box sx={{ px: 0.5, pb: 1.25 }}>
+            {/* Expanded-mode taxonomy picker.
+                Unlike the collapsed inline panel (which is a single-value <Select>),
+                the expanded view is an MUI Autocomplete in `multiple` mode so
+                testers can stack several taxonomies at once. Each selected
+                taxonomy appears as a removable chip inside the input, and the
+                dropdown shows a checkbox next to every option so the selected
+                state is always obvious. `disableCloseOnSelect` keeps the menu
+                open while multiple items are toggled, and `isOptionEqualToValue`
+                keeps identity correct when the array state swaps references. */}
             <Autocomplete
               multiple
-              options={taxonomyOptions}
+              disableCloseOnSelect
+              options={availableTaxonomies}
               value={expandedSelectedTaxonomies}
               onChange={(_, value) => onExpandedTaxonomiesChange(value)}
-              disableCloseOnSelect
+              isOptionEqualToValue={(option, value) => option === value}
+              getOptionLabel={(option) => option}
               sx={taxonomyAutocompleteStyles}
               renderTags={(value, getTagProps) =>
                 value.map((option, index) => (
@@ -89,7 +105,34 @@ export function ExpandedPanelDialog({
                   />
                 ))
               }
-              renderInput={(params) => <TextField {...params} label="Taxonomies" placeholder="" />}
+              renderOption={(props, option, { selected }) => (
+                <li {...props} key={option}>
+                  <Checkbox
+                    icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                    checkedIcon={<CheckBoxIcon fontSize="small" />}
+                    size="small"
+                    checked={selected}
+                    sx={{
+                      mr: 1,
+                      p: 0.5,
+                      color: 'rgba(0,0,0,0.54)',
+                      '&.Mui-checked': { color: '#ED005E' },
+                    }}
+                  />
+                  <Typography sx={{ fontSize: 13 }}>{option}</Typography>
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Taxonomies"
+                  placeholder={
+                    expandedSelectedTaxonomies.length === 0
+                      ? 'Select one or more taxonomies…'
+                      : ''
+                  }
+                />
+              )}
             />
           </Box>
           <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 1 }}>

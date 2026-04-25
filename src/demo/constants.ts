@@ -98,9 +98,20 @@ export const PRODUCT_PLACEHOLDER_IMAGE = '/assets/elements/product-placeholder.s
 export const PRODUCT_DEDUPE_WINDOW_SECONDS = 180
 
 // How long (ms) to pause auto-scrolling after the user scrolls a panel manually.
-// Lets the user browse the list freely, then the panel eases back to the live
-// playback position once they're idle.
-export const PANEL_MANUAL_SCROLL_PAUSE_MS = 3000
+// Lets the user browse the list freely. The pause is tracked *per panel*, so
+// scrolling the Taxonomy panel does not pause auto-scroll on Products or JSON.
+// After the pause expires the panel snaps to the current live target in a
+// single frame (no animated catch-up) and then resumes normal smooth tracking.
+export const PANEL_MANUAL_SCROLL_PAUSE_MS = 5000
+
+// Velocity cap for programmatic panel auto-scroll, in CSS pixels per second.
+// The RAF loop applies an exponential ease toward its live target, but also
+// clamps the per-frame movement to this rate. Normal drift during playback is
+// well under the cap; the cap only kicks in during big jumps (scrubs, scene
+// skips, re-sync after manual scroll) where we used to dart across the panel
+// in ~250 ms. 500px/s gives a smooth settle (~1s over a full panel height)
+// that still feels responsive.
+export const PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC = 500
 
 // ---------- Media URL overrides -----------------------------------------------------
 // Every video asset reads from an environment variable first so individual machines

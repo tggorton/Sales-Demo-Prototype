@@ -1,4 +1,4 @@
-import type { SceneMetadata, TaxonomyOption, TaxonomySceneData } from './types'
+import type { SceneMetadata, TaxonomyOption, TaxonomySceneData } from '../types'
 
 const iabValues = ['Home & Garden', 'Food & Drink', 'Entertainment', 'Travel', 'Retail', 'Family']
 const locationValues = ['Kitchen', 'Dining Room', 'Retail Floor', 'Living Room', 'Studio Set', 'Outdoor Patio']

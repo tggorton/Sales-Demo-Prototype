@@ -6,14 +6,14 @@ import {
   DHYH_SEGMENT_B_SOURCE_END,
   DHYH_SEGMENT_B_SOURCE_START,
   PRODUCT_PLACEHOLDER_IMAGE,
-} from './constants'
+} from '../constants'
 import type {
   SceneMetadata,
   SceneProduct,
   TaxonomyOption,
   TaxonomySceneData,
   TierOption,
-} from './types'
+} from '../types'
 
 // ---------- Raw JSON shape (trimmed to what we consume) ----------
 
@@ -113,17 +113,17 @@ const resolveTierModule = async (tier: TierOption): Promise<DhyhPayload> => {
   switch (tier) {
     case 'Exact Product Match':
     case 'Categorical Product Match': {
-      const mod = await import('../assets/data/dhyh-tier3.json')
+      const mod = await import('./dhyh/tier3.json')
       return (mod.default ?? mod) as unknown as DhyhPayload
     }
     case 'Advanced Scene': {
-      const mod = await import('../assets/data/dhyh-tier2.json')
+      const mod = await import('./dhyh/tier2.json')
       return (mod.default ?? mod) as unknown as DhyhPayload
     }
     case 'Basic Scene':
     case 'Assets Summary':
     default: {
-      const mod = await import('../assets/data/dhyh-tier1.json')
+      const mod = await import('./dhyh/tier1.json')
       return (mod.default ?? mod) as unknown as DhyhPayload
     }
   }
@@ -504,6 +504,55 @@ const buildScene = (
   }
 }
 
+// Taxonomy options that are *content-wide* by nature – the classification is
+// stable across the whole clip even when the upstream analysis only emits a
+// value on some scenes. For these we bidirectionally fill gaps in
+// `scene.taxonomyData` from the nearest neighbor so the panel never goes blank
+// while valid data exists somewhere else in the clip. This fixes the common
+// case where, e.g., IAB is first emitted at scene 8 but the show is obviously
+// "Home Improvement" from scene 1 – the panel should reflect that continuity.
+//
+// Scenes marked `isEmpty` (production slates, color bars) are skipped – they
+// intentionally show nothing regardless of taxonomy.
+const GAP_FILL_TAXONOMIES: TaxonomyOption[] = [
+  'IAB',
+  'Sentiment',
+  'Brand Safety',
+  'Emotion',
+  'Location',
+  'Faces',
+  'Object',
+]
+
+const fillTaxonomyGaps = (scenes: SceneMetadata[]): void => {
+  for (const tax of GAP_FILL_TAXONOMIES) {
+    // Forward-fill: carry the most recent value forward into any gap.
+    let lastSeen: TaxonomySceneData | null = null
+    for (const scene of scenes) {
+      if (scene.isEmpty || !scene.taxonomyData) continue
+      const current = scene.taxonomyData[tax]
+      if (current) {
+        lastSeen = current
+      } else if (lastSeen) {
+        scene.taxonomyData[tax] = lastSeen
+      }
+    }
+    // Back-fill: for scenes before the first occurrence, copy the nearest
+    // future value backward so the opening doesn't render blank.
+    let nextSeen: TaxonomySceneData | null = null
+    for (let i = scenes.length - 1; i >= 0; i--) {
+      const scene = scenes[i]
+      if (scene.isEmpty || !scene.taxonomyData) continue
+      const current = scene.taxonomyData[tax]
+      if (current) {
+        nextSeen = current
+      } else if (nextSeen) {
+        scene.taxonomyData[tax] = nextSeen
+      }
+    }
+  }
+}
+
 const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle => {
   // Each source scene is either dropped (not inside either segment) or remapped onto
   // the spliced clip timeline. After remapping we sort by clip start so Segment A
@@ -517,6 +566,7 @@ const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle =>
   )
   remapped.sort((a, b) => a.range.start - b.range.start)
   const scenes = remapped.map(({ scene, range }, index) => buildScene(scene, index, tier, range))
+  fillTaxonomyGaps(scenes)
   return {
     tier,
     duration: DHYH_CLIP_DURATION_SECONDS,

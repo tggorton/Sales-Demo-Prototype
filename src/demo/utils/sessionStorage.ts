@@ -1,4 +1,4 @@
-import type { AdPlaybackOption, CurrentView, TierOption } from './types'
+import type { AdPlaybackOption, CurrentView, TierOption } from '../types'
 
 // Versioned key so we can safely evolve the persisted shape later without reading
 // stale data from old browsers.

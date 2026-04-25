@@ -19,13 +19,13 @@ import {
   DEMO_LOGIN_EMAIL,
   DEMO_LOGIN_PASSWORD,
 } from './demo/constants'
-import { CONTENT_ITEMS } from './demo/contentItems'
-import { getJsonDownloadContent } from './demo/jsonExport'
+import { CONTENT_ITEMS } from './demo/data/contentItems'
+import { getJsonDownloadContent } from './demo/utils/jsonExport'
 import {
   clearPersistedSession,
   loadPersistedSession,
   savePersistedSession,
-} from './demo/sessionStorage'
+} from './demo/utils/sessionStorage'
 import { dropdownMagentaStyles } from './demo/styles'
 import type {
   AdPlaybackOption,
@@ -38,7 +38,7 @@ import type {
   TaxonomyOption,
   TierOption,
 } from './demo/types'
-import { useDemoPlayback } from './demo/useDemoPlayback'
+import { useDemoPlayback } from './demo/hooks/useDemoPlayback'
 
 function App() {
   // Read once on mount – never during render – so we restore the last active session
@@ -133,6 +133,36 @@ function App() {
     videoElementDuration,
     isVideoPlaying,
   })
+
+  // Keep the taxonomy selection valid against the currently-available set.
+  //
+  // `availableTaxonomies` is derived per tier/content: a tier that doesn't
+  // emit data for a given taxonomy (e.g. Basic tier has only IAB + Sentiment,
+  // Exact has everything except Faces today) drops that option from the
+  // dropdowns. If the user was already on one of those dropped options when
+  // the tier changes, we auto-switch the collapsed single-selection to the
+  // first available option so the panel never displays an empty state and
+  // the <Select> doesn't show a MUI warning about a value that isn't in the
+  // options list. The expanded multi-selection is filtered the same way; if
+  // filtering empties it, we re-seed it from the (now-valid) single
+  // selection.
+  useEffect(() => {
+    if (demoPlayback.availableTaxonomies.length === 0) return
+    if (!demoPlayback.availableTaxonomies.includes(selectedTaxonomy)) {
+      setSelectedTaxonomy(demoPlayback.availableTaxonomies[0])
+    }
+    setExpandedSelectedTaxonomies((prev) => {
+      const filtered = prev.filter((tax) => demoPlayback.availableTaxonomies.includes(tax))
+      if (filtered.length === prev.length) return prev
+      if (filtered.length === 0) {
+        const fallback = demoPlayback.availableTaxonomies.includes(selectedTaxonomy)
+          ? selectedTaxonomy
+          : demoPlayback.availableTaxonomies[0]
+        return [fallback]
+      }
+      return filtered
+    })
+  }, [demoPlayback.availableTaxonomies, selectedTaxonomy])
 
   useEffect(() => {
     const wasExpanded = previousTitlePanelExpandedRef.current
@@ -280,15 +310,26 @@ function App() {
     wasVideoPlayingBeforeExpandRef.current = isVideoPlaying
     setIsVideoPlaying(false)
     if (panel === 'taxonomy') {
-      setExpandedSelectedTaxonomies((prev) =>
-        prev.length > 0 && prev.includes(selectedTaxonomy) ? prev : [selectedTaxonomy]
-      )
+      // Each expand session starts fresh with just the collapsed-view
+      // selection. We deliberately do NOT preserve the previous expanded
+      // multi-selection across open/close cycles – the collapsed inline
+      // panel is the source of truth for "the taxonomy the user is currently
+      // looking at", and opening the expanded view should always reflect
+      // that single taxonomy as the starting point.
+      setExpandedSelectedTaxonomies([selectedTaxonomy])
     }
     setExpandedPanel(panel)
   }
 
   const closeExpandedPanel = () => {
     setExpandedPanel(null)
+    // Reset the expanded multi-select back to the collapsed single taxonomy
+    // so the inline panel unambiguously "returns to" the pre-expand state
+    // and a future re-open starts from a clean baseline. `selectedTaxonomy`
+    // itself is never touched by the expanded view – only the collapsed
+    // <Select> in DemoView writes to it – so the inline panel displays the
+    // same taxonomy the user had selected before they expanded.
+    setExpandedSelectedTaxonomies([selectedTaxonomy])
     if (wasVideoPlayingBeforeExpandRef.current) {
       setIsVideoPlaying(true)
     }
@@ -383,6 +424,7 @@ function App() {
                   productsUnavailableMessage={demoPlayback.productsUnavailableMessage}
                   hasReachedFirstProduct={demoPlayback.hasReachedFirstProduct}
                   taxonomyAvailability={demoPlayback.taxonomyAvailability}
+                  availableTaxonomies={demoPlayback.availableTaxonomies}
                   activeSceneIndex={demoPlayback.activeSceneIndex}
                   shouldShowInContentCta={demoPlayback.shouldShowInContentCta}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
@@ -406,7 +448,15 @@ function App() {
                   onTaxonomyChange={setSelectedTaxonomy}
                   onToggleVideoPlaying={() => setIsVideoPlaying((prev) => !prev)}
                   onToggleVideoMuted={() => setIsVideoMuted((prev) => !prev)}
-                  onVideoTimeChange={setVideoCurrentSeconds}
+                  onVideoTimeChange={(value) => {
+                    // Every slider interaction – drag tick or click-jump, large
+                    // or small – flags an imperative scrub so the panels
+                    // snap-load to the new position instead of smooth-scrolling.
+                    // The threshold detector in useDemoPlayback is the backup;
+                    // this is the source-of-truth signal for user seeks.
+                    demoPlayback.flagPanelScrub()
+                    setVideoCurrentSeconds(value)
+                  }}
                   onVideoMetadataLoaded={setVideoElementDuration}
                   onToggleDemoPanel={toggleDemoPanel}
                   onCloseDemoPanel={closeDemoPanel}
@@ -442,10 +492,11 @@ function App() {
         expandedPanel={expandedPanel}
         expandedSelectedTaxonomies={expandedSelectedTaxonomies}
         playbackScenes={demoPlayback.playbackScenes}
-        productEntries={demoPlayback.productEntries}
+        productEntries={demoPlayback.allProductEntries}
         productsUnavailableMessage={demoPlayback.productsUnavailableMessage}
         hasReachedFirstProduct={demoPlayback.hasReachedFirstProduct}
         taxonomyAvailability={demoPlayback.taxonomyAvailability}
+        availableTaxonomies={demoPlayback.availableTaxonomies}
         activeSceneIndex={demoPlayback.activeSceneIndex}
         isSyncImpulseMode={demoPlayback.isSyncImpulseMode}
         isAdBreakPlayback={demoPlayback.isAdBreakPlayback}

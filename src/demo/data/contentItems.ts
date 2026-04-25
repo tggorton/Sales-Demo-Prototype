@@ -1,5 +1,5 @@
-import { DHYH_CONTENT_ID, DHYH_VIDEO_URL } from './constants'
-import type { ContentItem } from './types'
+import { DHYH_CONTENT_ID, DHYH_VIDEO_URL } from '../constants'
+import type { ContentItem } from '../types'
 
 // Full library – kept for reference. To restore a hidden title to the content grid,
 // add its id to `ENABLED_CONTENT_IDS` below.

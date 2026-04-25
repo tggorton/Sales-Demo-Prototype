@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { adDecisionPayload, adDecisioningTail } from './adFixtures'
-import impulseAdCompliancePayload from './data/ad-compliance-results-impulse.json'
-import lbarAdCompliancePayload from './data/ad-compliance-results-l-bar.json'
-import syncAdCompliancePayload from './data/ad-compliance-results-sync.json'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { adDecisionPayload, adDecisioningTail } from '../data/adFixtures'
+import impulseAdCompliancePayload from '../data/ad-compliance-results-impulse.json'
+import lbarAdCompliancePayload from '../data/ad-compliance-results-l-bar.json'
+import syncAdCompliancePayload from '../data/ad-compliance-results-sync.json'
 import {
   AD_BREAK_1_IMAGE,
   AD_BREAK_2_IMAGE,
@@ -20,6 +20,7 @@ import {
   DHYH_IMPULSE_AD_VIDEO_URL,
   DHYH_LBAR_AD_VIDEO_URL,
   DHYH_SYNC_AD_VIDEO_URL,
+  PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC,
   PANEL_MANUAL_SCROLL_PAUSE_MS,
   PLACEHOLDER_VIDEO_URL,
   PRODUCT_DEDUPE_WINDOW_SECONDS,
@@ -27,12 +28,12 @@ import {
   SYNC_IMPULSE_SEGMENTS,
   taxonomyOptions,
   TOTAL_DURATION_SECONDS,
-} from './constants'
-import { getTaxonomySceneData } from './taxonomySceneData'
-import { getDhyhScenesForTier, type DhyhSceneBundle } from './dhyhScenes'
-import { buildOriginalJsonString, buildSummaryJsonString } from './jsonExport'
-import { SCENE_METADATA } from './sceneMetadata'
-import { getPlayerControlTokens } from './styles'
+} from '../constants'
+import { getTaxonomySceneData } from '../data/taxonomySceneData'
+import { getDhyhScenesForTier, type DhyhSceneBundle } from '../data/dhyhScenes'
+import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
+import { SCENE_METADATA } from '../data/sceneMetadata'
+import { getPlayerControlTokens } from '../styles'
 import type {
   AdPlaybackOption,
   ContentItem,
@@ -42,7 +43,7 @@ import type {
   SceneMetadata,
   TaxonomyOption,
   TierOption,
-} from './types'
+} from '../types'
 
 type UseDemoPlaybackParams = {
   currentView: CurrentView
@@ -76,10 +77,42 @@ export function useDemoPlayback({
   const productScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const jsonScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const panelScrollRafRef = useRef<number | null>(null)
-  // Epoch timestamp (ms). While Date.now() < this value, the RAF skips writing
-  // scrollTop on the panels, letting the user scroll freely. Updated by DOM
-  // listeners (wheel/touch/pointer) attached to each panel's scroll container.
-  const manualScrollPauseUntilRef = useRef<number>(0)
+  // Manual-scroll state is tracked PER PANEL so interacting with one panel
+  // doesn't freeze the others. `pauseUntil` is an epoch timestamp (ms) – while
+  // Date.now() is below it the RAF leaves that panel's scrollTop alone. Once
+  // the pause expires, `needsSnapOnResume` tells the RAF to jump straight to
+  // the current live target in a single frame (no animated catch-up), after
+  // which normal smooth tracking resumes.
+  //
+  // `lastTarget` is the scroll-position target we computed the *previous* RAF
+  // frame. It powers the global "target-discontinuity" snap rule in
+  // applyScroll: if the target jumps by more than one frame of natural
+  // playback drift could account for, we one-shot snap instead of smooth-
+  // scrolling. That makes smooth scroll apply ONLY to natural playback (the
+  // user's explicit ask) and auto-handles every non-playback cause of target
+  // change – taxonomy switch, tier switch, content swap, ad-break flip, panel
+  // re-open, window resize, slider scrub – without us having to flag each
+  // trigger individually. `-1` is a sentinel meaning "no previous target yet,
+  // snap on the first write" (used on fresh mount or after a state reset).
+  type PanelManualScrollState = {
+    pauseUntil: number
+    needsSnapOnResume: boolean
+    lastTarget: number
+  }
+  const createManualState = (): PanelManualScrollState => ({
+    pauseUntil: 0,
+    needsSnapOnResume: false,
+    lastTarget: -1,
+  })
+  const taxonomyManualScrollRef = useRef<PanelManualScrollState>(createManualState())
+  const productManualScrollRef = useRef<PanelManualScrollState>(createManualState())
+  const jsonManualScrollRef = useRef<PanelManualScrollState>(createManualState())
+  // Previous `panelTimelineSeconds`. Used by the scrub-detection effect below
+  // to spot timeline discontinuities (any scrub – forward or backward – or a
+  // large forward jump that isn't natural playback) and flag all three panels
+  // to "load" to the new position using the same one-frame snap path that
+  // resume-from-manual-scroll uses.
+  const previousPanelTimelineRef = useRef<number | null>(null)
 
   const orderedPanels: DemoPanel[] = ['taxonomy', 'product', 'json']
   const visiblePanels = orderedPanels.filter((panel) => activeDemoPanels.includes(panel))
@@ -320,24 +353,103 @@ export function useDemoPlayback({
   )
 
   const activeSceneIndex = useMemo(() => {
+    if (playbackScenes.length === 0) return -1
+    // Fast path: time lies inside a scene window.
     const foundIndex = playbackScenes.findIndex(
       (scene) => panelTimelineSeconds >= scene.start && panelTimelineSeconds < scene.end
     )
     if (foundIndex >= 0) return foundIndex
-    return Math.max(0, playbackScenes.length - 1)
+    // Before the first scene: no active scene yet (panel stays at top).
+    if (panelTimelineSeconds < playbackScenes[0].start) return -1
+    // In a gap between scenes, or past the end of the clip: pick the last scene
+    // that has already started. The previous fallback (playbackScenes.length - 1)
+    // snapped to the very last scene of the clip any time the timeline landed in
+    // a gap, which is what caused the panels to lurch to the bottom and then
+    // snap back when the next real scene kicked in.
+    for (let i = playbackScenes.length - 1; i >= 0; i--) {
+      if (playbackScenes[i].start <= panelTimelineSeconds) return i
+    }
+    return -1
   }, [playbackScenes, panelTimelineSeconds])
 
   const activeScene = playbackScenes[activeSceneIndex] ?? playbackScenes[0]
 
-  // Time-windowed dedupe: if a product already emitted within the last
-  // PRODUCT_DEDUPE_WINDOW_SECONDS (on the playback timeline), skip subsequent
-  // occurrences. A gap larger than the window lets the product reappear so
-  // recurring on-screen items still show up naturally later in the clip. Set
-  // PRODUCT_DEDUPE_WINDOW_SECONDS to 0 in constants.ts to disable.
-  const productEntries = useMemo<ProductEntry[]>(() => {
+  // Segment-gated product lists.
+  //
+  // DHYH in Sync:Impulse mode plays two stitched content segments (pre-ad and
+  // post-ad) with an ad break between them. The product panel should ONLY
+  // expose products from the segment the viewer is currently in – otherwise
+  // the post-ad items leak into the tail of the pre-ad viewport (and vice
+  // versa), and scrubbing across the ad boundary can leave the panel parked
+  // on the wrong segment's products.
+  //
+  // We build two independent lists (each with its own dedupe state so a
+  // product that appears in both segments gets to show up once per segment)
+  // and pick whichever matches the current clip time below. For content
+  // without an ad break (e.g. non-DHYH, or modes other than Sync:Impulse)
+  // everything lives in `preAdProductEntries` and `postAdProductEntries`
+  // stays empty.
+  //
+  // Time-windowed dedupe: within a segment, if a product already emitted
+  // within the last PRODUCT_DEDUPE_WINDOW_SECONDS (on the playback timeline),
+  // skip subsequent occurrences. A gap larger than the window lets the
+  // product reappear so recurring on-screen items still show up naturally
+  // later in the clip. Set PRODUCT_DEDUPE_WINDOW_SECONDS to 0 in
+  // constants.ts to disable.
+  const { preAdProductEntries, postAdProductEntries } = useMemo<{
+    preAdProductEntries: ProductEntry[]
+    postAdProductEntries: ProductEntry[]
+  }>(() => {
+    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
+    const buildList = (scenes: SceneMetadata[]): ProductEntry[] => {
+      const result: ProductEntry[] = []
+      const lastEmittedAt = new Map<string, number>()
+      for (const scene of scenes) {
+        for (const product of scene.products) {
+          const previous = lastEmittedAt.get(product.productKey)
+          if (
+            windowSeconds > 0 &&
+            previous !== undefined &&
+            scene.start - previous < windowSeconds
+          ) {
+            continue
+          }
+          result.push({
+            ...product,
+            sceneId: scene.id,
+            sceneLabel: scene.sceneLabel,
+            sceneStart: scene.start,
+          })
+          lastEmittedAt.set(product.productKey, scene.start)
+        }
+      }
+      return result
+    }
+
+    const hasAdBreak = isDhyhContent && isSyncImpulseMode
+    if (!hasAdBreak) {
+      return { preAdProductEntries: buildList(playbackScenes), postAdProductEntries: [] }
+    }
+    const boundary = DHYH_AD_BREAK_CLIP_SECONDS
+    const preAdScenes = playbackScenes.filter((scene) => scene.start < boundary)
+    const postAdScenes = playbackScenes.filter((scene) => scene.start >= boundary)
+    return {
+      preAdProductEntries: buildList(preAdScenes),
+      postAdProductEntries: buildList(postAdScenes),
+    }
+  }, [playbackScenes, isDhyhContent, isSyncImpulseMode])
+
+  // Full product list across BOTH segments – used by the expanded panel
+  // dialog, which shows everything regardless of where the viewer is in the
+  // timeline. Dedupe is applied once across the whole clip (same window as
+  // the per-segment lists) so recurring items don't pile up, but no segment
+  // boundary is enforced. The collapsed inline panel uses the segment-gated
+  // `productEntries` below instead so the scroll viewport only ever surfaces
+  // products from the currently-playing segment.
+  const allProductEntries = useMemo<ProductEntry[]>(() => {
+    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
     const result: ProductEntry[] = []
     const lastEmittedAt = new Map<string, number>()
-    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
     for (const scene of playbackScenes) {
       for (const product of scene.products) {
         const previous = lastEmittedAt.get(product.productKey)
@@ -359,6 +471,26 @@ export function useDemoPlayback({
     }
     return result
   }, [playbackScenes])
+
+  // Pick the segment-appropriate list for the current clip time. During the
+  // ad break itself `panelTimelineSeconds` is pinned just below the boundary
+  // (see `dhyhClipSeconds`), so pre-ad products are held in view for the
+  // whole break – the panel resumes motion on Segment B products only after
+  // playback crosses into Segment B. For non-DHYH / non-Sync:Impulse content
+  // there is no boundary and we always return the full list.
+  //
+  // The boundary is derived from `panelTimelineSeconds` but we memoize on the
+  // resolved *boolean* (not the raw time) so `productEntries` only swaps
+  // references when the segment actually flips. Without that, the memo would
+  // churn on every timeupdate tick and invalidate downstream memos that
+  // compare by reference.
+  const isPostAdSegment =
+    isDhyhContent && isSyncImpulseMode && panelTimelineSeconds >= DHYH_AD_BREAK_CLIP_SECONDS
+  const productEntries = useMemo<ProductEntry[]>(() => {
+    const hasAdBreak = isDhyhContent && isSyncImpulseMode
+    if (!hasAdBreak) return preAdProductEntries
+    return isPostAdSegment ? postAdProductEntries : preAdProductEntries
+  }, [preAdProductEntries, postAdProductEntries, isDhyhContent, isSyncImpulseMode, isPostAdSegment])
 
   const productsUnavailableMessage =
     isDhyhContent && dhyhBundle && !dhyhBundle.hasProductData
@@ -390,18 +522,39 @@ export function useDemoPlayback({
     return availability
   }, [isDhyhContent, playbackScenes])
 
+  // Taxonomy options filtered down to only those that actually have data for
+  // the currently-selected tier / content. Drives both the collapsed <Select>
+  // in DemoView and the expanded Autocomplete in ExpandedPanelDialog so users
+  // never see a dropdown entry that would immediately render an empty state.
+  // Preserves the canonical order defined in `taxonomyOptions`.
+  const availableTaxonomies = useMemo<TaxonomyOption[]>(
+    () => taxonomyOptions.filter((option) => taxonomyAvailability[option]),
+    [taxonomyAvailability]
+  )
+
   // Returns -1 when no product has been reached yet on the timeline (e.g. the DHYH color-bar
   // intro). When the current scene itself has no products, we keep the last past scene's
   // products visible so the panel doesn't jump back to the top of the list.
+  //
+  // Important: we match against `playbackScenes[activeSceneIndex]` (guarded by the
+  // activeSceneIndex >= 0 check) rather than the `activeScene ?? playbackScenes[0]`
+  // fallback — using the fallback would make the product panel jump to Scene 1's
+  // products any time the activeSceneIndex fallback kicks in.
   const activeProductIndex = useMemo(() => {
-    if (!activeScene || productEntries.length === 0) return -1
-    const firstMatch = productEntries.findIndex((entry) => entry.sceneId === activeScene.id)
-    if (firstMatch >= 0) return firstMatch
+    if (productEntries.length === 0) return -1
+    if (activeSceneIndex < 0) return -1
+    const currentScene = playbackScenes[activeSceneIndex]
+    if (currentScene) {
+      const firstMatch = productEntries.findIndex(
+        (entry) => entry.sceneId === currentScene.id
+      )
+      if (firstMatch >= 0) return firstMatch
+    }
     for (let i = productEntries.length - 1; i >= 0; i--) {
       if (productEntries[i].sceneStart <= panelTimelineSeconds) return i
     }
     return -1
-  }, [activeScene, productEntries, panelTimelineSeconds])
+  }, [activeSceneIndex, playbackScenes, productEntries, panelTimelineSeconds])
 
   const hasReachedFirstProduct = activeProductIndex >= 0
 
@@ -476,42 +629,179 @@ export function useDemoPlayback({
     if (currentView !== 'demo') return
 
     const TOP_PADDING = 12
-    // Exponential catch-up factor per frame. Tuned so scrubs/jumps ease in without
-    // feeling laggy (roughly 95% of remaining distance closes in ~16 frames at 60fps).
-    const SMOOTH_FACTOR = 0.16
+    // Exponential catch-up factor per frame. Combined with the velocity cap below,
+    // this gives us a smooth ease at 60fps: small deltas close quickly, big deltas
+    // are paced by the cap so nothing darts across the panel.
+    const SMOOTH_FACTOR = 0.14
     // Threshold below which we just write the final value to clean up sub-pixel residue.
     const SNAP_THRESHOLD_PX = 0.25
+    // Per-frame velocity cap derived from the user-facing px/sec setting. Assumes
+    // ~60fps; cheaper and simpler than measuring real frame delta.
+    const MAX_PX_PER_FRAME = PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC / 60
 
-    const applyScroll = (el: HTMLDivElement, target: number) => {
-      // Honor a brief pause when the user has just scrolled manually; the RAF
-      // still runs (so the next ease continues from wherever the user left off)
-      // but we don't fight their scroll input during the pause window.
-      if (Date.now() < manualScrollPauseUntilRef.current) return
+    // Global "target-discontinuity" threshold.
+    //
+    // Natural playback advances `panelTimelineSeconds` in small per-frame
+    // increments, which `resolveSceneTarget` / `resolveProductTarget`
+    // translate into small per-frame deltas in the pixel target (normally
+    // well under MAX_PX_PER_FRAME). Any frame-over-frame target change that
+    // blows past this threshold is NOT playback drift – it's a state jump
+    // (taxonomy switch, tier/content swap, scene reindex, ad-break flip,
+    // panel re-open, window resize, or a slider scrub). We treat every one
+    // of those uniformly by snapping straight to the new target in one frame
+    // instead of smooth-scrolling through the intermediate range.
+    //
+    // The multiplier (8) is generous on purpose: normal playback produces
+    // per-frame deltas of ~2-8px, so 8 * MAX_PX_PER_FRAME (~66px at default
+    // settings) comfortably covers scene-boundary smoothing while still
+    // catching every legitimate discontinuity.
+    const TARGET_JUMP_THRESHOLD_PX = MAX_PX_PER_FRAME * 8
+
+    const applyScroll = (
+      el: HTMLDivElement,
+      target: number,
+      manual: PanelManualScrollState
+    ) => {
+      // During the manual-scroll pause we don't touch scrollTop at all – the
+      // user owns the panel. The RAF keeps running so the next frame after the
+      // pause expires can snap straight to the current live target.
+      if (Date.now() < manual.pauseUntil) {
+        // Keep `lastTarget` tracking the live target even while paused so
+        // the target-jump heuristic doesn't spuriously fire on the very
+        // first frame after the pause expires (by then the target has
+        // typically drifted further than the jump threshold, but that's
+        // playback drift we intentionally slept through – not a state
+        // discontinuity worth snapping for). The explicit
+        // `needsSnapOnResume` path below still handles the resume-from-
+        // manual-scroll case exactly the same way it always did.
+        manual.lastTarget = target
+        return
+      }
+      if (manual.needsSnapOnResume) {
+        // "Load to current" on resume: one-frame jump, no animated catch-up.
+        // This is what the user wants when they finish browsing – the panel
+        // should reappear at the live playback spot instantly, then track
+        // smoothly from there.
+        manual.needsSnapOnResume = false
+        manual.lastTarget = target
+        el.scrollTop = target
+        return
+      }
+      // Global target-discontinuity snap: if the target itself moved further
+      // than one playback frame could plausibly move it, the cause is a
+      // state change, not drift. Snap. This is the single rule that
+      // eliminates "aggressive scroll to current" across the entire app –
+      // every non-playback trigger (taxonomy change, tier swap, scene
+      // reindex, ad-break flip, panel open, scrub, etc.) produces a target
+      // discontinuity and is handled here uniformly, without us having to
+      // enumerate each trigger.
+      const prevTarget = manual.lastTarget
+      manual.lastTarget = target
+      if (prevTarget < 0 || Math.abs(target - prevTarget) > TARGET_JUMP_THRESHOLD_PX) {
+        el.scrollTop = target
+        return
+      }
       const delta = target - el.scrollTop
-      if (Math.abs(delta) < SNAP_THRESHOLD_PX) {
+      const absDelta = Math.abs(delta)
+      if (absDelta < SNAP_THRESHOLD_PX) {
         if (delta !== 0) el.scrollTop = target
         return
       }
-      el.scrollTop += delta * SMOOTH_FACTOR
+      // Exponential ease, then clamp the per-frame step so normal scene-to-
+      // scene advancement glides smoothly. Smooth scroll is now reserved
+      // exclusively for natural playback drift – anything else has already
+      // snapped above.
+      const eased = delta * SMOOTH_FACTOR
+      const step =
+        eased > 0
+          ? Math.min(eased, MAX_PX_PER_FRAME)
+          : Math.max(eased, -MAX_PX_PER_FRAME)
+      el.scrollTop += step
     }
 
-    // Target position interpolated between the PREVIOUS anchor and the CURRENT anchor.
-    // This works even when future scenes aren't rendered yet (the Taxonomy/JSON panels
-    // only reveal scenes up to `activeSceneIndex`, so `refs[activeSceneIndex + 1]` is
-    // always null). As the current scene plays we progressively reveal it by scrolling
-    // from its predecessor's offset toward its own offset.
-    const resolveTarget = (
+    // Walk backward through a refs array to find the most recent populated ref at
+    // or before `upToIdx`. Taxonomy and JSON panels skip scenes that don't emit
+    // data for the current selection (e.g. scenes without `music_emotion`), so the
+    // refs array is sparse. Without this walk-back, interpolation would fall back
+    // to offset 0 (the top of the container), causing the scroll to snap to the
+    // top every time a scene with no data became active – a big source of the
+    // "stall then aggressively catch up" behavior.
+    const walkBackForRef = (
+      refs: Array<HTMLDivElement | null>,
+      upToIdx: number
+    ): HTMLDivElement | null => {
+      for (let i = upToIdx; i >= 0; i--) {
+        const node = refs[i]
+        if (node) return node
+      }
+      return null
+    }
+
+    // Target position for scene-based panels (Taxonomy, JSON). Interpolates from
+    // the nearest rendered scene BEFORE the active one to the active scene's own
+    // card, using the active scene's duration as the time window. If the active
+    // scene has no rendered ref (no data for the current selection) we stay
+    // parked on the previous rendered ref until the timeline reaches a new one.
+    const resolveSceneTarget = (
       container: HTMLDivElement | null,
-      prevNode: HTMLDivElement | null | undefined,
-      currentNode: HTMLDivElement | null | undefined,
-      progress: number
+      refs: Array<HTMLDivElement | null>,
+      scenes: SceneMetadata[],
+      activeIdx: number,
+      time: number
     ): number | null => {
-      if (!container || !currentNode) return null
-      const startOffset = prevNode ? prevNode.offsetTop : 0
-      const endOffset = currentNode.offsetTop
-      const clamped = Math.min(1, Math.max(0, progress))
-      const interpolated = startOffset + (endOffset - startOffset) * clamped
+      if (!container || scenes.length === 0 || activeIdx < 0) return null
       const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+
+      const currentRef = refs[activeIdx] ?? null
+      // If the current scene has no rendered ref, hold on the most recent one we
+      // have (or the top, if none). This prevents the panel from resetting to 0.
+      if (!currentRef) {
+        const fallback = walkBackForRef(refs, activeIdx - 1)
+        if (!fallback) return 0
+        return Math.max(0, Math.min(maxScroll, fallback.offsetTop - TOP_PADDING))
+      }
+
+      const prevRef = walkBackForRef(refs, activeIdx - 1)
+      const activeScene = scenes[activeIdx]
+      const sceneDuration = Math.max(0.001, activeScene.end - activeScene.start)
+      const progress = Math.min(
+        1,
+        Math.max(0, (time - activeScene.start) / sceneDuration)
+      )
+      const startOffset = prevRef ? prevRef.offsetTop : 0
+      const endOffset = currentRef.offsetTop
+      const interpolated = startOffset + (endOffset - startOffset) * progress
+      return Math.max(0, Math.min(maxScroll, interpolated - TOP_PADDING))
+    }
+
+    // Products are always all rendered (no null gaps), so we can use a tighter
+    // interpolation driven by the adjacent products' sceneStart times.
+    const resolveProductTarget = (
+      container: HTMLDivElement | null,
+      products: ProductEntry[],
+      activeIdx: number,
+      time: number,
+      fallbackSceneProgress: number
+    ): number | null => {
+      if (!container || products.length === 0 || activeIdx < 0) return null
+      const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+      const currentRef = productRefs.current[activeIdx]
+      if (!currentRef) return null
+      const prevIdx = activeIdx - 1
+      const prevRef = prevIdx >= 0 ? productRefs.current[prevIdx] : null
+      const currentProduct = products[activeIdx]
+      const prevProduct = prevIdx >= 0 ? products[prevIdx] : null
+
+      let progress = fallbackSceneProgress
+      if (prevProduct && currentProduct.sceneStart > prevProduct.sceneStart) {
+        progress =
+          (time - prevProduct.sceneStart) /
+          (currentProduct.sceneStart - prevProduct.sceneStart)
+      }
+      progress = Math.min(1, Math.max(0, progress))
+      const startOffset = prevRef ? prevRef.offsetTop : 0
+      const endOffset = currentRef.offsetTop
+      const interpolated = startOffset + (endOffset - startOffset) * progress
       return Math.max(0, Math.min(maxScroll, interpolated - TOP_PADDING))
     }
 
@@ -549,18 +839,16 @@ export function useDemoPlayback({
         ? Math.min(1, Math.max(0, (liveTimeline - scene.start) / sceneDuration))
         : 0
 
-      const prevSceneIdx = ctx.activeSceneIndex - 1
-
       if (ctx.visible.taxonomy && taxonomyScrollContainerRef.current) {
-        const prevNode = prevSceneIdx >= 0 ? taxonomyRefs.current[prevSceneIdx] : null
-        const currentNode = taxonomyRefs.current[ctx.activeSceneIndex]
-        const target = resolveTarget(
+        const target = resolveSceneTarget(
           taxonomyScrollContainerRef.current,
-          prevNode,
-          currentNode,
-          sceneProgress
+          taxonomyRefs.current,
+          ctx.scenes,
+          ctx.activeSceneIndex,
+          liveTimeline
         )
-        if (target !== null) applyScroll(taxonomyScrollContainerRef.current, target)
+        if (target !== null)
+          applyScroll(taxonomyScrollContainerRef.current, target, taxonomyManualScrollRef.current)
       }
 
       if (ctx.visible.json && jsonScrollContainerRef.current) {
@@ -568,49 +856,35 @@ export function useDemoPlayback({
           // Ad-decisioning JSON is a single block that reveals linearly as the ad plays.
           const container = jsonScrollContainerRef.current
           const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
-          applyScroll(container, maxScroll * ctx.adProgress)
+          applyScroll(container, maxScroll * ctx.adProgress, jsonManualScrollRef.current)
         } else {
-          const prevNode = prevSceneIdx >= 0 ? jsonRefs.current[prevSceneIdx] : null
-          const currentNode = jsonRefs.current[ctx.activeSceneIndex]
-          const target = resolveTarget(
+          const target = resolveSceneTarget(
             jsonScrollContainerRef.current,
-            prevNode,
-            currentNode,
-            sceneProgress
+            jsonRefs.current,
+            ctx.scenes,
+            ctx.activeSceneIndex,
+            liveTimeline
           )
-          if (target !== null) applyScroll(jsonScrollContainerRef.current, target)
+          if (target !== null)
+            applyScroll(jsonScrollContainerRef.current, target, jsonManualScrollRef.current)
         }
       }
 
-      // Products are always all rendered, so we can interpolate from the PREVIOUS
-      // product's card to the CURRENT one using the gap between their scene starts.
-      // When the product hasn't changed for a while (e.g. one scene has multiple) we
-      // fall back to scene progress so the panel still drifts smoothly.
       if (ctx.visible.product && productScrollContainerRef.current) {
         if (ctx.inAdBreak) {
           // Hold position during the ad break – product data is tied to content scenes.
         } else if (!ctx.hasReachedFirstProduct) {
-          applyScroll(productScrollContainerRef.current, 0)
+          applyScroll(productScrollContainerRef.current, 0, productManualScrollRef.current)
         } else {
-          const currentProduct = ctx.products[ctx.activeProductIndex]
-          const prevProductIdx = ctx.activeProductIndex - 1
-          const prevProduct = prevProductIdx >= 0 ? ctx.products[prevProductIdx] : null
-          const currentNode = productRefs.current[ctx.activeProductIndex]
-          const prevNode = prevProductIdx >= 0 ? productRefs.current[prevProductIdx] : null
-
-          let productProgress = sceneProgress
-          if (prevProduct && currentProduct && currentProduct.sceneStart > prevProduct.sceneStart) {
-            productProgress =
-              (liveTimeline - prevProduct.sceneStart) /
-              (currentProduct.sceneStart - prevProduct.sceneStart)
-          }
-          const target = resolveTarget(
+          const target = resolveProductTarget(
             productScrollContainerRef.current,
-            prevNode,
-            currentNode,
-            productProgress
+            ctx.products,
+            ctx.activeProductIndex,
+            liveTimeline,
+            sceneProgress
           )
-          if (target !== null) applyScroll(productScrollContainerRef.current, target)
+          if (target !== null)
+            applyScroll(productScrollContainerRef.current, target, productManualScrollRef.current)
         }
       }
 
@@ -619,42 +893,155 @@ export function useDemoPlayback({
 
     panelScrollRafRef.current = window.requestAnimationFrame(animate)
 
-    // Manual-scroll override: if the user scrolls any panel, pause auto-scroll
-    // for PANEL_MANUAL_SCROLL_PAUSE_MS so they can browse. After the pause the
-    // RAF smoothly eases the panel back to the live playback position.
-    const markInteraction = () => {
-      manualScrollPauseUntilRef.current = Date.now() + PANEL_MANUAL_SCROLL_PAUSE_MS
-    }
+    // Manual-scroll override is per-panel: touching the Taxonomy panel pauses
+    // auto-scroll on Taxonomy only. The Product and JSON panels keep tracking
+    // the live playback position. Once a panel's pause expires, the next RAF
+    // frame jumps that panel straight to the current live target (see the
+    // `needsSnapOnResume` branch in applyScroll) – no animated catch-up.
+    //
+    // We only listen for input events that actually scroll the list – `wheel`,
+    // `touchstart`, `touchmove`. `pointerdown` was intentionally removed; it
+    // fires on every click and would pause auto-scroll any time the user so
+    // much as tapped inside a panel. `keydown` is kept for accessibility
+    // (arrow keys / page down can scroll a focused panel).
     const interactionEvents: Array<keyof HTMLElementEventMap> = [
       'wheel',
       'touchstart',
       'touchmove',
-      'pointerdown',
       'keydown',
     ]
-    const panelContainers = [
-      taxonomyScrollContainerRef.current,
-      productScrollContainerRef.current,
-      jsonScrollContainerRef.current,
-    ].filter((el): el is HTMLDivElement => el !== null)
-    for (const el of panelContainers) {
+    const markPanelInteraction = (manual: PanelManualScrollState) => () => {
+      manual.pauseUntil = Date.now() + PANEL_MANUAL_SCROLL_PAUSE_MS
+      manual.needsSnapOnResume = true
+    }
+    const panelBindings: Array<{
+      el: HTMLDivElement
+      handler: () => void
+    }> = []
+    const registerPanel = (
+      el: HTMLDivElement | null,
+      manual: PanelManualScrollState
+    ) => {
+      if (!el) return
+      const handler = markPanelInteraction(manual)
+      panelBindings.push({ el, handler })
       for (const evt of interactionEvents) {
-        el.addEventListener(evt, markInteraction, { passive: true })
+        el.addEventListener(evt, handler, { passive: true })
       }
     }
+    registerPanel(taxonomyScrollContainerRef.current, taxonomyManualScrollRef.current)
+    registerPanel(productScrollContainerRef.current, productManualScrollRef.current)
+    registerPanel(jsonScrollContainerRef.current, jsonManualScrollRef.current)
 
     return () => {
       if (panelScrollRafRef.current !== null) {
         window.cancelAnimationFrame(panelScrollRafRef.current)
         panelScrollRafRef.current = null
       }
-      for (const el of panelContainers) {
+      for (const { el, handler } of panelBindings) {
         for (const evt of interactionEvents) {
-          el.removeEventListener(evt, markInteraction)
+          el.removeEventListener(evt, handler)
         }
       }
     }
   }, [currentView, visiblePanels.join(',')])
+
+  // Scrub detection.
+  //
+  // Fires whenever `panelTimelineSeconds` changes. Normal playback advances this
+  // value in small increments (~0.017s/frame from the native <video> timeupdate
+  // loop, or 0.1s/tick from the synthetic ad-break timer). Anything bigger than
+  // that – a forward jump > 0.4s or any backward movement at all > 0.05s – is a
+  // seek/scrub and every panel should "load" to the new spot on the next frame
+  // rather than animating through everything in between.
+  //
+  // Running this in a useEffect (instead of inside the RAF) means detection
+  // fires exactly once per timeline change, AFTER React has committed the new
+  // `activeSceneIndex` / `activeProductIndex`, so the RAF that applies the snap
+  // is guaranteed to read up-to-date indices. Previously this lived in the RAF
+  // and compared frame-to-frame `liveTimeline` values, which could fire before
+  // the ctx update useEffect had propagated the new product index – producing
+  // the "scrub back on Products doesn't land on the right spot" glitch.
+  useEffect(() => {
+    if (currentView !== 'demo') {
+      previousPanelTimelineRef.current = null
+      // Reset each panel's last-known target so the first RAF frame after a
+      // re-entry into the demo view always takes the snap path in
+      // applyScroll, regardless of whatever stale target was cached from a
+      // previous session. Without this, a user who signs out / re-enters /
+      // switches content could momentarily see smooth-scroll between two
+      // unrelated target positions on the very first frame.
+      for (const manual of [
+        taxonomyManualScrollRef.current,
+        productManualScrollRef.current,
+        jsonManualScrollRef.current,
+      ]) {
+        manual.lastTarget = -1
+      }
+      return
+    }
+    const prev = previousPanelTimelineRef.current
+    previousPanelTimelineRef.current = panelTimelineSeconds
+    if (prev === null) return
+    const delta = panelTimelineSeconds - prev
+    const SCRUB_FORWARD_THRESHOLD = 0.4
+    const SCRUB_BACKWARD_THRESHOLD = 0.05
+    if (delta > SCRUB_FORWARD_THRESHOLD || delta < -SCRUB_BACKWARD_THRESHOLD) {
+      for (const manual of [
+        taxonomyManualScrollRef.current,
+        productManualScrollRef.current,
+        jsonManualScrollRef.current,
+      ]) {
+        // Clear any in-progress manual-scroll pause so the scrub always wins –
+        // the user has explicitly asked the video to jump, so panels follow
+        // immediately regardless of prior state.
+        manual.pauseUntil = 0
+        manual.needsSnapOnResume = true
+      }
+    }
+  }, [panelTimelineSeconds, currentView])
+
+  // Imperative "the user is scrubbing" signal.
+  //
+  // The threshold-based scrub detection above only fires when the timeline
+  // delta exceeds ~0.4s forward / 0.05s backward. That works for big seeks
+  // (click-and-jump on the scrubber), but a slow drag produces many small
+  // state updates that individually fall below the threshold – the panels
+  // then fall back to velocity-capped smooth scroll, which is exactly the
+  // "scroll aggressively to the new spot" feel we removed everywhere else.
+  //
+  // Exposing this imperative flagger lets the slider's onChange handler
+  // mark every user-initiated seek as a scrub unconditionally, regardless
+  // of magnitude, so the next RAF frame hard-snaps all three panels to
+  // their current-live targets. Smooth scroll is then reserved for what it
+  // was always meant for: natural playback drift.
+  const flagPanelScrub = useCallback(() => {
+    for (const manual of [
+      taxonomyManualScrollRef.current,
+      productManualScrollRef.current,
+      jsonManualScrollRef.current,
+    ]) {
+      manual.pauseUntil = 0
+      manual.needsSnapOnResume = true
+    }
+  }, [])
+
+  // Segment-flip snap for the product panel.
+  //
+  // The scrub-detection effect above catches user-initiated jumps, but it
+  // doesn't fire when playback naturally rolls from the ad break into
+  // Segment B (the pre-ad pinned time AD_BREAK-0.001 → post-ad time AD_BREAK
+  // is only a 0.001s delta, below the threshold). We still need the product
+  // panel to hard-snap to the new segment's target – otherwise it would
+  // smooth-scroll from the old Segment A scroll position to the Segment B
+  // target, which looks wrong because the list has fully swapped out
+  // underneath it. This effect fires whenever `isPostAdSegment` flips (in
+  // either direction) and flags the product panel for a one-frame snap.
+  useEffect(() => {
+    if (currentView !== 'demo') return
+    productManualScrollRef.current.pauseUntil = 0
+    productManualScrollRef.current.needsSnapOnResume = true
+  }, [isPostAdSegment, currentView])
 
   // Synthetic timeline advance – used when not riding the native element time. For DHYH
   // this fires during the ad break (scrubber 212..242) so the ad segment progresses in
@@ -880,6 +1267,7 @@ export function useDemoPlayback({
     activeSceneIndex,
     activeScene,
     productEntries,
+    allProductEntries,
     activeProductIndex,
     originalJsonDownloadString,
     summaryJsonDownloadString,
@@ -888,6 +1276,8 @@ export function useDemoPlayback({
     productsUnavailableMessage,
     hasReachedFirstProduct,
     taxonomyAvailability,
+    availableTaxonomies,
+    flagPanelScrub,
     displayedCurrentSeconds,
     displayedDurationSeconds,
     impulseSegments: isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,

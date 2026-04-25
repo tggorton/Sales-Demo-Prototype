@@ -1,5 +1,5 @@
-import { TOTAL_DURATION_SECONDS } from './constants'
-import type { SceneMetadata } from './types'
+import { TOTAL_DURATION_SECONDS } from '../constants'
+import type { SceneMetadata } from '../types'
 
 export const SCENE_METADATA: SceneMetadata[] = [
   {
