@@ -28,6 +28,13 @@ type DhyhProductMatch = {
   image_url?: string
   link?: string
   confidence?: number
+  // Optional override for the time-windowed product dedupe key. By default
+  // identical product_ids collapse if they appear inside
+  // PRODUCT_DEDUPE_WINDOW_SECONDS – set this to a unique string when you
+  // want a specific occurrence to render as its own card even though it
+  // resolves to the same SKU as another nearby match (e.g. the same Saw
+  // appearing in scene 3 and scene 26 of the spliced DHYH clip).
+  dedupe_key?: string
 }
 
 // Product images shipped alongside the app live under `public/assets/products/`
@@ -178,13 +185,18 @@ const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct
   const seen = new Set<string>()
   for (const obj of scene.objects ?? []) {
     for (const match of obj.product_match ?? []) {
-      const id = String(match.product_id ?? match.loc_id ?? `${obj.name}-${match.name}`)
-      if (seen.has(id)) continue
-      seen.add(id)
+      const baseId = String(match.product_id ?? match.loc_id ?? `${obj.name}-${match.name}`)
+      // `dedupe_key` (when present in the JSON) overrides the SKU-based key for
+      // the downstream time-windowed dedupe ONLY. The intra-scene `seen` set
+      // still uses the real SKU so a single scene that lists the same product
+      // twice still collapses to one card.
+      if (seen.has(baseId)) continue
+      seen.add(baseId)
+      const productKey = match.dedupe_key && match.dedupe_key.length > 0 ? match.dedupe_key : baseId
       const description = [match.price, obj.name].filter(Boolean).join(' · ') || obj.name
       products.push({
-        id: `dhyh-${scene.scene}-${id}`,
-        productKey: id,
+        id: `dhyh-${scene.scene}-${baseId}`,
+        productKey,
         name: match.name || obj.name,
         description,
         image: resolveProductImage(match),
@@ -194,6 +206,12 @@ const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct
   return products
 }
 
+// Build the taxonomy display data straight from the upstream JSON for a single
+// scene. Important policy: every section we emit must be backed by a real field
+// in the JSON. We intentionally do *not* synthesize "Reasoning" copy from
+// `description`/`audio_transcript` (they belong to a different signal) and we
+// do not emit boilerplate "Considered" copy. If a row would have nothing to
+// show, we omit it instead of inventing one.
 const buildTaxonomyData = (
   scene: DhyhScene
 ): Partial<Record<TaxonomyOption, TaxonomySceneData>> => {
@@ -201,29 +219,25 @@ const buildTaxonomyData = (
 
   const iab = scene.iab_taxonomy?.[0]
   if (iab) {
-    const considered =
-      (scene.iab_taxonomy ?? [])
-        .slice(0, 4)
-        .map((item) => item.name)
-        .join(', ') || iab.name
+    const considered = (scene.iab_taxonomy ?? [])
+      .slice(0, 4)
+      .map((item) => item.name)
+      .filter(Boolean)
+      .join(', ')
+    const sections: TaxonomySceneData['sections'] = [
+      { label: 'Primary Category:', value: iab.name },
+    ]
+    if (considered && considered !== iab.name) {
+      sections.push({ label: 'Considered:', value: considered })
+    }
+    sections.push({
+      label: 'Confidence:',
+      value: formatConfidence(iab.confidence, 0.85),
+    })
     data.IAB = {
       headline: iab.name,
       chip: formatConfidence(iab.confidence, 0.85),
-      sections: [
-        { label: 'Primary Category:', value: iab.name },
-        { label: 'Considered:', value: considered },
-        {
-          label: 'Reasoning:',
-          value:
-            scene.description ||
-            scene.audio_transcript ||
-            `Scene cues align most closely with the ${iab.name} bucket.`,
-        },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(iab.confidence, 0.85),
-        },
-      ],
+      sections,
     }
   }
 
@@ -237,18 +251,6 @@ const buildTaxonomyData = (
       sections: [
         { label: 'Sentiment:', value: sentimentRaw.name },
         {
-          label: 'Considered:',
-          value:
-            scene.description?.slice(0, 160) ||
-            scene.audio_transcript?.slice(0, 160) ||
-            'Scene tone, pacing, and visual cues.',
-        },
-        {
-          label: 'Reasoning:',
-          value:
-            'Audio/visual signals align with this sentiment classification for the scene window.',
-        },
-        {
           label: 'Confidence:',
           value: formatConfidence(sentimentRaw.confidence, 0.88),
         },
@@ -258,22 +260,20 @@ const buildTaxonomyData = (
 
   const garm = scene.garm_category?.[0]
   if (garm) {
+    const sections: TaxonomySceneData['sections'] = [
+      { label: 'GARM Category:', value: garm.name },
+    ]
+    if (garm.risk_level) {
+      sections.push({ label: 'Risk Level:', value: garm.risk_level })
+    }
+    sections.push({
+      label: 'Confidence:',
+      value: formatConfidence(garm.confidence, 0.9),
+    })
     data['Brand Safety'] = {
       headline: riskLevelToLabel(garm.risk_level),
       chip: formatConfidence(garm.confidence, 0.9),
-      sections: [
-        { label: 'GARM Category:', value: garm.name },
-        { label: 'Risk Level:', value: garm.risk_level ?? 'Low' },
-        {
-          label: 'Reasoning:',
-          value:
-            'GARM signals were evaluated against scene content; the listed level reflects the strongest match.',
-        },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(garm.confidence, 0.9),
-        },
-      ],
+      sections,
     }
   }
 
@@ -285,16 +285,6 @@ const buildTaxonomyData = (
       sections: [
         { label: 'Music Emotion:', value: music.name },
         {
-          label: 'Considered:',
-          value: 'Instrumentation, tempo, harmonic color, vocal tone.',
-        },
-        {
-          label: 'Reasoning:',
-          value:
-            scene.description?.slice(0, 200) ||
-            'Music features of the scene map most strongly to this emotional label.',
-        },
-        {
           label: 'Confidence:',
           value: formatConfidence(music.confidence, 0.82),
         },
@@ -304,61 +294,50 @@ const buildTaxonomyData = (
 
   const location = scene.locations?.[0]
   if (location?.name) {
+    const considered = (scene.locations ?? [])
+      .slice(0, 4)
+      .map((loc) => loc.name)
+      .filter(Boolean)
+      .join(', ')
+    const sections: TaxonomySceneData['sections'] = [
+      { label: 'Detected Location:', value: location.name },
+    ]
+    if (considered && considered !== location.name) {
+      sections.push({ label: 'Considered:', value: considered })
+    }
+    sections.push({
+      label: 'Confidence:',
+      value: formatConfidence(location.confidence, 0.84),
+    })
     data.Location = {
       headline: location.name,
       chip: formatConfidence(location.confidence, 0.84),
-      sections: [
-        { label: 'Detected Location:', value: location.name },
-        {
-          label: 'Considered:',
-          value:
-            (scene.locations ?? [])
-              .slice(0, 4)
-              .map((loc) => loc.name)
-              .join(', ') || location.name,
-        },
-        {
-          label: 'Reasoning:',
-          value:
-            scene.description?.slice(0, 200) ||
-            'Foreground composition and scene elements support this location classification.',
-        },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(location.confidence, 0.84),
-        },
-      ],
+      sections,
     }
   }
 
   const faceCount = scene.faces?.length ?? 0
   if (faceCount > 0) {
     const sample = scene.faces?.[0]
+    const details = (scene.faces ?? [])
+      .slice(0, 3)
+      .map((face) => [face.name, face.gender, face.age_group].filter(Boolean).join(' · '))
+      .filter(Boolean)
+      .join('; ')
+    const sections: TaxonomySceneData['sections'] = [
+      { label: 'Face Count:', value: String(faceCount) },
+    ]
+    if (details) {
+      sections.push({ label: 'Details:', value: details })
+    }
+    sections.push({
+      label: 'Confidence:',
+      value: formatConfidence(sample?.confidence, 0.8),
+    })
     data.Faces = {
       headline: `${faceCount} face${faceCount === 1 ? '' : 's'} detected`,
       chip: formatConfidence(sample?.confidence, 0.8),
-      sections: [
-        { label: 'Face Count:', value: String(faceCount) },
-        {
-          label: 'Details:',
-          value:
-            (scene.faces ?? [])
-              .slice(0, 3)
-              .map((face) =>
-                [face.name, face.gender, face.age_group].filter(Boolean).join(' · ')
-              )
-              .filter(Boolean)
-              .join('; ') || 'Face metadata available.',
-        },
-        {
-          label: 'Reasoning:',
-          value: 'Detected faces and shot composition indicate the listed subject count.',
-        },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(sample?.confidence, 0.8),
-        },
-      ],
+      sections,
     }
   }
 
@@ -375,14 +354,6 @@ const buildTaxonomyData = (
       chip: formatConfidence(top?.confidence, 0.8),
       sections: [
         { label: 'Objects:', value: names },
-        {
-          label: 'Considered:',
-          value: 'Furniture, tools, product, decor, utility items.',
-        },
-        {
-          label: 'Reasoning:',
-          value: 'The object group reflects the most persistent physical items visible in the scene.',
-        },
         {
           label: 'Confidence:',
           value: formatConfidence(top?.confidence, 0.8),

@@ -122,6 +122,28 @@ export const dropdownMagentaStyles = {
   },
 }
 
+// Shared "Scene N · 0:00" anchor used as the scene divider in both the
+// Taxonomy and Products panels (collapsed and expanded views). One source of
+// truth so the panels visually rhyme – both show the same anchor at the same
+// size, color, and opacity. Sized halfway between body text (12pt) and the
+// previous oversized 28pt anchor; weight 500 keeps it readable at the smaller
+// size without making it dominant over the section labels (12pt / 700) below.
+//
+// `mb` is intentionally generous (8px). The anchor lives directly above
+// content of very different visual weight in each panel – soft body text in
+// Taxonomy, a hard-edged 54px product image in Products – so a tight gap
+// reads cramped on the Products side. 8px gives both panels a comfortable
+// breathing room while keeping them consistent (since both consume this same
+// token).
+export const sceneAnchorStyles = {
+  fontSize: 14,
+  fontWeight: 500,
+  color: '#A1A1A1',
+  lineHeight: 1.2,
+  opacity: 0.95,
+  mb: 1,
+}
+
 export const taxonomyAutocompleteStyles = {
   ...dropdownMagentaStyles,
   '& .MuiAutocomplete-inputRoot': {

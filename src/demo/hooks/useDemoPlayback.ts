@@ -16,6 +16,7 @@ import {
   DHYH_CLIP_DURATION_SECONDS,
   DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
   DHYH_CONTENT_ID,
+  HIDDEN_TAXONOMIES_BY_CONTENT,
   DHYH_IMPULSE_AD_COMPANION_URL,
   DHYH_IMPULSE_AD_VIDEO_URL,
   DHYH_LBAR_AD_VIDEO_URL,
@@ -500,6 +501,12 @@ export function useDemoPlayback({
   // Which taxonomies have zero data across all scenes of the current content? Used to
   // render a "No … information currently" empty state for real-content (DHYH) tiers
   // that don't emit certain fields (e.g. music_emotion on Exact Product Match).
+  //
+  // We also honor the per-content hide list (`HIDDEN_TAXONOMIES_BY_CONTENT`)
+  // so individual pieces of content can opt out of taxonomies that exist in
+  // the JSON but aren't curated yet. A hidden taxonomy is treated as
+  // unavailable, which removes it from the dropdown and triggers the same
+  // auto-correct path that fires when a tier genuinely lacks data.
   const taxonomyAvailability = useMemo(() => {
     const availability: Record<TaxonomyOption, boolean> = {
       IAB: false,
@@ -510,7 +517,14 @@ export function useDemoPlayback({
       Emotion: false,
       Object: false,
     }
+    const hidden = selectedContent
+      ? HIDDEN_TAXONOMIES_BY_CONTENT[selectedContent.id] ?? []
+      : []
     for (const option of taxonomyOptions) {
+      if (hidden.includes(option)) {
+        availability[option] = false
+        continue
+      }
       if (!isDhyhContent) {
         availability[option] = true
         continue
@@ -520,7 +534,7 @@ export function useDemoPlayback({
       )
     }
     return availability
-  }, [isDhyhContent, playbackScenes])
+  }, [isDhyhContent, playbackScenes, selectedContent])
 
   // Taxonomy options filtered down to only those that actually have data for
   // the currently-selected tier / content. Drives both the collapsed <Select>
@@ -657,9 +671,29 @@ export function useDemoPlayback({
     // catching every legitimate discontinuity.
     const TARGET_JUMP_THRESHOLD_PX = MAX_PX_PER_FRAME * 8
 
+    // Scroll target = the pixel position the panel "wants" to be at this
+    // frame. We carry two values so the smooth-vs-snap heuristic doesn't get
+    // confused by `maxScroll` clamping:
+    //   * `unclamped` is the raw interpolated offset (how far down the active
+    //     scene actually sits from the top of the rendered list). This is
+    //     what we compare frame-over-frame to detect real state jumps.
+    //   * `clamped` is `unclamped` clamped to [0, scrollHeight - clientHeight]
+    //     and is what we actually write to `scrollTop`.
+    // After a backward scrub (e.g. clip 2 → clip 1) only a small subset of
+    // scenes is mounted, so the panel is short and `maxScroll` is small.
+    // Each new scene that mounts on autoplay grows `scrollHeight`, which
+    // suddenly relaxes the clamp – the *clamped* target jumps in big steps
+    // even though the *unclamped* one is moving smoothly. Using the clamped
+    // value for jump detection misclassified that as a state discontinuity
+    // and snapped on every new scene mount, which read as "auto-scroll
+    // doesn't work". Tracking the unclamped value fixes that without
+    // changing snap behavior for true state changes (taxonomy swap, content
+    // swap, scrub, etc.) – their unclamped deltas are still huge.
+    type ScrollTargetValue = { clamped: number; unclamped: number }
+
     const applyScroll = (
       el: HTMLDivElement,
-      target: number,
+      target: ScrollTargetValue,
       manual: PanelManualScrollState
     ) => {
       // During the manual-scroll pause we don't touch scrollTop at all – the
@@ -674,7 +708,7 @@ export function useDemoPlayback({
         // discontinuity worth snapping for). The explicit
         // `needsSnapOnResume` path below still handles the resume-from-
         // manual-scroll case exactly the same way it always did.
-        manual.lastTarget = target
+        manual.lastTarget = target.unclamped
         return
       }
       if (manual.needsSnapOnResume) {
@@ -683,8 +717,8 @@ export function useDemoPlayback({
         // should reappear at the live playback spot instantly, then track
         // smoothly from there.
         manual.needsSnapOnResume = false
-        manual.lastTarget = target
-        el.scrollTop = target
+        manual.lastTarget = target.unclamped
+        el.scrollTop = target.clamped
         return
       }
       // Global target-discontinuity snap: if the target itself moved further
@@ -696,15 +730,18 @@ export function useDemoPlayback({
       // discontinuity and is handled here uniformly, without us having to
       // enumerate each trigger.
       const prevTarget = manual.lastTarget
-      manual.lastTarget = target
-      if (prevTarget < 0 || Math.abs(target - prevTarget) > TARGET_JUMP_THRESHOLD_PX) {
-        el.scrollTop = target
+      manual.lastTarget = target.unclamped
+      if (
+        prevTarget < 0 ||
+        Math.abs(target.unclamped - prevTarget) > TARGET_JUMP_THRESHOLD_PX
+      ) {
+        el.scrollTop = target.clamped
         return
       }
-      const delta = target - el.scrollTop
+      const delta = target.clamped - el.scrollTop
       const absDelta = Math.abs(delta)
       if (absDelta < SNAP_THRESHOLD_PX) {
-        if (delta !== 0) el.scrollTop = target
+        if (delta !== 0) el.scrollTop = target.clamped
         return
       }
       // Exponential ease, then clamp the per-frame step so normal scene-to-
@@ -742,13 +779,18 @@ export function useDemoPlayback({
     // card, using the active scene's duration as the time window. If the active
     // scene has no rendered ref (no data for the current selection) we stay
     // parked on the previous rendered ref until the timeline reaches a new one.
+    const buildTarget = (raw: number, maxScroll: number): ScrollTargetValue => {
+      const safe = Math.max(0, raw)
+      return { clamped: Math.min(maxScroll, safe), unclamped: safe }
+    }
+
     const resolveSceneTarget = (
       container: HTMLDivElement | null,
       refs: Array<HTMLDivElement | null>,
       scenes: SceneMetadata[],
       activeIdx: number,
       time: number
-    ): number | null => {
+    ): ScrollTargetValue | null => {
       if (!container || scenes.length === 0 || activeIdx < 0) return null
       const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
 
@@ -757,8 +799,8 @@ export function useDemoPlayback({
       // have (or the top, if none). This prevents the panel from resetting to 0.
       if (!currentRef) {
         const fallback = walkBackForRef(refs, activeIdx - 1)
-        if (!fallback) return 0
-        return Math.max(0, Math.min(maxScroll, fallback.offsetTop - TOP_PADDING))
+        if (!fallback) return { clamped: 0, unclamped: 0 }
+        return buildTarget(fallback.offsetTop - TOP_PADDING, maxScroll)
       }
 
       const prevRef = walkBackForRef(refs, activeIdx - 1)
@@ -771,7 +813,7 @@ export function useDemoPlayback({
       const startOffset = prevRef ? prevRef.offsetTop : 0
       const endOffset = currentRef.offsetTop
       const interpolated = startOffset + (endOffset - startOffset) * progress
-      return Math.max(0, Math.min(maxScroll, interpolated - TOP_PADDING))
+      return buildTarget(interpolated - TOP_PADDING, maxScroll)
     }
 
     // Products are always all rendered (no null gaps), so we can use a tighter
@@ -782,7 +824,7 @@ export function useDemoPlayback({
       activeIdx: number,
       time: number,
       fallbackSceneProgress: number
-    ): number | null => {
+    ): ScrollTargetValue | null => {
       if (!container || products.length === 0 || activeIdx < 0) return null
       const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
       const currentRef = productRefs.current[activeIdx]
@@ -802,7 +844,7 @@ export function useDemoPlayback({
       const startOffset = prevRef ? prevRef.offsetTop : 0
       const endOffset = currentRef.offsetTop
       const interpolated = startOffset + (endOffset - startOffset) * progress
-      return Math.max(0, Math.min(maxScroll, interpolated - TOP_PADDING))
+      return buildTarget(interpolated - TOP_PADDING, maxScroll)
     }
 
     const animate = () => {
@@ -856,7 +898,12 @@ export function useDemoPlayback({
           // Ad-decisioning JSON is a single block that reveals linearly as the ad plays.
           const container = jsonScrollContainerRef.current
           const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
-          applyScroll(container, maxScroll * ctx.adProgress, jsonManualScrollRef.current)
+          const adTarget = maxScroll * ctx.adProgress
+          applyScroll(
+            container,
+            { clamped: adTarget, unclamped: adTarget },
+            jsonManualScrollRef.current
+          )
         } else {
           const target = resolveSceneTarget(
             jsonScrollContainerRef.current,
@@ -874,7 +921,11 @@ export function useDemoPlayback({
         if (ctx.inAdBreak) {
           // Hold position during the ad break – product data is tied to content scenes.
         } else if (!ctx.hasReachedFirstProduct) {
-          applyScroll(productScrollContainerRef.current, 0, productManualScrollRef.current)
+          applyScroll(
+            productScrollContainerRef.current,
+            { clamped: 0, unclamped: 0 },
+            productManualScrollRef.current
+          )
         } else {
           const target = resolveProductTarget(
             productScrollContainerRef.current,

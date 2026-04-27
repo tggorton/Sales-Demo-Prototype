@@ -26,7 +26,12 @@ import {
 } from '@mui/material'
 import type { MutableRefObject } from 'react'
 import { PanelGlyph } from './PanelGlyph'
-import { adPlaybackOptions, PRODUCT_PLACEHOLDER_IMAGE, tierOptions } from '../constants'
+import {
+  adPlaybackOptions,
+  PRODUCT_PLACEHOLDER_IMAGE,
+  TAXONOMY_DEDUPE_WINDOW_SECONDS,
+  tierOptions,
+} from '../constants'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import {
@@ -36,6 +41,7 @@ import {
   panelHeaderIconButtonDarkStyles,
   panelHeaderIconButtonStyles,
   panelPaperStyles,
+  sceneAnchorStyles,
   tooltipStyles,
 } from '../styles'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
@@ -82,6 +88,7 @@ type DemoViewProps = {
   taxonomyAvailability: Record<TaxonomyOption, boolean>
   availableTaxonomies: TaxonomyOption[]
   activeSceneIndex: number
+  activeProductIndex: number
   shouldShowInContentCta: boolean
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
@@ -141,6 +148,7 @@ export function DemoView({
   taxonomyAvailability,
   availableTaxonomies,
   activeSceneIndex,
+  activeProductIndex,
   shouldShowInContentCta,
   activeAdBreakLabel,
   adDecisionPayload,
@@ -617,17 +625,38 @@ export function DemoView({
                     </Box>
                   ) : (
                   <Stack spacing={0.7}>
-                    {playbackScenes.map((scene, index) => {
-                      if (index > activeSceneIndex) {
-                        taxonomyRefs.current[index] = null
-                        return null
-                      }
-                      const taxonomyData = getTaxonomySceneData(scene, index, selectedTaxonomy)
-                      if (!taxonomyData) {
-                        taxonomyRefs.current[index] = null
-                        return null
-                      }
-                      return (
+                    {(() => {
+                      // Time-windowed dedupe (mirrors the products policy):
+                      // suppress consecutive scenes whose taxonomy headline
+                      // matches the previously emitted one, until the gap
+                      // exceeds TAXONOMY_DEDUPE_WINDOW_SECONDS. Done inline
+                      // with closure variables so we keep one source of truth
+                      // for "what scene index does each rendered card map
+                      // to" – `taxonomyRefs[index]` stays scene-indexed which
+                      // the autoscroll's `walkBackForRef` already handles.
+                      let lastHeadline: string | null = null
+                      let lastEmittedAt = -Infinity
+                      return playbackScenes.map((scene, index) => {
+                        if (index > activeSceneIndex) {
+                          taxonomyRefs.current[index] = null
+                          return null
+                        }
+                        const taxonomyData = getTaxonomySceneData(scene, index, selectedTaxonomy)
+                        if (!taxonomyData) {
+                          taxonomyRefs.current[index] = null
+                          return null
+                        }
+                        if (
+                          TAXONOMY_DEDUPE_WINDOW_SECONDS > 0 &&
+                          lastHeadline === taxonomyData.headline &&
+                          scene.start - lastEmittedAt < TAXONOMY_DEDUPE_WINDOW_SECONDS
+                        ) {
+                          taxonomyRefs.current[index] = null
+                          return null
+                        }
+                        lastHeadline = taxonomyData.headline
+                        lastEmittedAt = scene.start
+                        return (
                         <Box
                           key={scene.id}
                           ref={(el: HTMLDivElement | null) => {
@@ -640,16 +669,8 @@ export function DemoView({
                             backgroundColor: 'transparent',
                           }}
                         >
-                          <Typography
-                            sx={{
-                              fontSize: 28,
-                              color: '#A1A1A1',
-                              lineHeight: 1,
-                              mb: 0.35,
-                              opacity: 0.95,
-                            }}
-                          >
-                            {scene.sceneLabel}
+                          <Typography sx={sceneAnchorStyles}>
+                            {scene.sceneLabel} · {formatTime(scene.start)}
                           </Typography>
                           <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
                             {selectedTaxonomy}
@@ -676,8 +697,9 @@ export function DemoView({
                             </Box>
                           ))}
                         </Box>
-                      )
-                    })}
+                        )
+                      })
+                    })()}
                   </Stack>
                   )}
                 </Box>
@@ -727,65 +749,92 @@ export function DemoView({
                       </Typography>
                     </Box>
                   ) : (
-                    productEntries.map((entry, index) => (
-                    <Box
-                      key={`${entry.sceneId}-${entry.id}`}
-                      ref={(el: HTMLDivElement | null) => {
-                        productRefs.current[index] = el
-                      }}
-                      sx={{
-                        px: 0.75,
-                        py: 1.05,
-                        borderBottom: '1px solid #e6e6e6',
-                        backgroundColor: 'transparent',
-                        borderLeft: '3px solid transparent',
-                      }}
-                    >
-                      <Stack direction="row" spacing={1.2}>
+                    productEntries.map((entry, index) => {
+                      // Progressive reveal: the collapsed panel only renders
+                      // products whose scene has already been reached on the
+                      // playback timeline (i.e. index <= activeProductIndex).
+                      // Without this gate, every segment-A product is mounted
+                      // up front and the user can scroll – or simply see in
+                      // the viewport – products from scenes far ahead of
+                      // playback (e.g. Scene 26 visible while playback is on
+                      // Scene 4). This mirrors the Taxonomy panel's
+                      // `index > activeSceneIndex` gate so both collapsed
+                      // panels reveal in lockstep with the timeline. The
+                      // Expanded dialog renders everything regardless.
+                      if (index > activeProductIndex) {
+                        productRefs.current[index] = null
+                        return null
+                      }
+                      // First product of each scene gets the shared scene anchor
+                      // rendered inside the same wrapper as the product card.
+                      // The wrapper is what `productRefs` points at, so the
+                      // RAF auto-scroll naturally lands on the anchor (when
+                      // present) instead of the card – this keeps the header
+                      // visible as we cross into a new scene group.
+                      const isFirstOfScene =
+                        index === 0 || productEntries[index - 1].sceneId !== entry.sceneId
+                      return (
                         <Box
-                          component="img"
-                          src={entry.image}
-                          alt={entry.name}
-                          onError={(event) => {
-                            const img = event.currentTarget as HTMLImageElement
-                            if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
-                              img.src = PRODUCT_PLACEHOLDER_IMAGE
-                            }
+                          key={`${entry.sceneId}-${entry.id}`}
+                          ref={(el: HTMLDivElement | null) => {
+                            productRefs.current[index] = el
                           }}
                           sx={{
-                            width: 54,
-                            height: 54,
-                            borderRadius: 0.5,
-                            objectFit: 'cover',
-                            flexShrink: 0,
+                            px: 0.75,
+                            pt: isFirstOfScene ? 1.05 : 0.6,
+                            pb: 1.05,
+                            borderBottom: '1px solid #e6e6e6',
+                            backgroundColor: 'transparent',
+                            borderLeft: '3px solid transparent',
                           }}
-                        />
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography sx={{ fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>
-                            {entry.name}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              color: '#666',
-                              fontSize: 11.5,
-                              mt: 0.2,
-                              lineHeight: 1.3,
-                              opacity: 0.87,
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {entry.description}
-                          </Typography>
-                          <Typography sx={{ color: '#A1A1A1', fontSize: 10.5, mt: 0.25 }}>
-                            {entry.sceneLabel} · {formatTime(entry.sceneStart)}
-                          </Typography>
+                        >
+                          {isFirstOfScene && (
+                            <Typography sx={sceneAnchorStyles}>
+                              {entry.sceneLabel} · {formatTime(entry.sceneStart)}
+                            </Typography>
+                          )}
+                          <Stack direction="row" spacing={1.2}>
+                            <Box
+                              component="img"
+                              src={entry.image}
+                              alt={entry.name}
+                              onError={(event) => {
+                                const img = event.currentTarget as HTMLImageElement
+                                if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
+                                  img.src = PRODUCT_PLACEHOLDER_IMAGE
+                                }
+                              }}
+                              sx={{
+                                width: 54,
+                                height: 54,
+                                borderRadius: 0.5,
+                                objectFit: 'cover',
+                                flexShrink: 0,
+                              }}
+                            />
+                            <Box sx={{ minWidth: 0 }}>
+                              <Typography sx={{ fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>
+                                {entry.name}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontSize: 12,
+                                  mt: 0.2,
+                                  lineHeight: 1.35,
+                                  opacity: 0.87,
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                                }}
+                              >
+                                {entry.description}
+                              </Typography>
+                            </Box>
+                          </Stack>
                         </Box>
-                      </Stack>
-                    </Box>
-                    ))
+                      )
+                    })
                   )}
                 </Box>
               </Paper>

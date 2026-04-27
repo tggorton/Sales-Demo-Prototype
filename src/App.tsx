@@ -426,6 +426,7 @@ function App() {
                   taxonomyAvailability={demoPlayback.taxonomyAvailability}
                   availableTaxonomies={demoPlayback.availableTaxonomies}
                   activeSceneIndex={demoPlayback.activeSceneIndex}
+                  activeProductIndex={demoPlayback.activeProductIndex}
                   shouldShowInContentCta={demoPlayback.shouldShowInContentCta}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
                   adDecisionPayload={demoPlayback.adDecisionPayload}

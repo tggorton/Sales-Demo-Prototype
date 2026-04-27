@@ -15302,7 +15302,43 @@
       "faces": [],
       "text": [],
       "locations": [],
-      "objects": [],
+      "objects": [
+        {
+          "name": "Saw",
+          "confidence": 0.7421,
+          "bounding_box": [
+            {
+              "x": 612,
+              "y": 358
+            },
+            {
+              "x": 856,
+              "y": 358
+            },
+            {
+              "x": 856,
+              "y": 542
+            },
+            {
+              "x": 612,
+              "y": 542
+            }
+          ],
+          "product_match": [
+            {
+              "product_id": "205561436",
+              "loc_id": "205561436",
+              "name": "Makita 18V LXT 5-3/8 in. Circular Trim Saw (Tool-Only) XSS03Z",
+              "price": "",
+              "image": "homedpt/205561436.jpg",
+              "link": "https://www.homedepot.com/p/Makita-18V-LXT-5-3_8-in-Circular-Trim-Saw-Tool-Only-XSS03Z/205561436",
+              "confidence": 0.95,
+              "image_url": "https://xts-sales-assets.s3.us-east-1.amazonaws.com/staging/assets/homedpt/205561436.jpg",
+              "dedupe_key": "205561436@scene-337"
+            }
+          ]
+        }
+      ],
       "description": "",
       "music_emotion": {
         "name": "Energizing, pump-up",

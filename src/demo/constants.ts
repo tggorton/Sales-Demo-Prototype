@@ -63,6 +63,19 @@ export const taxonomyOptions: TaxonomyOption[] = [
   'Object',
 ]
 
+// Per-content taxonomy hide list. Anything listed here is removed from the
+// taxonomy dropdown for the matching content even if the underlying JSON has
+// data for it – useful when a tier technically emits the field but the
+// upstream content team hasn't curated/approved it yet for that specific
+// piece of content. Keyed by `ContentItem.id` so adding a new piece of
+// content with its own hide rules is just a new entry.
+export const HIDDEN_TAXONOMIES_BY_CONTENT: Record<string, TaxonomyOption[]> = {
+  // DHYH ("Don't Hate Your House"): Brand Safety data exists in the JSON but
+  // isn't curated for this clip yet, so hide it for now. Other clips can opt
+  // in by leaving the entry off this list.
+  dhyh: ['Brand Safety'],
+}
+
 export const jsonDownloadOptions: JsonDownloadOption[] = ['Original JSON', 'Summary JSON']
 
 export const TOTAL_DURATION_SECONDS = 32 * 60 + 20
@@ -96,6 +109,26 @@ export const PRODUCT_PLACEHOLDER_IMAGE = '/assets/elements/product-placeholder.s
 //
 // Set to 0 to disable dedupe entirely (useful for QA / side-by-side comparison).
 export const PRODUCT_DEDUPE_WINDOW_SECONDS = 180
+
+// Time-windowed dedupe for taxonomy panel cards. Same shape as the products
+// dedupe but a *much tighter* default. Why: products have many distinct keys
+// (Hammer, Drill, Tape Measure, …) so a 180s window still produces a steady
+// flow of cards. Taxonomy headlines are usually a single value per scene that
+// runs unchanged for tens of seconds (e.g. Music Emotion stays "Energizing,
+// pump-up" for ~100s straight). With a 180s window the panel collapses to a
+// single card per clip, which reads as "the panel is broken / out of sync".
+//
+// A short window (~8s) is the sweet spot:
+//   - Adjacent / back-to-back scenes (<8s apart) with the same headline still
+//     collapse, so the panel never spams 3–5 identical cards in a row.
+//   - Scenes more than ~8s apart re-emit even if the value is unchanged, so
+//     the panel keeps producing cards as playback progresses and the user can
+//     scroll back through the clip's narrative.
+//   - Tier 3 / DHYH source scenes are mostly 2–5s long, so this maps roughly
+//     to "collapse adjacent cuts in the same beat, but show new beats."
+//
+// Set to 0 to disable taxonomy dedupe entirely (useful for QA).
+export const TAXONOMY_DEDUPE_WINDOW_SECONDS = 8
 
 // How long (ms) to pause auto-scrolling after the user scrolls a panel manually.
 // Lets the user browse the list freely. The pause is tracked *per panel*, so

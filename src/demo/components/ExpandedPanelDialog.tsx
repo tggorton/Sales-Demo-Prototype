@@ -14,10 +14,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { useEffect, useRef } from 'react'
 import { PanelGlyph } from './PanelGlyph'
-import { PRODUCT_PLACEHOLDER_IMAGE } from '../constants'
+import { PRODUCT_PLACEHOLDER_IMAGE, TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../constants'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
-import { panelHeaderActionIconSx, panelHeaderIconButtonDarkStyles, panelHeaderIconButtonStyles, taxonomyAutocompleteStyles } from '../styles'
+import {
+  panelHeaderActionIconSx,
+  panelHeaderIconButtonDarkStyles,
+  panelHeaderIconButtonStyles,
+  sceneAnchorStyles,
+  taxonomyAutocompleteStyles,
+} from '../styles'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import type {
   AdDecisioningTailItem,
@@ -71,6 +78,64 @@ export function ExpandedPanelDialog({
   onOpenJsonDownload,
   onExpandedTaxonomiesChange,
 }: ExpandedPanelDialogProps) {
+  // Single scroll container ref – only one panel is rendered at a time, so we
+  // bind whichever panel's outer scroll Box is currently mounted.
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+
+  // Compute the target scene id the panel should "land on" when it opens.
+  // For Taxonomy + JSON it's just the active scene. For Products we prefer
+  // the first product entry that belongs to the active scene; if the current
+  // scene has no products, we fall back to the most recent product whose
+  // scene started at or before the current playback moment, which keeps the
+  // panel anchored near the user's place in the timeline (e.g. when expanding
+  // mid-Segment B, lead with the most recent Segment B product, not the top
+  // of the Segment A list).
+  let targetSceneAnchorId: string | null = null
+  if (expandedPanel === 'taxonomy' || expandedPanel === 'json') {
+    targetSceneAnchorId = activeScene?.id ?? null
+  } else if (expandedPanel === 'product' && productEntries.length > 0) {
+    const exact = productEntries.find((e) => e.sceneId === activeScene?.id)
+    if (exact) {
+      targetSceneAnchorId = exact.sceneId
+    } else {
+      let best: ProductEntry | null = null
+      for (const entry of productEntries) {
+        if (entry.sceneStart <= videoCurrentSeconds) best = entry
+        else break
+      }
+      targetSceneAnchorId = best ? best.sceneId : productEntries[0].sceneId
+    }
+  }
+
+  // Scroll to the active anchor on open. We run after layout via rAF so the
+  // dialog's transition has had a tick to render its content (otherwise
+  // offsetTop is 0 and we'd no-op). Re-runs if the active scene moves while
+  // the panel is open are intentionally NOT triggered – on-open snap only,
+  // so the user can freely scroll once they're inside.
+  useEffect(() => {
+    if (!expandedPanel || !targetSceneAnchorId) return
+    let raf2 = 0
+    const raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        const container = scrollContainerRef.current
+        if (!container) return
+        const target = container.querySelector<HTMLElement>(
+          `[data-scene-anchor="${targetSceneAnchorId}"]`
+        )
+        if (!target) return
+        container.scrollTop = Math.max(0, target.offsetTop - 12)
+      })
+    })
+    return () => {
+      window.cancelAnimationFrame(raf1)
+      if (raf2) window.cancelAnimationFrame(raf2)
+    }
+    // We deliberately key on `expandedPanel` only – the scroll fires once per
+    // open. Subsequent activeScene changes (live playback, scrubs) don't
+    // re-trigger the snap so the user keeps control while the panel is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedPanel])
+
   const renderExpandedPanelContent = () => {
     if (expandedPanel === 'taxonomy') {
       return (
@@ -135,7 +200,7 @@ export function ExpandedPanelDialog({
               )}
             />
           </Box>
-          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 1 }}>
+          <Box ref={scrollContainerRef} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 1 }}>
             {expandedSelectedTaxonomies.length > 0 &&
             expandedSelectedTaxonomies.every((taxonomy) => !taxonomyAvailability[taxonomy]) ? (
               <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -147,43 +212,75 @@ export function ExpandedPanelDialog({
               </Box>
             ) : (
             <Stack spacing={0.9}>
-              {playbackScenes.map((scene, index) => {
-                if (index > activeSceneIndex) return null
-                const rows = expandedSelectedTaxonomies
-                  .map((taxonomy) => ({ taxonomy, data: getTaxonomySceneData(scene, index, taxonomy) }))
-                  .filter((row): row is { taxonomy: typeof row.taxonomy; data: NonNullable<typeof row.data> } => row.data !== null)
-                if (expandedSelectedTaxonomies.length > 0 && rows.length === 0) return null
-                return (
-                  <Box key={`expanded-${scene.id}`} sx={{ p: 1.1 }}>
-                    <Typography sx={{ fontSize: 28, color: '#A1A1A1', lineHeight: 1, mb: 0.35, opacity: 0.95 }}>
-                      {scene.sceneLabel}
-                    </Typography>
-                    {rows.map(({ taxonomy, data }) => (
-                      <Box key={`${scene.id}-${taxonomy}`} sx={{ mb: 1.05 }}>
-                        <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{taxonomy}</Typography>
-                        <Chip
-                          label={`${data.headline} (${data.chip})`}
-                          size="small"
-                          sx={{ height: 25.27, borderRadius: '104.48px', mt: 0.4, mb: 0.8, fontSize: 11.5 }}
-                        />
-                        {data.sections.map((section) => (
-                          <Box key={`${scene.id}-${taxonomy}-${section.label}`}>
-                            <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{section.label}</Typography>
-                            <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                              {section.value}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    ))}
-                    {expandedSelectedTaxonomies.length === 0 && (
-                      <Typography sx={{ fontSize: 12, color: 'rgba(0,0,0,0.54)', mt: 0.8 }}>
-                        Select one or more taxonomies to view scene details.
+              {(() => {
+                // Per-taxonomy time-windowed dedupe (mirrors the collapsed
+                // view and the products policy). We track the most recently
+                // emitted headline + scene start *per taxonomy* so suppressing
+                // an Emotion duplicate doesn't suppress a Sentiment row that
+                // happens to live on the same scene. A scene that ends up
+                // with zero rows after dedupe is dropped entirely.
+                const lastHeadline = new Map<TaxonomyOption, string>()
+                const lastEmittedAt = new Map<TaxonomyOption, number>()
+                return playbackScenes.map((scene, index) => {
+                  if (index > activeSceneIndex) return null
+                  const rows = expandedSelectedTaxonomies
+                    .map((taxonomy) => ({
+                      taxonomy,
+                      data: getTaxonomySceneData(scene, index, taxonomy),
+                    }))
+                    .filter(
+                      (
+                        row
+                      ): row is { taxonomy: TaxonomyOption; data: NonNullable<typeof row.data> } =>
+                        row.data !== null
+                    )
+                    .filter(({ taxonomy, data }) => {
+                      if (TAXONOMY_DEDUPE_WINDOW_SECONDS <= 0) return true
+                      const prevHeadline = lastHeadline.get(taxonomy)
+                      const prevAt = lastEmittedAt.get(taxonomy) ?? -Infinity
+                      if (
+                        prevHeadline === data.headline &&
+                        scene.start - prevAt < TAXONOMY_DEDUPE_WINDOW_SECONDS
+                      ) {
+                        return false
+                      }
+                      lastHeadline.set(taxonomy, data.headline)
+                      lastEmittedAt.set(taxonomy, scene.start)
+                      return true
+                    })
+                  if (expandedSelectedTaxonomies.length > 0 && rows.length === 0) return null
+                  return (
+                    <Box key={`expanded-${scene.id}`} data-scene-anchor={scene.id} sx={{ p: 1.1 }}>
+                      <Typography sx={sceneAnchorStyles}>
+                        {scene.sceneLabel} · {formatTime(scene.start)}
                       </Typography>
-                    )}
-                  </Box>
-                )
-              })}
+                      {rows.map(({ taxonomy, data }) => (
+                        <Box key={`${scene.id}-${taxonomy}`} sx={{ mb: 1.05 }}>
+                          <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{taxonomy}</Typography>
+                          <Chip
+                            label={`${data.headline} (${data.chip})`}
+                            size="small"
+                            sx={{ height: 25.27, borderRadius: '104.48px', mt: 0.4, mb: 0.8, fontSize: 11.5 }}
+                          />
+                          {data.sections.map((section) => (
+                            <Box key={`${scene.id}-${taxonomy}-${section.label}`}>
+                              <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{section.label}</Typography>
+                              <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
+                                {section.value}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      ))}
+                      {expandedSelectedTaxonomies.length === 0 && (
+                        <Typography sx={{ fontSize: 12, color: 'rgba(0,0,0,0.54)', mt: 0.8 }}>
+                          Select one or more taxonomies to view scene details.
+                        </Typography>
+                      )}
+                    </Box>
+                  )
+                })
+              })()}
             </Stack>
             )}
           </Box>
@@ -220,52 +317,69 @@ export function ExpandedPanelDialog({
         )
       }
       return (
-        <Box sx={{ px: 2, py: 1.25, height: '100%', overflowY: 'auto' }}>
-          {productEntries.map((entry) => (
-            <Box key={`expanded-${entry.sceneId}-${entry.id}`} sx={{ px: 0.9, py: 1.2, borderBottom: '1px solid #e6e6e6' }}>
-              <Stack direction="row" spacing={1.2}>
-                <Box
-                  component="img"
-                  src={entry.image}
-                  alt={entry.name}
-                  onError={(event) => {
-                    const img = event.currentTarget as HTMLImageElement
-                    if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
-                      img.src = PRODUCT_PLACEHOLDER_IMAGE
-                    }
-                  }}
-                  sx={{ width: 64, height: 64, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
-                />
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography sx={{ fontWeight: 600, fontSize: 17, lineHeight: 1.1 }}>{entry.name}</Typography>
-                  <Typography
-                    sx={{
-                      color: '#666',
-                      fontSize: 12.5,
-                      mt: 0.2,
-                      lineHeight: 1.3,
-                      opacity: 0.87,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {entry.description}
-                  </Typography>
-                  <Typography sx={{ color: '#A1A1A1', fontSize: 11, mt: 0.25 }}>
+        <Box ref={scrollContainerRef} sx={{ px: 2, py: 1.25, height: '100%', overflowY: 'auto' }}>
+          {productEntries.map((entry, index) => {
+            const isFirstOfScene =
+              index === 0 || productEntries[index - 1].sceneId !== entry.sceneId
+            return (
+              <Box
+                key={`expanded-${entry.sceneId}-${entry.id}`}
+                data-scene-anchor={isFirstOfScene ? entry.sceneId : undefined}
+                sx={{
+                  px: 0.9,
+                  pt: isFirstOfScene ? 1.2 : 0.7,
+                  pb: 1.2,
+                  borderBottom: '1px solid #e6e6e6',
+                }}
+              >
+                {isFirstOfScene && (
+                  <Typography sx={sceneAnchorStyles}>
                     {entry.sceneLabel} · {formatTime(entry.sceneStart)}
                   </Typography>
-                </Box>
-              </Stack>
-            </Box>
-          ))}
+                )}
+                <Stack direction="row" spacing={1.2}>
+                  <Box
+                    component="img"
+                    src={entry.image}
+                    alt={entry.name}
+                    onError={(event) => {
+                      const img = event.currentTarget as HTMLImageElement
+                      if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
+                        img.src = PRODUCT_PLACEHOLDER_IMAGE
+                      }
+                    }}
+                    sx={{ width: 64, height: 64, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
+                  />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>{entry.name}</Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        mt: 0.2,
+                        lineHeight: 1.35,
+                        opacity: 0.87,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {entry.description}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+            )
+          })}
         </Box>
       )
     }
 
     return (
-      <Box sx={{ px: 1.6, pt: 1.2, pb: 1.4, height: '100%', overflowY: 'auto', backgroundColor: '#303841' }}>
+      <Box
+        ref={scrollContainerRef}
+        sx={{ px: 1.6, pt: 1.2, pb: 1.4, height: '100%', overflowY: 'auto', backgroundColor: '#303841' }}
+      >
         {isSyncImpulseMode && isAdBreakPlayback ? (
           <Box sx={{ p: 0.85 }}>
             <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
@@ -307,7 +421,7 @@ export function ExpandedPanelDialog({
             {playbackScenes.map((scene, index) => {
               if (index > activeSceneIndex || scene.isEmpty) return null
               return (
-              <Box key={`expanded-${scene.id}`} sx={{ p: 0.85 }}>
+              <Box key={`expanded-${scene.id}`} data-scene-anchor={scene.id} sx={{ p: 0.85 }}>
                 <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.4 }}>
                   {scene.sceneLabel} @ {formatTime(scene.start)}
                 </Typography>
