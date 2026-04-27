@@ -49,3 +49,9 @@ _archive/
 **/*.backup.json
 **/*.backup.mp4
 .vercel
+
+# TypeScript incremental build cache (regenerated on every `npm run build`).
+*.tsbuildinfo
+
+# Local Claude Code settings (user-specific, not project-wide).
+.claude/
