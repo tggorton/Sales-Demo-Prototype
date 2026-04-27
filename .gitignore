@@ -35,6 +35,10 @@ public/assets/video/dhyh-cmp-full.mp4
 public/assets/ads/scott-brothers-home-depot-lbar.mp4
 _Temp/
 _Temp_Ads/
+# Local-only stash of the original (uncompressed) source images. The deployed
+# app uses the optimized JPEGs in public/assets; keep these around in case we
+# ever want to re-export at a different size/quality.
+_archive/
 
 # Backup artifacts — never shipped in the repo or the Vercel build.
 # Keep a local copy for your own reference, but the deployed app must only
@@ -44,3 +48,4 @@ _Temp_Ads/
 **/_backups/
 **/*.backup.json
 **/*.backup.mp4
+.vercel

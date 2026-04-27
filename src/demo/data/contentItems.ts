@@ -56,7 +56,7 @@ export const ALL_CONTENT_ITEMS: ContentItem[] = [
     id: DHYH_CONTENT_ID,
     title: "Don't Hate Your House",
     categories: ['Reality TV', 'Home & Garden'],
-    posterUrl: '/assets/posters/dhyh.png',
+    posterUrl: '/assets/posters/dhyh.jpg',
     videoUrl: DHYH_VIDEO_URL,
   },
 ]

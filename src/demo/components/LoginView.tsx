@@ -116,7 +116,7 @@ export function LoginView({
       </Box>
       <Box
         component="img"
-        src="/assets/login-hero.png"
+        src="/assets/login-hero.jpg"
         alt=""
         aria-hidden
         sx={{

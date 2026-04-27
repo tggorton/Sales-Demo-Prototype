@@ -1,0 +1,56 @@
+# Vercel CLI upload exclude list. Mirrors .gitignore so `npx vercel`
+# only bundles what the production build actually needs, and keeps the
+# deploy under Vercel's per-deployment size limits.
+#
+# Why this file exists: without it the CLI uploads the entire working
+# tree (~2.9GB locally on this checkout) including the gitignored
+# full-quality video masters and node_modules. With it, the upload is
+# roughly the same size as the git repo (~190MB).
+
+# Dependencies + build output (Vercel installs and builds fresh)
+node_modules
+dist
+dist-ssr
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor / OS junk
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Env overrides – Vercel uses its dashboard env vars in production
+.env.local
+.env.*.local
+
+# Local-only media masters. The deployed app references the
+# transcoded versions (dhyh-cmp.mp4, SD-HD-Tools-L-bar.mp4) which
+# are tracked in git and DO get uploaded.
+public/assets/video/dhyh-cmp-full.mp4
+public/assets/ads/scott-brothers-home-depot-lbar.mp4
+_Temp/
+_Temp_Ads/
+# Local-only stash of the original (uncompressed) source images
+_archive/
+
+# Backup artifacts — see .cursor/rules/no-backup-artifacts.mdc
+*.backup.*
+**/_backups/
+**/*.backup.json
+**/*.backup.mp4
+
+# One-off review artifact, regenerable from source JSON
+/dhyh-products.json
