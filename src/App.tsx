@@ -19,6 +19,7 @@ import {
   DEMO_LOGIN_EMAIL,
   DEMO_LOGIN_PASSWORD,
 } from './demo/constants'
+import { authService } from './demo/auth'
 import { CONTENT_ITEMS } from './demo/data/contentItems'
 import { getJsonDownloadContent } from './demo/utils/jsonExport'
 import {
@@ -217,15 +218,15 @@ function App() {
     setCurrentView('demo')
   }
 
-  const handleLogin = () => {
-    // Prototype auth: the only accepted credentials are the autofilled pair.
-    // Trim + case-insensitive email match so trivial whitespace/case tweaks
-    // still pass, but anything actually different is rejected.
-    const emailMatches =
-      loginUsername.trim().toLowerCase() === DEMO_LOGIN_EMAIL.toLowerCase()
-    const passwordMatches = loginPassword === DEMO_LOGIN_PASSWORD
-    if (!emailMatches || !passwordMatches) {
-      setLoginError('Invalid email or password. Please try again.')
+  const handleLogin = async () => {
+    // Credential check is delegated to authService — see src/demo/auth.
+    // Today that's MockAuthService (preserves the exact prototype behavior:
+    // hardcoded credentials, trim + case-insensitive email match). When the
+    // team wires Cognito, swap the env var and the rest of this flow stays
+    // identical.
+    const result = await authService.signIn(loginUsername, loginPassword)
+    if (!result.ok) {
+      setLoginError(result.error)
       return
     }
     setLoginError(null)
