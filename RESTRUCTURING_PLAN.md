@@ -9,6 +9,7 @@ This document is the master spec for evolving the prototype into a codebase that
 - **[`HANDOFF.md`](HANDOFF.md)** — the project's history, conventions, and protected behaviors. Read this first.
 - **[`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md)** — MUI/styling inventory + recommended theme evolution.
 - **[`EXTENSION_POINTS.md`](EXTENSION_POINTS.md)** — cookbook for "how do I add an X?" routine tasks.
+- **[`kerv-one-theme/`](kerv-one-theme/)** — the official KERV design-system package, dropped into the repo root for adoption. See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md) for the version-compatibility analysis.
 
 ---
 
@@ -59,17 +60,21 @@ The restructuring's job is to make those changes **fast, safe, and AI-tool-frien
 ## 3. Target architecture
 
 ```
+kerv-one-theme/                    # NEW — KERV design-system package (Phase 1)
+  package.json                     # @kerv-one/theme — installable via file:./kerv-one-theme
+  README.md                        # consumer-facing usage docs
+  INTEGRATION_NOTES.md              # version-compat analysis + adoption paths
+  src/
+    index.ts
+    theme.ts                       # createTheme() + module augmentations
+    components/
+      AppShell.tsx                 # gradient background wrapper
+      GlassSection.tsx             # frosted-glass content container
+
 src/
   App.tsx                          # top-level orchestration, ~250 LOC after decomposition (was 540)
-  main.tsx                         # entry, wraps with <ThemeProvider> after Phase 1
+  main.tsx                         # entry, wraps with <ThemeProvider theme={kervTheme}> after Phase 1
   index.css                        # global base styles
-
-  theme/                           # Phase 1
-    index.ts                       # createTheme() + re-exports
-    colors.ts                      # brand + neutral palette + alpha scale
-    typography.ts                  # named text styles
-    spacing.ts                     # spacing tokens
-    radius.ts                      # radius tokens
 
   demo/
     constants.ts                   # shrinks ~70% — most things move into ad-modes/ and content/
@@ -187,7 +192,7 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | Phase | Scope | Risk | Status |
 |---|---|---|---|
 | **0. Auth abstraction** | `src/demo/auth/` (mock + Cognito stub) | Low | ✅ Done — commit `f383b98` |
-| **1. Theme + tokens** | `src/theme/`, ThemeProvider in main.tsx, replace `#ED005E` literals with `theme.palette.brand.magenta` | Low | ⏳ Pending |
+| **1. Adopt KERV theme kit** | Install `@kerv-one/theme` (kit dropped in `./kerv-one-theme/`), wire `<ThemeProvider>` + Open Sans, replace inline `#ED005E` literals + inline gradient with theme references / `<AppShell>` | Low–Medium | ⏳ Pending — see `kerv-one-theme/INTEGRATION_NOTES.md` for the three adoption paths |
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ⏳ Pending |
 | **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ⏳ Pending |
 | **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | ⏳ Pending |
@@ -216,14 +221,19 @@ Before starting any phase:
 - Branch `feat/restructuring-pass` created (local only, not pushed).
 - **Phase 0 — Auth abstraction.** `src/demo/auth/` with mock + Cognito stub. App.tsx delegates to `authService.signIn()`. tsc + build clean. See [`src/demo/auth/README.md`](src/demo/auth/README.md).
 - **`DESIGN_SYSTEM.md`** — MUI/styling inventory.
+- **`EXTENSION_POINTS.md`** — cookbook stub.
 - **This document** (`RESTRUCTURING_PLAN.md`) — master spec.
+- **KERV theme kit** dropped into [`./kerv-one-theme/`](kerv-one-theme/) pristine. Not installed or wired yet — adoption awaiting decision per [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md).
 
 ### 🔜 Next up
 
-The unblocked next phase is **Phase 1 (theme + tokens)** because:
-- It's pure addition (no existing behavior to preserve).
-- It unlocks Phase 2 (ad-mode overlays will use theme tokens).
-- Engineers reading the codebase get token clarity immediately.
+The unblocked next phase is **Phase 1 (adopt KERV theme kit)** because:
+- The kit is now in the repo and ready to install.
+- It supersedes building our own theme from scratch (originally planned).
+- It unlocks Phase 2 (ad-mode overlays will use theme tokens like `theme.palette.glass.*`).
+- Engineers reading the codebase get the proper KERV palette + gradient + glass effects immediately, plus auto-styled MUI components (Buttons, Dialogs, Drawers, Tables) without any extra wiring.
+
+**Decision required before starting Phase 1:** Which adoption path (A: install as-is with `--legacy-peer-deps`, B: migrate React/MUI versions, or C: copy values into local `src/theme/`). See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md). My recommendation is Path A — kit code uses APIs stable across MUI 6/7 and React 18/19; peer warnings are noisy but functional.
 
 If a different phase is more urgent (e.g. Phase 2 if a new ad mode is the next business need), it can be reordered — none of 1, 2, 3 strictly depend on each other.
 

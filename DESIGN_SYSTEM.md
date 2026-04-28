@@ -13,8 +13,19 @@ styling pattern in the project. It exists so a new contributor can answer
 > - **Style tokens live in [`src/demo/styles.ts`](src/demo/styles.ts)** — 10 exported objects covering tooltips, nav buttons, panel chrome, dropdown styling, etc.
 > - **Brand magenta `#ED005E` is the primary accent.** Used in 27 places, currently as a hardcoded hex literal everywhere.
 > - **185 inline `sx={{ }}` props** across the codebase; 75% of them are in the two largest files (`DemoView.tsx` and `ExpandedPanelDialog.tsx`).
-> - **No global theme** — extracting `createTheme()` is recommended in Phase 1 of the restructuring (see `RESTRUCTURING_PLAN.md`).
-> - **Roboto** is the default body font, set in [`src/index.css`](src/index.css).
+> - **No global theme yet** — but the **official KERV theme kit** is in [`./kerv-one-theme/`](kerv-one-theme/) ready to adopt as Phase 1 of the restructuring. See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md).
+> - **Roboto** is the default body font (set in [`src/index.css`](src/index.css)). The KERV kit expects **Open Sans** — switching is a one-line `<link>` change in `index.html`.
+
+## ⚡ The KERV theme kit supersedes most of this doc's recommendations
+
+This document was written before [`./kerv-one-theme/`](kerv-one-theme/) landed in the repo. The kit provides:
+
+- A complete `createTheme()` config with palette (matching this doc's findings), Open Sans typography, and component overrides for Buttons, Dialogs, Drawers, Tables, Chips, Alerts, Snackbars, scrollbars.
+- An `<AppShell>` component for the KERV gradient background.
+- A `<GlassSection>` component for frosted-glass content containers.
+- Custom palette tokens (`theme.palette.glass`, `theme.palette.taxonomy`, etc.) declared via TS module augmentation so IDE autocomplete works.
+
+**If you're reading this doc to plan token extraction work, stop and read [`kerv-one-theme/README.md`](kerv-one-theme/README.md) instead.** This doc remains useful as an inventory of *current state* (what's in the prototype today, what needs replacing) and as a record of inconsistencies to clean up during adoption. The "Recommended Evolution" section (§6) still applies — it just becomes "adopt the kit" rather than "build a theme from scratch."
 
 ---
 
