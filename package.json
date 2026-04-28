@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@kerv-one/theme": "file:kerv-one-theme",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "react": "^18.3.1",
@@ -29,5 +30,10 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
+  },
+  "overrides": {
+    "@kerv-one/theme": {
+      "@mui/material": "$@mui/material"
+    }
   }
 }
