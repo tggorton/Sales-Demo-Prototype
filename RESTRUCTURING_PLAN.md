@@ -192,7 +192,8 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | Phase | Scope | Risk | Status |
 |---|---|---|---|
 | **0. Auth abstraction** | `src/demo/auth/` (mock + Cognito stub) | Low | ✅ Done — commit `f383b98` |
-| **1. Adopt KERV theme kit** | Install `@kerv-one/theme` (kit dropped in `./kerv-one-theme/`), wire `<ThemeProvider>` + Open Sans, replace inline `#ED005E` literals + inline gradient with theme references / `<AppShell>` | Low–Medium | ⏳ Pending — see `kerv-one-theme/INTEGRATION_NOTES.md` for the three adoption paths |
+| **1a. Adopt KERV theme kit (install + wire)** | `npm install ./kerv-one-theme --legacy-peer-deps`, Open Sans `<link>`, `<ThemeProvider>` + `<CssBaseline>` in main.tsx | Low | ✅ Done — commit `4faa100` (Path A; visually verified by user) |
+| **1b. Migrate inline literals to theme tokens** | Replace 27 hardcoded `#ED005E` → `theme.palette.primary.main`; opacity literals → semantic tokens; outer gradient → `<AppShell>` | Low | ⏳ Pending — mechanical follow-up |
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ⏳ Pending |
 | **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ⏳ Pending |
 | **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | ⏳ Pending |
@@ -219,23 +220,22 @@ Before starting any phase:
 ### ✅ Done
 
 - Branch `feat/restructuring-pass` created (local only, not pushed).
-- **Phase 0 — Auth abstraction.** `src/demo/auth/` with mock + Cognito stub. App.tsx delegates to `authService.signIn()`. tsc + build clean. See [`src/demo/auth/README.md`](src/demo/auth/README.md).
+- **Phase 0 — Auth abstraction.** `src/demo/auth/` with mock + Cognito stub. App.tsx delegates to `authService.signIn()`. See [`src/demo/auth/README.md`](src/demo/auth/README.md). (Commit `f383b98`.)
 - **`DESIGN_SYSTEM.md`** — MUI/styling inventory.
 - **`EXTENSION_POINTS.md`** — cookbook stub.
 - **This document** (`RESTRUCTURING_PLAN.md`) — master spec.
-- **KERV theme kit** dropped into [`./kerv-one-theme/`](kerv-one-theme/) pristine. Not installed or wired yet — adoption awaiting decision per [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md).
+- **KERV theme kit** dropped into [`./kerv-one-theme/`](kerv-one-theme/) pristine. (Commit `a1e4f10`.)
+- **Phase 1a — KERV theme kit installed and wired (Path A).** Open Sans loaded, `<ThemeProvider>` + `<CssBaseline>` wrap `<App />`, build clean, golden path visually verified by user with no breakage. See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md). (Commit `4faa100`.)
 
 ### 🔜 Next up
 
-The unblocked next phase is **Phase 1 (adopt KERV theme kit)** because:
-- The kit is now in the repo and ready to install.
-- It supersedes building our own theme from scratch (originally planned).
-- It unlocks Phase 2 (ad-mode overlays will use theme tokens like `theme.palette.glass.*`).
-- Engineers reading the codebase get the proper KERV palette + gradient + glass effects immediately, plus auto-styled MUI components (Buttons, Dialogs, Drawers, Tables) without any extra wiring.
+Several unblocked options, none strictly depending on the others:
 
-**Decision required before starting Phase 1:** Which adoption path (A: install as-is with `--legacy-peer-deps`, B: migrate React/MUI versions, or C: copy values into local `src/theme/`). See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md). My recommendation is Path A — kit code uses APIs stable across MUI 6/7 and React 18/19; peer warnings are noisy but functional.
+- **Phase 1b — inline literal migration** (~30 min, low risk). Replace 27 hardcoded `#ED005E` with `theme.palette.primary.main`, opacity literals with semantic tokens, outer gradient with `<AppShell>`. Mechanical; finishes the theme adoption.
+- **Phase 2 — ad-mode registry** (~60–90 min, medium risk). Originally-stated need: makes adding new ad modes a registry change rather than 8-place archaeology. Touches `useDemoPlayback` and `DemoView`.
+- **Phase 3 — S3 source resolvers** (~30–60 min, low risk). Tier-JSON + product-image source abstraction with env-flag swappability. Pairs naturally with the Cognito work already done.
 
-If a different phase is more urgent (e.g. Phase 2 if a new ad mode is the next business need), it can be reordered — none of 1, 2, 3 strictly depend on each other.
+If multiple phases are appetite, suggested order: 1b → 2 → 3, since 1b finishes the theme story before introducing ad-mode overlays that may want theme tokens, and 2 is the highest-stakes business value.
 
 ### 🟡 Deferred
 
