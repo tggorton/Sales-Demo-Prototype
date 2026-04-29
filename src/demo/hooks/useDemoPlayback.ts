@@ -294,6 +294,23 @@ export function useDemoPlayback({
   // Placeholder content still runs with no video ad and the legacy compliance payload.
   const activeAdVideoUrl = isDhyhContent ? activeMode.dhyhAdVideoUrl ?? null : null
 
+  // When the user switches ad mode WHILE an ad break is playing, the new
+  // <video src=…> element re-mounts (its `key` is the URL) and starts from 0s,
+  // but the scrubber has been ticking forward against the old mode's duration.
+  // Without intervention the two are out of sync until useVideoSync forces a
+  // catch-up seek, which visibly stutters. Snapping the scrubber back to the
+  // start of the ad block on URL change keeps the new creative aligned with
+  // the slider.
+  const previousAdVideoUrlRef = useRef(activeAdVideoUrl)
+  useEffect(() => {
+    const previous = previousAdVideoUrlRef.current
+    previousAdVideoUrlRef.current = activeAdVideoUrl
+    if (previous === activeAdVideoUrl) return
+    if (!isDhyhContent || !isAdBreakPlayback) return
+    if (previous === null || activeAdVideoUrl === null) return
+    setVideoCurrentSeconds(DHYH_AD_BREAK_CLIP_SECONDS)
+  }, [activeAdVideoUrl, isAdBreakPlayback, isDhyhContent, setVideoCurrentSeconds])
+
   const activeAdDecisionPayload: Record<string, unknown> =
     isDhyhContent && isSyncImpulseMode
       ? activeMode.dhyhCompliancePayload ?? adDecisionPayload
