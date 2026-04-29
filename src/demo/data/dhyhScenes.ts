@@ -280,15 +280,17 @@ const buildTaxonomyData = (
 
   const iab = scene.iab_taxonomy?.[0]
   if (iab) {
+    // Considered = the runner-up IAB categories only. Slicing from index 1
+    // skips the primary so it doesn't double-up with "Primary Category:" above.
     const considered = (scene.iab_taxonomy ?? [])
-      .slice(0, 4)
+      .slice(1, 5)
       .map((item) => item.name)
-      .filter(Boolean)
+      .filter((name): name is string => Boolean(name) && name !== iab.name)
       .join(', ')
     const sections: TaxonomySceneData['sections'] = [
       { label: 'Primary Category:', value: iab.name },
     ]
-    if (considered && considered !== iab.name) {
+    if (considered) {
       sections.push({ label: 'Considered:', value: considered })
     }
     sections.push({
@@ -386,15 +388,20 @@ const buildTaxonomyData = (
   }
 
   if (resolvedName) {
+    // Considered = show-wide alternative locations the model proposed,
+    // EXCLUDING the resolved primary so it doesn't double-up with
+    // "Detected Location:" above.
     const considered = Array.from(
-      new Set([resolvedName, ...showLocations.considered])
+      new Set(
+        showLocations.considered.filter((name) => Boolean(name) && name !== resolvedName)
+      )
     )
       .slice(0, VIDEO_LOCATION_MAX_CONSIDERED)
       .join(', ')
     const sections: TaxonomySceneData['sections'] = [
       { label: 'Detected Location:', value: resolvedName },
     ]
-    if (considered && considered !== resolvedName) {
+    if (considered) {
       sections.push({ label: 'Considered:', value: considered })
     }
     sections.push({
