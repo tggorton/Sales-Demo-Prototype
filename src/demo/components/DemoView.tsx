@@ -31,7 +31,7 @@ import {
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
 } from '../constants'
-import { ENABLED_AD_MODE_IDS } from '../ad-modes'
+import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import {
@@ -312,7 +312,11 @@ export function DemoView({
                       muted={isVideoMuted}
                       playsInline
                       preload="auto"
-                      key={activeAdVideoUrl}
+                      // No `key` here on purpose: keeping the same <video>
+                      // element across URL changes lets the browser swap the
+                      // source in place rather than fully remount, which
+                      // removes the visible stutter when the user changes ad
+                      // mode mid-break.
                       sx={{
                         width: '100%',
                         height: '100%',
@@ -322,6 +326,33 @@ export function DemoView({
                       }}
                     />
                   )}
+                  {/* Pre-warm the alternate ad creatives so that switching ad
+                      mode mid-break has the new file already buffered. The
+                      hidden videos are absolute-positioned at 1×1 with
+                      opacity 0 (not display:none, which some browsers treat
+                      as a hint to skip the preload). */}
+                  {ENABLED_AD_MODE_IDS.map((modeId) => {
+                    const modeUrl = AD_MODE_REGISTRY[modeId].dhyhAdVideoUrl
+                    if (!modeUrl || modeUrl === activeAdVideoUrl) return null
+                    return (
+                      <Box
+                        key={modeId}
+                        component="video"
+                        src={modeUrl}
+                        muted
+                        playsInline
+                        preload="auto"
+                        aria-hidden
+                        sx={{
+                          position: 'absolute',
+                          width: 1,
+                          height: 1,
+                          opacity: 0,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )
+                  })}
                 </Box>
                 <Box
                   sx={{
