@@ -24,7 +24,7 @@ import {
   Typography,
   Button,
 } from '@mui/material'
-import type { MutableRefObject } from 'react'
+import { useEffect, useRef, type MutableRefObject } from 'react'
 import { PanelGlyph } from './PanelGlyph'
 import {
   PRODUCT_PLACEHOLDER_IMAGE,
@@ -176,6 +176,31 @@ export function DemoView({
   onOpenJsonDownload,
   onOpenCompanionModal,
 }: DemoViewProps) {
+  // Map of mounted ad-video elements keyed by their src URL. We render all
+  // enabled DHYH ad creatives concurrently (see the JSX below) so switching
+  // ad mode mid-break never has to do a fresh load on the visible element —
+  // the new creative is already mounted and buffered, it just becomes
+  // visible via opacity. Each <video> registers itself in this map via its
+  // ref callback; the effect right below forwards the currently-active
+  // element to the parent's adVideoRef and pauses any inactive ones.
+  const adVideoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map())
+
+  useEffect(() => {
+    const elements = adVideoElementsRef.current
+    for (const [url, el] of elements) {
+      if (url === activeAdVideoUrl) {
+        adVideoRef.current = el
+      } else {
+        el.pause()
+      }
+    }
+    if (!activeAdVideoUrl) {
+      adVideoRef.current = null
+    }
+    // adVideoRef is a stable mutable ref; not a reactive dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAdVideoUrl])
+
   return (
     <Stack spacing={2}>
       <Paper
@@ -304,51 +329,48 @@ export function DemoView({
                     transition: 'opacity 320ms ease-in-out',
                   }}
                 >
-                  {activeAdVideoUrl && (
-                    <Box
-                      component="video"
-                      ref={adVideoRef}
-                      src={activeAdVideoUrl}
-                      muted={isVideoMuted}
-                      playsInline
-                      preload="auto"
-                      // No `key` here on purpose: keeping the same <video>
-                      // element across URL changes lets the browser swap the
-                      // source in place rather than fully remount, which
-                      // removes the visible stutter when the user changes ad
-                      // mode mid-break.
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        display: 'block',
-                        backgroundColor: '#000',
-                      }}
-                    />
-                  )}
-                  {/* Pre-warm the alternate ad creatives so that switching ad
-                      mode mid-break has the new file already buffered. The
-                      hidden videos are absolute-positioned at 1×1 with
-                      opacity 0 (not display:none, which some browsers treat
-                      as a hint to skip the preload). */}
+                  {/* Render every enabled DHYH ad creative concurrently in the
+                      same absolute frame; switch which one is visible via
+                      opacity, not src. Because the user-visible element
+                      doesn't change identity, switching ad mode mid-break is
+                      now an opacity flip (instant) instead of a source swap
+                      (visible stutter while the browser parses + decodes the
+                      new file). The ref-Map effect at the top of DemoView
+                      forwards the active element to the parent's adVideoRef
+                      and pauses any inactive element so we don't multiplex
+                      audio. Inactive videos remain mounted, buffered, and
+                      ready — the opacity flip is the entire transition. */}
                   {ENABLED_AD_MODE_IDS.map((modeId) => {
                     const modeUrl = AD_MODE_REGISTRY[modeId].dhyhAdVideoUrl
-                    if (!modeUrl || modeUrl === activeAdVideoUrl) return null
+                    if (!modeUrl) return null
+                    const isActive = modeUrl === activeAdVideoUrl
                     return (
                       <Box
                         key={modeId}
                         component="video"
+                        ref={(el: HTMLVideoElement | null) => {
+                          const elements = adVideoElementsRef.current
+                          if (el) {
+                            elements.set(modeUrl, el)
+                          } else {
+                            elements.delete(modeUrl)
+                          }
+                        }}
                         src={modeUrl}
-                        muted
+                        muted={isActive ? isVideoMuted : true}
                         playsInline
                         preload="auto"
-                        aria-hidden
+                        aria-hidden={!isActive}
                         sx={{
                           position: 'absolute',
-                          width: 1,
-                          height: 1,
-                          opacity: 0,
-                          pointerEvents: 'none',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                          backgroundColor: '#000',
+                          opacity: isActive ? 1 : 0,
+                          pointerEvents: isActive ? 'auto' : 'none',
                         }}
                       />
                     )
