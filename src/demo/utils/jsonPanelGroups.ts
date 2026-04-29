@@ -2,18 +2,25 @@ import type { SceneMetadata } from '../types'
 
 /**
  * Build a fingerprint string from a scene's primary signals. Two scenes with
- * the same fingerprint are visually equivalent at a high level — same IAB
- * primary, same Brand Safety call, same music emotion, same location, same
- * objects-presence — and the JSON panel collapses them into a single card
- * to avoid showing a flood of near-duplicate JSON blocks in the dense
- * scene-cut regions DHYH produces (1–3s scenes, often within the same beat).
+ * the same fingerprint are visually equivalent at a high level — same
+ * dialogue context, same music emotion, same location, same objects-presence
+ * — and the inline JSON panel collapses them into a single card to avoid
+ * showing a flood of near-duplicate JSON blocks in the dense scene-cut
+ * regions DHYH produces (1–3s scenes, often within the same beat).
  *
- * **Sentiment is intentionally NOT part of the fingerprint.** The DHYH model
- * varies sentiment subtly (e.g. "Mostly Positive" → "Somewhat Positive" →
- * "Somewhat Negative") between cuts that are clearly the same beat (the host
- * reacting in the kitchen). Including it in the fingerprint over-fragments
- * the panel; the merged card still surfaces the underlying values in its
- * displayed JSON payload — only the *card boundary* is collapsed.
+ * **The strongest "same beat" signal is `audio_transcript`.** The upstream
+ * model emits the same rolling-window transcript across multiple cuts that
+ * fall within the same dialogue beat, so transcript-equality is a much more
+ * reliable beat-grouper than the noisier IAB / GARM classifications. We use
+ * a short prefix + length as the transcript key to keep fingerprint strings
+ * short.
+ *
+ * **Intentionally NOT part of the fingerprint:**
+ *   - **IAB / GARM** — the model frequently hedges between cuts of the same
+ *     beat (e.g. "Style & Fashion" → "Home Improvement" while the camera
+ *     stays on the same powder-room reveal). Including them over-fragments.
+ *   - **Sentiment** — varies subtly (Mostly Positive → Somewhat Positive)
+ *     within the same beat as the host's reaction modulates.
  *
  * Returns null for scenes without rawJson — those don't get their own card
  * and shouldn't contribute to a group.
@@ -22,15 +29,25 @@ export const sceneFingerprint = (scene: SceneMetadata): string | null => {
   const raw = scene.rawJson
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
-  const iab = (r.iab_taxonomy as Array<{ name?: string }> | undefined)?.[0]?.name ?? ''
-  const garm = (r.garm_category as Array<{ name?: string }> | undefined)?.[0]?.name ?? ''
+  const transcript = typeof r.audio_transcript === 'string' ? r.audio_transcript : ''
+  const transcriptKey = transcript
+    ? transcript.slice(0, 80) + '|len' + transcript.length
+    : ''
   const musicSrc = r.music_emotion
   const music = Array.isArray(musicSrc)
     ? (musicSrc[0] as { name?: string } | undefined)?.name ?? ''
     : (musicSrc as { name?: string } | undefined)?.name ?? ''
   const location = (r.locations as Array<{ name?: string }> | undefined)?.[0]?.name ?? ''
-  const hasObjects = Boolean((r.objects as unknown[] | undefined)?.length)
-  return `${iab}|${garm}|${music}|${location}|${hasObjects ? 'O' : ''}`
+  // Sorted list of detected object names rather than just a "has-objects" bit:
+  // two cuts in the same beat with the same set of detected objects merge,
+  // but if the camera pans to a new shelf with a different decor item, that
+  // scene gets its own card.
+  const objectsKey = ((r.objects as Array<{ name?: string }> | undefined) ?? [])
+    .map((o) => o.name ?? '')
+    .filter(Boolean)
+    .sort()
+    .join(',')
+  return `${transcriptKey}||${music}||${location}||${objectsKey}`
 }
 
 export type JsonSceneGroup = {
