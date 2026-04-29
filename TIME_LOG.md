@@ -1,24 +1,59 @@
 # Time Log — KERV Sales Demo Restructuring
 
 Tracks approximate effort across the restructuring engagement, separated
-into the time **you** spent prompting (reading output, deciding, typing)
-vs. the time **I** spent working (file reads, code edits, doc writes,
-verifications).
+into the time **you** spent prompting vs. the time **I** spent working.
 
-## Conventions
+## Methodology
 
-- All estimates are **wall-clock**, rounded to the nearest 5 minutes.
-- **"Prompting"** = your time reading my output, thinking through
-  decisions, typing replies. Excludes time spent on other tasks
-  (errands, visual verification of the demo, separate work).
-- **"AI Work"** = my time executing — tool calls, code generation,
-  documentation, build verification. Grounded in commit timestamps and
-  tool-call cadence, so this column is more accurate than the prompting
-  column.
-- Idle gaps where you were genuinely away are excluded from both.
-- Visual-verification time (you clicking through the demo to confirm
-  changes) sits between sessions; not counted as either "Prompting" or
-  "AI Work" but happens while the demo is open.
+### AI Work column (well-grounded)
+
+Anchored in commit timestamps and tool-call cadence. Each block is
+wall-clock between meaningful checkpoints, minus obvious idle gaps.
+Roughly accurate ±5 min.
+
+### Prompting column (estimated, ask if it feels off)
+
+Per user message:
+
+```
+prompting_time =
+    reading_time   (user reading my prior response)
+  + thinking_time  (deciding, weighing options)
+  + typing_time    (user_message_chars / ~130 chars-per-min)
+```
+
+Three rough archetypes I'll classify each user message into:
+
+| Type | Pattern | Reading | Thinking | Typing |
+|---|---|---:|---:|---:|
+| **Quick approval** | "go", "yes", "looks good" | 1–2m | ≤30s | ≤30s |
+| **Decision / lightweight** | choosing between options, brief feedback | 2–3m | 1–2m | 1–3m |
+| **Intricate** | technical prompts with context, bug reports with repros, multi-decision messages | 3–5m | 3–8m | 4–10m |
+
+**What's NOT counted as Prompting:**
+
+- Time the AI is working (tool calls, code generation) — you can be doing
+  other things in parallel, even if some of it requires occasional "yes"
+  clicks. Those clicks themselves are minimal and absorbed into the
+  next message's prompting time.
+- Visual verification time (clicking through the demo) — happens between
+  messages but isn't reading/deciding/typing.
+- Errands, breaks, or meetings during long gaps.
+
+**What IS counted:**
+
+- Reading my output before responding.
+- Deciding on next steps or approach.
+- Typing the message itself.
+- Any actual review-and-verify of code that happens *before* you reply
+  (e.g. opening files I changed and reading them).
+
+### Calibration
+
+You called out that Session 1's original 75m estimate felt high. The
+revision below uses the new methodology and lands closer to 50m for
+that session. If a future session's estimate feels off, tell me and
+I'll recalibrate the typing speed or thinking-time defaults.
 
 ---
 
@@ -30,12 +65,12 @@ verifications).
 
 | Block | Prompting | AI Work | Notes |
 |---|---:|---:|---|
-| Handoff acknowledgment + plan + memory writes | 25m | 30m | Read HANDOFF.md end-to-end, wrote plan file, created 8 memory entries |
-| Verify state + push to v2 GitHub + smoke test | 10m | 15m | Commit `b26cf54`, push to sales-demo-v2, dev-server boot |
-| Phase 0 (auth abstraction) + 3 docs + gitignore | 25m | 40m | Commits `f383b98` → `5fbf8dc` — cluster from 18:03–18:10 |
+| Handoff acknowledgment + plan + memory writes | 15m | 30m | Read HANDOFF.md end-to-end, wrote plan file, created 8 memory entries |
+| Verify state + push to v2 GitHub + smoke test | 10m | 15m | Commit `b26cf54`, push to sales-demo-v2 (intricate prompt: PAT + push targets) |
+| Phase 0 (auth abstraction) + 3 docs + gitignore | 15m | 40m | Commits `f383b98` → `5fbf8dc` — mostly approvals while AI worked |
 | *— ~3h gap, you were away —* | — | — | |
-| KERV theme kit drop + Phase 1a (install + wire) + plan update | 15m | 25m | Commits `a1e4f10` → `a4ba75e` (21:21–21:32) |
-| **Session subtotal** | **~75m** | **~110m** | |
+| KERV theme kit drop + Phase 1a (install + wire) + plan update | 10m | 25m | Commits `a1e4f10` → `a4ba75e` |
+| **Session subtotal** | **~50m** | **~110m** | (revised down from initial 75m estimate per new methodology) |
 
 ### 2026-04-28 — Session 2: Brief check-in only
 
@@ -43,19 +78,20 @@ verifications).
 
 | Block | Prompting | AI Work | Notes |
 |---|---:|---:|---|
-| Multi-project Q&A + rate-limit Q&A | 10m | 5m | No code changes; planning conversation |
-| **Session subtotal** | **~10m** | **~5m** | |
+| Multi-project Q&A + rate-limit Q&A | 8m | 5m | Two info questions, brief replies |
+| **Session subtotal** | **~8m** | **~5m** | |
 
-### 2026-04-29 — Session 3: Phase 1b + Phase 2 + bug fixes
+### 2026-04-29 — Session 3: Phase 1b + Phase 2 + bug fixes + time tracking
 
-**Wall-clock span:** ~13:30 – ~15:10 local (this session, currently in progress).
+**Wall-clock span:** ~13:30 – ongoing.
 
 | Block | Prompting | AI Work | Notes |
 |---|---:|---:|---|
-| Resumption + grep audit + Phase 1b inline-literal migration | 10m | 30m | Commits `2b79e5a`, `9adf295` (14:03–14:05) |
-| Phase 2 ad-mode registry | 15m | 50m | Commits `67230b6`, `5c00fd2` (14:35–14:39) — biggest single block |
-| Issue reports + 2 bug fixes (per-tier whitelist + mid-break snap) | 10m | 25m | Commits `29e9da5`, `e36308d` (15:05–15:07) |
-| **Session subtotal so far** | **~35m** | **~105m** | |
+| Resumption ("go") + Phase 1b inline-literal migration | 5m | 30m | Mostly AI work; user mostly approving |
+| Phase 2 ad-mode registry | 8m | 50m | One "go" + visual verification approval |
+| Issue reports + 2 bug fixes | 10m | 25m | Intricate prompt: detailed bug repro + tier-mapping spec |
+| Time-tracking spec + methodology refinement | 10m | 15m | Intricate prompt: methodology critique + several minutes typing |
+| **Session subtotal so far** | **~33m** | **~120m** | |
 
 ---
 
@@ -63,22 +99,26 @@ verifications).
 
 | | Prompting | AI Work |
 |---|---:|---:|
-| Session 1 (04-27) | 75m | 110m |
-| Session 2 (04-28) | 10m | 5m |
-| Session 3 (04-29) | 35m | 105m |
-| **Total** | **~2h 0m** | **~3h 40m** |
+| Session 1 (04-27) | 50m | 110m |
+| Session 2 (04-28) | 8m | 5m |
+| Session 3 (04-29) | 33m | 120m |
+| **Total** | **~1h 30m** | **~3h 55m** |
 
 ---
 
 ## How this gets updated
 
 After each phase commit lands (or whenever you ask for a checkpoint), I
-append a row to the current session's table from the new commit
-timestamps. You can adjust the **Prompting** column if it feels off —
-that one I'm guessing at; AI Work I can ground in actual data.
+append a row to the current session's table. AI Work is anchored in
+commit timestamps; Prompting follows the methodology above.
 
-If you want a finer-grained breakdown (e.g. per-commit instead of
-per-block), say the word and I'll restructure the table.
+You can adjust any Prompting estimate that feels off — when you do,
+mention it and I'll also recalibrate the per-archetype defaults so
+future estimates land closer.
 
-If you want a separate **calendar-month rollup** for invoicing /
-reporting, that's a one-line ask too.
+If you want a finer-grained breakdown (per-commit instead of per-block),
+or a separate calendar-month rollup for reporting, say the word.
+
+This file is intentionally separate from the rest of the project tracking
+docs (`HANDOFF.md`, `RESTRUCTURING_PLAN.md`, etc.) so the time data
+doesn't bleed into engineering documentation.
