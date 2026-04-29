@@ -14,10 +14,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { PanelGlyph } from './PanelGlyph'
 import { PRODUCT_PLACEHOLDER_IMAGE, TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../constants'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
+import { groupJsonScenes } from '../utils/jsonPanelGroups'
 import {
   panelHeaderActionIconSx,
   panelHeaderIconButtonDarkStyles,
@@ -82,6 +83,14 @@ export function ExpandedPanelDialog({
   // bind whichever panel's outer scroll Box is currently mounted.
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
+  // Same content-fingerprint grouping the inline JSON panel uses; collapses
+  // dense scene-cut sequences into single cards. See
+  // src/demo/utils/jsonPanelGroups.ts.
+  const jsonGroups = useMemo(
+    () => groupJsonScenes(playbackScenes, activeSceneIndex),
+    [playbackScenes, activeSceneIndex]
+  )
+
   // Compute the target scene id the panel should "land on" when it opens.
   // For Taxonomy + JSON it's just the active scene. For Products we prefer
   // the first product entry that belongs to the active scene; if the current
@@ -119,8 +128,13 @@ export function ExpandedPanelDialog({
       raf2 = window.requestAnimationFrame(() => {
         const container = scrollContainerRef.current
         if (!container) return
+        // Use the whitespace-list (~=) selector so the JSON panel's grouped
+        // cards (which expose every merged scene's id in a single
+        // `data-scene-anchor="id1 id2 id3"` attribute) still resolve when the
+        // target is a non-lead scene in a group. For Taxonomy / Product the
+        // attribute holds a single id and ~= matches that case identically.
         const target = container.querySelector<HTMLElement>(
-          `[data-scene-anchor="${targetSceneAnchorId}"]`
+          `[data-scene-anchor~="${targetSceneAnchorId}"]`
         )
         if (!target) return
         container.scrollTop = Math.max(0, target.offsetTop - 12)
@@ -418,12 +432,17 @@ export function ExpandedPanelDialog({
           </Box>
         ) : (
           <Stack spacing={0.9}>
-            {playbackScenes.map((scene, index) => {
-              if (index > activeSceneIndex || scene.isEmpty) return null
+            {jsonGroups.map((group) => {
+              const isMerged = group.sceneIndices.length > 1
               return (
-              <Box key={`expanded-${scene.id}`} data-scene-anchor={scene.id} sx={{ p: 0.85 }}>
+              <Box
+                key={`expanded-${group.leadScene.id}`}
+                data-scene-anchor={group.anchorIds}
+                sx={{ p: 0.85 }}
+              >
                 <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.4 }}>
-                  {scene.sceneLabel} @ {formatTime(scene.start)}
+                  {group.label} @ {formatTime(group.startSec)}
+                  {isMerged ? `–${formatTime(group.endSec)}` : ''}
                 </Typography>
                 <Typography
                   component="pre"
@@ -436,7 +455,7 @@ export function ExpandedPanelDialog({
                     color: '#f3f7fd',
                   }}
                 >
-                  {JSON.stringify(buildSceneJsonPayload(scene, index), null, 2)}
+                  {JSON.stringify(buildSceneJsonPayload(group.leadScene, group.leadIndex), null, 2)}
                 </Typography>
               </Box>
               )

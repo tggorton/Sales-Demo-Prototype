@@ -24,7 +24,7 @@ import {
   Typography,
   Button,
 } from '@mui/material'
-import { useEffect, useRef, type MutableRefObject } from 'react'
+import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import { PanelGlyph } from './PanelGlyph'
 import {
   PRODUCT_PLACEHOLDER_IMAGE,
@@ -34,6 +34,7 @@ import {
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
+import { groupJsonScenes, type JsonSceneGroup } from '../utils/jsonPanelGroups'
 import {
   dropdownMagentaStyles,
   navButtonStyles,
@@ -197,6 +198,29 @@ export function DemoView({
     // adVideoRef is a stable mutable ref; not a reactive dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAdVideoUrl])
+
+  // Group adjacent scenes with the same content fingerprint into a single
+  // JSON-panel card. Scenes in DHYH are emitted at scene-cut granularity (often
+  // 1–3s) and adjacent cuts within the same beat carry near-identical signal
+  // values, which historically made the JSON panel render a flood of
+  // near-duplicate blocks. The fingerprint excludes sentiment so subtle
+  // host-reaction shifts don't fragment the panel; the merged card's JSON
+  // still includes the underlying sentiment values. See
+  // src/demo/utils/jsonPanelGroups.ts for the fingerprint definition.
+  const jsonGroups = useMemo(
+    () => groupJsonScenes(playbackScenes, activeSceneIndex),
+    [playbackScenes, activeSceneIndex]
+  )
+  // Map each scene index → its group, so the JSON-panel render below can
+  // skip non-lead scenes in O(1) (the lead scene's ref callback claims all
+  // its sibling indices and the others return null).
+  const jsonGroupBySceneIndex = useMemo(() => {
+    const map = new Map<number, JsonSceneGroup>()
+    for (const group of jsonGroups) {
+      for (const idx of group.sceneIndices) map.set(idx, group)
+    }
+    return map
+  }, [jsonGroups])
 
   // Effect 2: drive parallel play/pause for every preloaded ad creative.
   // While the break is active and master playback is on, all elements play
@@ -1006,15 +1030,25 @@ export function DemoView({
                   ) : (
                     <Stack spacing={0.9}>
                       {playbackScenes.map((scene, index) => {
-                        if (index > activeSceneIndex || scene.isEmpty) {
+                        const group = jsonGroupBySceneIndex.get(index)
+                        if (!group) {
+                          // Past activeSceneIndex or scene.isEmpty — not in any group.
                           jsonRefs.current[index] = null
                           return null
                         }
+                        if (group.leadIndex !== index) {
+                          // Non-lead scene in a group — the lead's ref callback
+                          // claims this index, no card renders here.
+                          return null
+                        }
+                        const isMerged = group.sceneIndices.length > 1
                         return (
                         <Box
                           key={scene.id}
                           ref={(el: HTMLDivElement | null) => {
-                            jsonRefs.current[index] = el
+                            for (const idx of group.sceneIndices) {
+                              jsonRefs.current[idx] = el
+                            }
                           }}
                           sx={{
                             p: 0.85,
@@ -1024,7 +1058,8 @@ export function DemoView({
                           }}
                         >
                           <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.4 }}>
-                            {scene.sceneLabel} @ {formatTime(scene.start)}
+                            {group.label} @ {formatTime(group.startSec)}
+                            {isMerged ? `–${formatTime(group.endSec)}` : ''}
                           </Typography>
                           <Typography
                             component="pre"
@@ -1037,7 +1072,7 @@ export function DemoView({
                               color: '#f3f7fd',
                             }}
                           >
-                            {JSON.stringify(buildSceneJsonPayload(scene, index), null, 2)}
+                            {JSON.stringify(buildSceneJsonPayload(group.leadScene, group.leadIndex), null, 2)}
                           </Typography>
                         </Box>
                       )
