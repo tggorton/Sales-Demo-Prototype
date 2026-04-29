@@ -176,30 +176,69 @@ export function DemoView({
   onOpenJsonDownload,
   onOpenCompanionModal,
 }: DemoViewProps) {
-  // Map of mounted ad-video elements keyed by their src URL. We render all
-  // enabled DHYH ad creatives concurrently (see the JSX below) so switching
-  // ad mode mid-break never has to do a fresh load on the visible element —
-  // the new creative is already mounted and buffered, it just becomes
-  // visible via opacity. Each <video> registers itself in this map via its
-  // ref callback; the effect right below forwards the currently-active
-  // element to the parent's adVideoRef and pauses any inactive ones.
+  // Map of mounted ad-video elements keyed by src URL. All enabled DHYH ad
+  // creatives mount concurrently (see JSX below) and play in parallel while
+  // the ad break is active — only the active one is visible (opacity 1) and
+  // unmuted. Mounting them all keeps every decoder warm; switching ad mode
+  // mid-break is then a pure opacity + mute flip, no play() startup cost,
+  // because the newly-visible element's decoder is already producing frames.
   const adVideoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map())
 
+  // Effect 1: forward whichever element is currently active to the parent's
+  // adVideoRef so the playback hook's seek effect targets the right one.
+  // No play/pause logic here — Effect 2 owns that.
   useEffect(() => {
-    const elements = adVideoElementsRef.current
-    for (const [url, el] of elements) {
-      if (url === activeAdVideoUrl) {
-        adVideoRef.current = el
-      } else {
-        el.pause()
-      }
-    }
-    if (!activeAdVideoUrl) {
+    if (activeAdVideoUrl) {
+      const el = adVideoElementsRef.current.get(activeAdVideoUrl) ?? null
+      adVideoRef.current = el
+    } else {
       adVideoRef.current = null
     }
     // adVideoRef is a stable mutable ref; not a reactive dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAdVideoUrl])
+
+  // Effect 2: drive parallel play/pause for every preloaded ad creative.
+  // While the break is active and master playback is on, all elements play
+  // (inactive ones are silently muted via the JSX, so no audio multiplex).
+  // When the break ends or master playback pauses, all elements pause; on
+  // break end we also reset currentTime to 0 so the next entry starts fresh.
+  // Including activeAdVideoUrl in deps lets us recover an ended video (e.g.
+  // 30s Impulse finishing while 45s Sync is still playing) when the user
+  // selects it after end — we seek to 0 and re-play.
+  useEffect(() => {
+    const elements = adVideoElementsRef.current
+    if (!isAdBreakPlayback) {
+      for (const el of elements.values()) {
+        if (!el.paused) el.pause()
+        try {
+          el.currentTime = 0
+        } catch {
+          /* ignore seek errors on unloaded element */
+        }
+      }
+      return
+    }
+    if (isVideoPlaying) {
+      for (const el of elements.values()) {
+        if (el.ended) {
+          try {
+            el.currentTime = 0
+          } catch {
+            /* ignore */
+          }
+        }
+        if (el.paused) {
+          const p = el.play()
+          if (p && typeof p.catch === 'function') p.catch(() => {})
+        }
+      }
+    } else {
+      for (const el of elements.values()) {
+        if (!el.paused) el.pause()
+      }
+    }
+  }, [isAdBreakPlayback, isVideoPlaying, activeAdVideoUrl])
 
   return (
     <Stack spacing={2}>

@@ -1145,6 +1145,12 @@ export function useDemoPlayback({
   // mount, so toggling it mid-session won't restart playback. When the scrubber enters
   // the ad segment we explicitly align the ad element to the scrubber-relative position
   // and play; when it leaves we pause and reset so a future re-entry starts fresh.
+  //
+  // Note: DemoView also drives play/pause for ALL preloaded ad creatives in parallel
+  // (so switching ad mode mid-break stays smooth — the inactive creatives' decoders
+  // stay warm). This effect handles the active element specifically, and including
+  // activeAdVideoUrl in deps lets it re-fire on mode switch — if the new active
+  // element was paused (e.g. previously ended), play() is called here.
   useEffect(() => {
     if (currentView !== 'demo') return
     const adEl = adVideoRef.current
@@ -1168,7 +1174,7 @@ export function useDemoPlayback({
         /* ignore seek errors on unloaded element */
       }
     }
-  }, [currentView, isAdBreakPlayback, isVideoPlaying])
+  }, [currentView, isAdBreakPlayback, isVideoPlaying, activeAdVideoUrl])
 
   // Keep the ad-creative element's `currentTime` aligned with the scrubber while in the
   // ad break. Natural forward playback is handled by the browser (the ad plays 1x and
@@ -1189,7 +1195,9 @@ export function useDemoPlayback({
         /* ignore seek errors on unloaded element */
       }
     }
-  }, [currentView, isAdBreakPlayback, videoCurrentSeconds])
+    // activeAdVideoUrl in deps so this re-runs when mode switches mid-break
+    // and re-anchors the (now-different) active element to the scrubber.
+  }, [currentView, isAdBreakPlayback, videoCurrentSeconds, activeAdVideoUrl])
 
   // Keep the native <video> aligned with the scrubber. For DHYH the scrubber spans the
   // 7-minute clip (0..420s) and maps 1:1 onto the 18:00 – 25:00 window of the source.
