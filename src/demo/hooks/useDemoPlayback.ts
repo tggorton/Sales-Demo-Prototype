@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { adDecisionPayload, adDecisioningTail } from '../data/adFixtures'
-import impulseAdCompliancePayload from '../data/ad-compliance-results-impulse.json'
-import lbarAdCompliancePayload from '../data/ad-compliance-results-l-bar.json'
-import syncAdCompliancePayload from '../data/ad-compliance-results-sync.json'
+import { AD_MODE_REGISTRY, isSyncAdBreakMode } from '../ad-modes'
 import {
   AD_BREAK_1_IMAGE,
   AD_BREAK_2_IMAGE,
@@ -12,15 +10,11 @@ import {
   AD_QR_IMAGE_2,
   DEFAULT_START_SECONDS,
   DHYH_AD_BREAK_CLIP_SECONDS,
-  DHYH_AD_BREAK_DURATIONS_SECONDS,
   DHYH_CLIP_DURATION_SECONDS,
   DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
   DHYH_CONTENT_ID,
   HIDDEN_TAXONOMIES_BY_CONTENT,
   DHYH_IMPULSE_AD_COMPANION_URL,
-  DHYH_IMPULSE_AD_VIDEO_URL,
-  DHYH_LBAR_AD_VIDEO_URL,
-  DHYH_SYNC_AD_VIDEO_URL,
   PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC,
   PANEL_MANUAL_SCROLL_PAUSE_MS,
   PLACEHOLDER_VIDEO_URL,
@@ -136,39 +130,34 @@ export function useDemoPlayback({
     }
   }, [isDhyhContent, selectedTier])
 
-  // Sync-style ad breaks (colored scrubber + ad creative overlay) fire in three modes
-  // for DHYH – "Sync: Impulse", "Sync: L-Bar", and "Sync". Each has its own creative,
-  // duration, and ad-compliance JSON. For placeholder content only "Sync: Impulse"
-  // still triggers the legacy two-break scrubber, so this flag preserves that behavior
-  // when DHYH isn't the selected piece of content.
+  // Sync-style ad breaks (colored scrubber + ad creative overlay) fire for any mode
+  // that supplies a `dhyhAdDurationSeconds` in the registry — currently `Sync`,
+  // `Sync: L-Bar`, and `Sync: Impulse`. Each registry entry owns its own creative,
+  // duration, and ad-compliance JSON; see src/demo/ad-modes/.
+  //
+  // Placeholder content retains the legacy tier-gated `Sync: Impulse`-only behavior
+  // because no other mode has a placeholder code path.
   const isExactProductMatch = selectedTier === 'Exact Product Match'
+  const activeMode = AD_MODE_REGISTRY[selectedAdPlayback]
   const isSyncImpulseModeSelected = selectedAdPlayback === 'Sync: Impulse'
-  const isSyncLbarModeSelected = selectedAdPlayback === 'Sync: L-Bar'
-  const isSyncModeSelected = selectedAdPlayback === 'Sync'
-  const isSyncAdBreakModeSelected =
-    isSyncImpulseModeSelected || isSyncLbarModeSelected || isSyncModeSelected
 
   // Broadened sync-ad-break flag used pervasively below. Historically named
   // `isSyncImpulseMode`; kept to minimize churn in downstream files.
-  //
-  // DHYH: any of the three supported sync modes triggers the ad break regardless of
-  // tier, so the demo surfaces the new creative + compliance JSON on any combination.
-  // Placeholder content retains the original tier-gated Sync:Impulse-only behavior.
   const isSyncImpulseMode = isDhyhContent
-    ? isSyncAdBreakModeSelected
+    ? isSyncAdBreakMode(selectedAdPlayback)
     : isExactProductMatch && isSyncImpulseModeSelected
 
   const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
   const shouldShowInContentCta =
     selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause'
 
-  // Per-mode DHYH ad-break duration (30s for Impulse/L-Bar, 45s for Sync).
+  // Per-mode DHYH ad-break duration sourced from the registry (30s for Impulse/L-Bar,
+  // 45s for Sync). Placeholder content always falls back to Impulse's duration.
   const dhyhAdBreakDurationSeconds = useMemo(() => {
-    if (!isDhyhContent) return DHYH_AD_BREAK_DURATIONS_SECONDS['Sync: Impulse']
-    if (isSyncModeSelected) return DHYH_AD_BREAK_DURATIONS_SECONDS.Sync
-    if (isSyncLbarModeSelected) return DHYH_AD_BREAK_DURATIONS_SECONDS['Sync: L-Bar']
-    return DHYH_AD_BREAK_DURATIONS_SECONDS['Sync: Impulse']
-  }, [isDhyhContent, isSyncModeSelected, isSyncLbarModeSelected])
+    const fallback = AD_MODE_REGISTRY['Sync: Impulse'].dhyhAdDurationSeconds ?? 30
+    if (!isDhyhContent) return fallback
+    return activeMode.dhyhAdDurationSeconds ?? fallback
+  }, [isDhyhContent, activeMode])
 
   // DHYH scrubber segments are recomputed per-mode so the cyan ad slot matches the
   // actual ad duration (Impulse/L-Bar = 30s, Sync = 45s). All three use a single break
@@ -300,23 +289,13 @@ export function useDemoPlayback({
   const activeAdBreakLabel =
     activeImpulseSegment?.kind === 'ad-break-1' ? '_AdBreak-1 Response' : '_AdBreak-2 Response'
 
-  // DHYH ad creative + compliance JSON are selected per playback mode. Placeholder
-  // content still runs with no video ad.
-  const activeAdVideoUrl = isDhyhContent
-    ? isSyncModeSelected
-      ? DHYH_SYNC_AD_VIDEO_URL
-      : isSyncLbarModeSelected
-        ? DHYH_LBAR_AD_VIDEO_URL
-        : DHYH_IMPULSE_AD_VIDEO_URL
-    : null
+  // DHYH ad creative + compliance JSON come from the active mode's registry entry.
+  // Placeholder content still runs with no video ad and the legacy compliance payload.
+  const activeAdVideoUrl = isDhyhContent ? activeMode.dhyhAdVideoUrl ?? null : null
 
   const activeAdDecisionPayload: Record<string, unknown> =
     isDhyhContent && isSyncImpulseMode
-      ? isSyncModeSelected
-        ? (syncAdCompliancePayload as Record<string, unknown>)
-        : isSyncLbarModeSelected
-          ? (lbarAdCompliancePayload as Record<string, unknown>)
-          : (impulseAdCompliancePayload as Record<string, unknown>)
+      ? activeMode.dhyhCompliancePayload ?? adDecisionPayload
       : adDecisionPayload
 
   const hasPlaybackEnded = videoCurrentSeconds >= playbackDurationSeconds

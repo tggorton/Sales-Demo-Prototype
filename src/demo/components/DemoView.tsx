@@ -27,11 +27,11 @@ import {
 import type { MutableRefObject } from 'react'
 import { PanelGlyph } from './PanelGlyph'
 import {
-  adPlaybackOptions,
   PRODUCT_PLACEHOLDER_IMAGE,
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
 } from '../constants'
+import { ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import {
@@ -234,7 +234,7 @@ export function DemoView({
                   label="Ad Playback Mode"
                   onChange={(event) => onAdPlaybackChange(event.target.value as AdPlaybackOption)}
                 >
-                  {adPlaybackOptions.map((option) => (
+                  {ENABLED_AD_MODE_IDS.map((option) => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>

@@ -1,11 +1,11 @@
 import type {
-  AdPlaybackOption,
   ContentCategory,
   JsonDownloadOption,
   SyncImpulseSegment,
   TaxonomyOption,
   TierOption,
 } from './types'
+import { envNumber, envString } from './utils/env'
 
 // Full category list – kept for reference. Toggle ENABLED_CATEGORIES below to restore
 // the categories we're currently hiding while the demo focuses on DHYH.
@@ -36,22 +36,9 @@ export const tierOptions: TierOption[] = ALL_TIER_OPTIONS.filter((t) =>
   ENABLED_TIER_OPTIONS.includes(t)
 )
 
-// Full ad-playback list – kept for reference. Restore modes by adding them back to
-// ENABLED_AD_PLAYBACK_OPTIONS once we have creative + compliance JSON for them.
-export const ALL_AD_PLAYBACK_OPTIONS: AdPlaybackOption[] = [
-  'Pause Ad',
-  'CTA Pause',
-  'Organic Pause',
-  'Carousel Shop',
-  'Sync',
-  'Sync: L-Bar',
-  'Sync: Impulse',
-  'Companion',
-]
-const ENABLED_AD_PLAYBACK_OPTIONS: AdPlaybackOption[] = ['Sync', 'Sync: L-Bar', 'Sync: Impulse']
-export const adPlaybackOptions: AdPlaybackOption[] = ALL_AD_PLAYBACK_OPTIONS.filter((opt) =>
-  ENABLED_AD_PLAYBACK_OPTIONS.includes(opt)
-)
+// Ad-playback options now live in src/demo/ad-modes/. Use ENABLED_AD_MODE_IDS
+// for dropdowns and the registry for per-mode config (durations, video URLs,
+// compliance JSON). See src/demo/ad-modes/README.md for the cookbook.
 
 export const taxonomyOptions: TaxonomyOption[] = [
   'IAB',
@@ -154,16 +141,8 @@ export const PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC = 500
 //
 // Override locally by copying `.env.example` to `.env.local` and uncommenting the
 // keys you want. See `.env.example` for the full list.
-const envString = (key: string, fallback: string): string => {
-  const value = (import.meta.env as Record<string, string | undefined>)[key]
-  return value && value.length > 0 ? value : fallback
-}
-const envNumber = (key: string, fallback: number): number => {
-  const value = (import.meta.env as Record<string, string | undefined>)[key]
-  if (!value) return fallback
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
-}
+// envString / envNumber moved to src/demo/utils/env.ts so per-mode configs
+// in src/demo/ad-modes/ can share the same VITE_* resolution rules.
 
 export const PLACEHOLDER_VIDEO_URL = envString(
   'VITE_PLACEHOLDER_VIDEO_URL',
@@ -173,27 +152,9 @@ export const PLACEHOLDER_VIDEO_URL = envString(
 // Don't Hate Your House content-specific assets
 export const DHYH_CONTENT_ID = 'dhyh'
 export const DHYH_VIDEO_URL = envString('VITE_DHYH_VIDEO_URL', '/assets/video/dhyh-cmp.mp4')
-export const DHYH_IMPULSE_AD_VIDEO_URL = envString(
-  'VITE_DHYH_IMPULSE_AD_VIDEO_URL',
-  '/assets/ads/SD-HD-Tools-Impulse-1080.mp4'
-)
-export const DHYH_LBAR_AD_VIDEO_URL = envString(
-  'VITE_DHYH_LBAR_AD_VIDEO_URL',
-  '/assets/ads/SD-HD-Tools-L-bar.mp4'
-)
-export const DHYH_SYNC_AD_VIDEO_URL = envString(
-  'VITE_DHYH_SYNC_AD_VIDEO_URL',
-  '/assets/ads/SD-HD-Tools-Sync.mp4'
-)
+// Companion / QR destination shared across all DHYH sync ad modes. Per-mode
+// creative URLs + durations live in src/demo/ad-modes/modes/<id>/config.ts.
 export const DHYH_IMPULSE_AD_COMPANION_URL = 'https://kerv.social/embed/3/32014'
-
-// Per-mode DHYH ad-break durations (wall-clock). Matches the actual mp4 lengths so the
-// scrubber's ad slot is the same length as the creative that plays inside it.
-export const DHYH_AD_BREAK_DURATIONS_SECONDS: Record<'Sync: Impulse' | 'Sync: L-Bar' | 'Sync', number> = {
-  'Sync: Impulse': 30,
-  'Sync: L-Bar': 30,
-  Sync: 45,
-}
 
 // DHYH clip window – two-segment splice.
 // -------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material'
-import { adPlaybackOptions, tierOptions } from '../constants'
+import { tierOptions } from '../constants'
+import { ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { dropdownMagentaStyles } from '../styles'
 import type { AdPlaybackOption, TierOption } from '../types'
 
@@ -83,7 +84,7 @@ export function SelectorDialog({
                 label="Ad Playback Mode"
                 onChange={(event) => onAdPlaybackChange(event.target.value as AdPlaybackOption)}
               >
-                {adPlaybackOptions.map((option) => (
+                {ENABLED_AD_MODE_IDS.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
