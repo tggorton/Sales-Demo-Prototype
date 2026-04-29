@@ -81,17 +81,20 @@ I'll recalibrate the typing speed or thinking-time defaults.
 | Multi-project Q&A + rate-limit Q&A | 8m | 5m | Two info questions, brief replies |
 | **Session subtotal** | **~8m** | **~5m** | |
 
-### 2026-04-29 — Session 3: Phase 1b + Phase 2 + bug fixes + time tracking
+### 2026-04-29 — Session 3: Phase 1b + Phase 2 + bug fixes + JSON polish
 
-**Wall-clock span:** ~13:30 – ongoing.
+**Wall-clock span:** ~13:30 – ~18:55 (with multiple short user-away gaps, all excluded).
 
 | Block | Prompting | AI Work | Notes |
 |---|---:|---:|---|
-| Resumption ("go") + Phase 1b inline-literal migration | 5m | 30m | Mostly AI work; user mostly approving |
-| Phase 2 ad-mode registry | 8m | 50m | One "go" + visual verification approval |
-| Issue reports + 2 bug fixes | 10m | 25m | Intricate prompt: detailed bug repro + tier-mapping spec |
-| Time-tracking spec + methodology refinement | 10m | 15m | Intricate prompt: methodology critique + several minutes typing |
-| **Session subtotal so far** | **~33m** | **~120m** | |
+| Resumption ("go") + Phase 1b inline-literal migration | 5m | 30m | Mostly AI work; user mostly approving. Commits `2b79e5a`, `9adf295` |
+| Phase 2 ad-mode registry | 8m | 50m | Registry + per-mode folders + cookbook README. Commits `67230b6`, `5c00fd2` |
+| Issue reports + 2 bug fixes | 10m | 25m | Per-tier taxonomy whitelist + snap scrubber to ad-break start on mid-break mode switch. Commits `29e9da5`, `e36308d` |
+| Time-tracking spec + methodology refinement | 10m | 15m | Intricate prompt: methodology critique + recalibrate Session 1 estimate. Commits `a2a30f4`, `8b0c87b` |
+| 001 reconciliation + ad-mode-switch polish (3 iterations) + Considered cleanup | 25m | 50m | Combined-total reconciliation against existing `TIME_LOG-001.md`. Three-iteration fix for residual ad-mode-switch jank: drop video remount key + hidden preloads, then render-all + opacity flip, then parallel playback with warm decoders. Plus IAB/Location "Considered:" duplication fix. Commits `54d3fef` → `f45777b` (15:39–17:40) |
+| JSON panel scene grouping (3 iterations) | 14m | 70m | Initial fingerprint approach, then transcript-keyed + ungroup expanded dialog, then iterative sticky-inheritance algorithm. ~61% reduction in JSON cards across the full clip. Commits `87aa5bd` → `89435f1` (18:13–18:42) |
+| TIME_LOG update + day wrap | 2m | 10m | This block. Resume note for tomorrow. |
+| **Session subtotal** | **~74m** | **~250m** | |
 
 ---
 
@@ -101,8 +104,8 @@ I'll recalibrate the typing speed or thinking-time defaults.
 |---|---:|---:|
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
-| Session 3 (04-29) | 33m | 120m |
-| **Total** | **~1h 30m** | **~3h 55m** |
+| Session 3 (04-29) | 74m | 250m |
+| **Total** | **~2h 12m** | **~6h 5m** |
 
 ---
 
