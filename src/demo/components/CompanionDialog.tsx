@@ -30,7 +30,7 @@ export function CompanionDialog({ open, selectedCompanionUrl, onClose }: Compani
       <IconButton
         aria-label="close companion modal"
         onClick={onClose}
-        sx={{ position: 'absolute', right: 10, top: 8, color: '#ED005E', zIndex: 2 }}
+        sx={{ position: 'absolute', right: 10, top: 8, color: 'primary.main', zIndex: 2 }}
       >
         <CloseOutlinedIcon />
       </IconButton>

@@ -43,7 +43,7 @@ export function ProfileDrawer({
     >
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.4 }}>
-          <Typography sx={{ fontSize: 26, fontWeight: 600, color: 'rgba(0,0,0,0.87)' }}>
+          <Typography sx={{ fontSize: 26, fontWeight: 600, color: 'text.primary' }}>
             Profile
           </Typography>
           <IconButton size="small" onClick={onClose} sx={{ color: '#8b8b8b' }}>
@@ -77,12 +77,12 @@ export function ProfileDrawer({
                   onClick={onOpenVerifyEmail}
                   sx={{
                     borderColor: '#ED005E80',
-                    color: '#ED005E',
+                    color: 'primary.main',
                     minWidth: 166,
                     height: 40,
                     fontWeight: 600,
                     letterSpacing: 0.3,
-                    '&:hover': { borderColor: '#ED005E', backgroundColor: 'rgba(237,0,94,0.04)' },
+                    '&:hover': { borderColor: 'primary.main', backgroundColor: 'rgba(237,0,94,0.04)' },
                   }}
                 >
                   RESEND EMAIL
@@ -103,7 +103,7 @@ export function ProfileDrawer({
             <Button variant="text" onClick={onClose} sx={{ color: 'rgba(0,0,0,0.54)', minWidth: 80 }}>
               CANCEL
             </Button>
-            <Button variant="contained" onClick={onSave} sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, minWidth: 80 }}>
+            <Button variant="contained" onClick={onSave} sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' }, minWidth: 80 }}>
               SAVE
             </Button>
           </Stack>

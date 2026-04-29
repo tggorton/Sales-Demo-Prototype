@@ -99,14 +99,14 @@ export function LoginView({
               <Button
                 type="submit"
                 variant="contained"
-                sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' } }}
+                sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
               >
                 LOG IN
               </Button>
               <Button
                 type="button"
                 variant="text"
-                sx={{ color: '#ED005E', alignSelf: 'flex-start', px: 1, py: 0.75 }}
+                sx={{ color: 'primary.main', alignSelf: 'flex-start', px: 1, py: 0.75 }}
               >
                 FORGOT YOUR PASSWORD?
               </Button>

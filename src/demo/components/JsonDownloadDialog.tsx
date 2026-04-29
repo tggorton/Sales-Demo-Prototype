@@ -35,7 +35,7 @@ export function JsonDownloadDialog({
       }}
     >
       <DialogTitle
-        sx={{ px: 3, pt: 2.25, pb: 1.75, color: 'rgba(0,0,0,0.87)', fontSize: 28, lineHeight: 1.2 }}
+        sx={{ px: 3, pt: 2.25, pb: 1.75, color: 'text.primary', fontSize: 28, lineHeight: 1.2 }}
       >
         Schedule Report
       </DialogTitle>
@@ -65,7 +65,7 @@ export function JsonDownloadDialog({
           onClick={onClose}
           sx={{
             borderColor: '#ED005E80',
-            color: '#ED005E',
+            color: 'primary.main',
             minWidth: 88,
             height: 32,
             fontSize: 12,
@@ -78,8 +78,8 @@ export function JsonDownloadDialog({
           variant="contained"
           onClick={onDownload}
           sx={{
-            bgcolor: '#ED005E',
-            '&:hover': { bgcolor: '#cf0052' },
+            bgcolor: 'primary.main',
+            '&:hover': { bgcolor: 'primary.dark' },
             minWidth: 119,
             height: 32,
             fontSize: 12,

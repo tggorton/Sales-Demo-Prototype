@@ -92,7 +92,7 @@ export function ContentSelectionView({
                   variant="body2"
                   sx={{
                     fontWeight: selected ? 700 : 500,
-                    color: 'rgba(0,0,0,0.87)',
+                    color: 'text.primary',
                     lineHeight: 1.3,
                   }}
                 >

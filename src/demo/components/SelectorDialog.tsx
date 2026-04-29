@@ -40,7 +40,7 @@ export function SelectorDialog({
       }}
     >
       <DialogTitle sx={{ position: 'relative', p: 0, minHeight: 52 }}>
-        <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 20, top: 20, color: '#ED005E' }}>
+        <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 20, top: 20, color: 'primary.main' }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -103,10 +103,10 @@ export function SelectorDialog({
           borderTop: '1px solid rgba(0,0,0,0.12)',
         }}
       >
-        <Button variant="outlined" onClick={onClose} sx={{ borderColor: '#ED005E80', color: '#ED005E', minWidth: 88 }}>
+        <Button variant="outlined" onClick={onClose} sx={{ borderColor: '#ED005E80', color: 'primary.main', minWidth: 88 }}>
           CANCEL
         </Button>
-        <Button variant="contained" onClick={onStart} sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, minWidth: 76 }}>
+        <Button variant="contained" onClick={onStart} sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' }, minWidth: 76 }}>
           START
         </Button>
       </DialogActions>

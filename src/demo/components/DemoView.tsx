@@ -194,12 +194,12 @@ export function DemoView({
                 variant="text"
                 startIcon={<ArrowBackIcon />}
                 onClick={onBackToSelection}
-                sx={{ color: '#ED005E', width: 'fit-content', p: 0 }}
+                sx={{ color: 'primary.main', width: 'fit-content', p: 0 }}
               >
                 Back to Content Selection
               </Button>
               <Typography sx={{ color: 'rgba(0,0,0,0.38)' }}>|</Typography>
-              <Typography sx={{ color: 'rgba(0,0,0,0.87)', fontWeight: 500, letterSpacing: 0.2 }}>
+              <Typography sx={{ color: 'text.primary', fontWeight: 500, letterSpacing: 0.2 }}>
                 {titlePanelSummary}
               </Typography>
             </Stack>
@@ -619,7 +619,7 @@ export function DemoView({
                 <Box ref={taxonomyScrollContainerRef} sx={{ px: 1.05, pb: 1, flex: 1, minHeight: 0, overflowY: 'auto' }}>
                   {!taxonomyAvailability[selectedTaxonomy] ? (
                     <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                      <Typography sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+                      <Typography sx={{ fontSize: 13, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
                         {`No ${selectedTaxonomy.toLowerCase()} information currently`}
                       </Typography>
                     </Box>
@@ -732,19 +732,19 @@ export function DemoView({
                 <Box ref={productScrollContainerRef} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 0.9 }}>
                   {productsUnavailableMessage ? (
                     <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                      <Typography sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+                      <Typography sx={{ fontSize: 13, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
                         {productsUnavailableMessage}
                       </Typography>
                     </Box>
                   ) : productEntries.length === 0 ? (
                     <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                      <Typography sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+                      <Typography sx={{ fontSize: 13, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
                         No product matches detected yet.
                       </Typography>
                     </Box>
                   ) : !hasReachedFirstProduct ? (
                     <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                      <Typography sx={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+                      <Typography sx={{ fontSize: 13, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
                         Waiting for the first product match…
                       </Typography>
                     </Box>

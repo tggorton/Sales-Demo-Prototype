@@ -1,4 +1,5 @@
-import { Box, Container, Paper } from '@mui/material'
+import { Container, Paper } from '@mui/material'
+import { AppShell } from '@kerv-one/theme'
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { AuthenticatedHeader } from './demo/components/AuthenticatedHeader'
 import { CompanionDialog } from './demo/components/CompanionDialog'
@@ -358,14 +359,7 @@ function App() {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background:
-          'linear-gradient(125deg, #f6f6f6 5%, #e9ebf7 20%, #f6f6f6 42%, #ffe8f0 58%, #e9ebf7 77%, #f6f6f6 100%)',
-        py: 2,
-      }}
-    >
+    <AppShell sx={{ py: 2 }}>
       <Container maxWidth={false} sx={{ width: 1440, maxWidth: '100%', px: 3 }}>
         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, bgcolor: 'transparent' }}>
           {currentView === 'login' ? (
@@ -535,7 +529,7 @@ function App() {
         selectedCompanionUrl={selectedCompanionUrl}
         onClose={() => setIsCompanionModalOpen(false)}
       />
-    </Box>
+    </AppShell>
   )
 }
 

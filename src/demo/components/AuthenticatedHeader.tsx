@@ -36,7 +36,7 @@ export function AuthenticatedHeader({
           </Typography>
         </Stack>
 
-        <IconButton sx={{ color: '#ED005E' }} onClick={onOpenProfileMenu}>
+        <IconButton sx={{ color: 'primary.main' }} onClick={onOpenProfileMenu}>
           <PersonIcon />
         </IconButton>
       </Stack>
@@ -60,7 +60,7 @@ export function AuthenticatedHeader({
         <MenuItem onClick={onOpenProfileDrawer} sx={{ fontSize: 14 }}>
           Profile
         </MenuItem>
-        <MenuItem onClick={onSignOut} sx={{ fontSize: 14, color: '#9A1B52' }}>
+        <MenuItem onClick={onSignOut} sx={{ fontSize: 14, color: 'primary.darkest' }}>
           Sign Out
         </MenuItem>
       </Menu>

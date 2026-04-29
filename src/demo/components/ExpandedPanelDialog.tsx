@@ -181,7 +181,7 @@ export function ExpandedPanelDialog({
                       mr: 1,
                       p: 0.5,
                       color: 'rgba(0,0,0,0.54)',
-                      '&.Mui-checked': { color: '#ED005E' },
+                      '&.Mui-checked': { color: 'primary.main' },
                     }}
                   />
                   <Typography sx={{ fontSize: 13 }}>{option}</Typography>
@@ -204,7 +204,7 @@ export function ExpandedPanelDialog({
             {expandedSelectedTaxonomies.length > 0 &&
             expandedSelectedTaxonomies.every((taxonomy) => !taxonomyAvailability[taxonomy]) ? (
               <Box sx={{ px: 1.5, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                <Typography sx={{ fontSize: 14, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+                <Typography sx={{ fontSize: 14, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
                   {expandedSelectedTaxonomies.length === 1
                     ? `No ${expandedSelectedTaxonomies[0].toLowerCase()} information currently`
                     : 'No information currently for the selected taxonomies'}
@@ -292,7 +292,7 @@ export function ExpandedPanelDialog({
       if (productsUnavailableMessage) {
         return (
           <Box sx={{ px: 4, py: 6, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography sx={{ fontSize: 16, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+            <Typography sx={{ fontSize: 16, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
               {productsUnavailableMessage}
             </Typography>
           </Box>
@@ -301,7 +301,7 @@ export function ExpandedPanelDialog({
       if (productEntries.length === 0) {
         return (
           <Box sx={{ px: 4, py: 6, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography sx={{ fontSize: 16, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+            <Typography sx={{ fontSize: 16, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
               No product matches detected yet.
             </Typography>
           </Box>
@@ -310,7 +310,7 @@ export function ExpandedPanelDialog({
       if (!hasReachedFirstProduct) {
         return (
           <Box sx={{ px: 4, py: 6, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography sx={{ fontSize: 16, color: 'rgba(0,0,0,0.6)', textAlign: 'center', lineHeight: 1.4 }}>
+            <Typography sx={{ fontSize: 16, color: 'text.secondary', textAlign: 'center', lineHeight: 1.4 }}>
               Waiting for the first product match…
             </Typography>
           </Box>

@@ -24,20 +24,20 @@ export function VerifyEmailDialog({ open, onClose }: VerifyEmailDialogProps) {
     >
       <DialogContent sx={{ px: 3, pt: 3.2, pb: 2.4 }}>
         <Stack spacing={2} alignItems="center" textAlign="center">
-          <Typography sx={{ fontSize: 42, lineHeight: 1, color: '#ED005E' }}>✉</Typography>
+          <Typography sx={{ fontSize: 42, lineHeight: 1, color: 'primary.main' }}>✉</Typography>
           <Box>
-            <Typography sx={{ fontSize: 24, fontWeight: 500, color: 'rgba(0,0,0,0.87)' }}>
+            <Typography sx={{ fontSize: 24, fontWeight: 500, color: 'text.primary' }}>
               Verify your new email
             </Typography>
-            <Typography sx={{ fontSize: 14, color: 'rgba(0,0,0,0.6)', mt: 0.8 }}>
+            <Typography sx={{ fontSize: 14, color: 'text.secondary', mt: 0.8 }}>
               We sent you an email verification request.
             </Typography>
           </Box>
           <Stack spacing={1} sx={{ width: '100%', maxWidth: 300 }}>
-            <Button variant="contained" onClick={onClose} sx={{ bgcolor: '#ED005E', '&:hover': { bgcolor: '#cf0052' }, fontWeight: 600 }}>
+            <Button variant="contained" onClick={onClose} sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' }, fontWeight: 600 }}>
               CHECK EMAIL APP
             </Button>
-            <Button variant="outlined" onClick={onClose} sx={{ borderColor: '#ED005E80', color: '#ED005E', fontWeight: 600 }}>
+            <Button variant="outlined" onClick={onClose} sx={{ borderColor: '#ED005E80', color: 'primary.main', fontWeight: 600 }}>
               RESEND EMAIL
             </Button>
           </Stack>
