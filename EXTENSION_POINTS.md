@@ -12,8 +12,8 @@ This document is the **recipe book**. When you (or an AI assistant) need to do s
 > |---|---|
 > | Swap auth provider (mock ↔ Cognito stub) | ✅ Ready |
 > | Override a media URL via env var | ✅ Ready |
-> | Enable a commented-out ad mode | ⚠️ Works today but touches ~8 places (will become 1 file after Phase 2) |
-> | Add a brand-new ad mode | ⚠️ Same — wait for Phase 2 if possible |
+> | Enable a commented-out ad mode | ✅ Ready (registry-driven — see `src/demo/ad-modes/README.md`) |
+> | Add a brand-new ad mode | ✅ Ready (registry-driven — see `src/demo/ad-modes/README.md`) |
 > | Add a new content tile | ⚠️ Possible but not formalized; see Phase 5 |
 > | Add a new taxonomy | ✅ Ready (small change) |
 > | Wire Cognito live | ⏳ Stub in place; details when AWS pool is ready |
@@ -70,69 +70,64 @@ See [`.env.example`](.env.example) (kept in sync with the actual constants).
 
 ## Recipe: Enable a commented-out ad mode
 
-**Status:** ⚠️ Works today, gets simpler after Phase 2
-**Pattern owner:** Today: scattered. After Phase 2: `src/demo/ad-modes/registry.ts`.
+**Status:** ✅ Ready
+**Pattern owner:** [`src/demo/ad-modes/`](src/demo/ad-modes/) — full cookbook in [`src/demo/ad-modes/README.md`](src/demo/ad-modes/README.md).
 
-The four currently-disabled modes are `Pause Ad`, `CTA Pause`, `Organic Pause`, `Carousel Shop`. To enable any of them today:
+The five currently-disabled modes are `Pause Ad`, `CTA Pause`, `Organic Pause`, `Carousel Shop`, and `Companion`. Each has a stub config under `src/demo/ad-modes/modes/<id>/config.ts`.
 
-### Steps (current state — pre Phase 2)
+### Steps
 
-1. **`src/demo/constants.ts`** — add the mode name to `ENABLED_AD_PLAYBACK_OPTIONS` (line 51).
-2. If it's an ad-break-style mode, add a duration entry to `DHYH_AD_BREAK_DURATIONS_SECONDS` (line 192).
-3. Add a video URL constant + corresponding `VITE_*` env hook (mirror `DHYH_IMPULSE_AD_VIDEO_URL`, lines 174–187).
-4. **`src/demo/data/`** — add an `ad-compliance-results-<mode>.json` fixture and import it in [`src/demo/hooks/useDemoPlayback.ts`](src/demo/hooks/useDemoPlayback.ts) (around lines 3–5).
-5. **`src/demo/hooks/useDemoPlayback.ts`** — add the conditional branches:
-   - Mode selector around lines 145–149.
-   - Duration / segments around lines 166–185.
-   - Video URL dispatch around lines 305–311.
-   - Compliance JSON dispatch around lines 313–320.
-6. **`src/demo/components/DemoView.tsx`** — if the mode needs custom on-screen UI (overlay, scrubber visualization), add an `is<Mode>` branch (mirror `isSyncImpulseMode` around lines 370–425, 481–531).
-7. Add the mp4 + any image overlays to `public/assets/ads/` and confirm they're tracked in git (per HANDOFF §5 asset hygiene).
-8. Verify: open the demo, swap to the new mode in the Ad Playback dropdown, confirm the ad break behaves as designed.
+1. **Open the mode's config** in `src/demo/ad-modes/modes/<id>/config.ts`.
+2. **Set `enabled: true`** and add the three DHYH-specific fields if it's a sync-style ad-break mode:
+   ```ts
+   dhyhAdDurationSeconds: 30,
+   dhyhAdVideoUrl: envString('VITE_DHYH_<UPPER_ID>_AD_VIDEO_URL', '/assets/ads/<file>.mp4'),
+   dhyhCompliancePayload: fixtures as Record<string, unknown>,
+   ```
+3. **Add the creative** (`public/assets/ads/<file>.mp4`).
+4. **Add `fixtures.json`** in the mode's folder.
+5. Run `npm run build`. The dropdown picks the mode up automatically because `ENABLED_AD_MODE_IDS` is derived from the registry.
 
-### Steps (target state — after Phase 2)
-
-```
-src/demo/ad-modes/modes/<new-mode>/
-  config.ts        # { id, label, duration, videoUrl, fixtureRef, OverlayComponent }
-  fixtures.json    # ad-compliance payload
-  Overlay.tsx      # optional — only if the mode renders custom UI during the ad
-```
-
-Then add one entry to `src/demo/ad-modes/registry.ts`:
-
-```ts
-export const AD_MODE_REGISTRY: Record<AdMode, AdModeDefinition> = {
-  // … existing modes
-  'Carousel Shop': {
-    id: 'Carousel Shop',
-    label: 'Carousel Shop',
-    duration: 30,
-    videoUrl: DHYH_CAROUSEL_AD_VIDEO_URL,
-    fixturePayload: carouselFixture,
-    OverlayComponent: CarouselOverlay,
-    enabled: true,
-  },
-}
-```
-
-That's the entire change. The 65 mode-aware conditionals in today's codebase collapse to registry lookups (`AD_MODE_REGISTRY[mode].duration`, etc.).
+If the mode introduces UI behavior that doesn't fit the existing sync-ad-break pattern (e.g. `Pause Ad` shows a static image, `CTA Pause` shows an in-content CTA overlay), you'll also need to add a new branch in `DemoView.tsx` / `useDemoPlayback.ts`. See `src/demo/ad-modes/README.md` for the full breakdown of which behaviors the registry currently owns vs. which still flow through the playback hook.
 
 ---
 
 ## Recipe: Add a brand-new ad mode
 
-**Status:** ⚠️ Same as above — wait for Phase 2 if possible.
+**Status:** ✅ Ready
+**Pattern owner:** [`src/demo/ad-modes/`](src/demo/ad-modes/)
 
-After Phase 2 lands, this becomes:
+### Steps
 
-1. Create `src/demo/ad-modes/modes/<id>/` with `config.ts`, `fixtures.json`, optional `Overlay.tsx`.
-2. Register it in `src/demo/ad-modes/registry.ts`.
-3. Add the type literal to `AdMode` in `src/demo/ad-modes/types.ts`.
-4. Drop creative assets into `public/assets/ads/`.
-5. Verify the dropdown shows it and the ad break plays correctly.
+1. **Add the type literal** to `AdPlaybackOption` in `src/demo/types.ts`.
+2. **Create the folder:** `src/demo/ad-modes/modes/<id>/` (kebab-case to match siblings).
+3. **Add `config.ts`:**
+   ```ts
+   import { envString } from '../../../utils/env'
+   import type { AdModeDefinition } from '../../types'
+   import fixtures from './fixtures.json'
 
-Until Phase 2 lands, follow the "Enable a commented-out ad mode" recipe and treat it as a new mode end-to-end.
+   export const newMode: AdModeDefinition = {
+     id: 'New Mode',
+     label: 'New Mode',
+     enabled: true,
+     dhyhAdDurationSeconds: 30,
+     dhyhAdVideoUrl: envString('VITE_DHYH_NEW_MODE_AD_VIDEO_URL', '/assets/ads/your-file.mp4'),
+     dhyhCompliancePayload: fixtures as Record<string, unknown>,
+   }
+   ```
+4. **Add `fixtures.json`** in the same folder.
+5. **Register it** in `src/demo/ad-modes/registry.ts`:
+   ```ts
+   import { newMode } from './modes/<id>/config'
+
+   export const AD_MODE_REGISTRY: AdModeRegistry = {
+     // ... existing entries
+     'New Mode': newMode,
+   }
+   ```
+6. Drop the creative into `public/assets/ads/`.
+7. Run `npm run build`. Selector dropdown picks it up automatically.
 
 ---
 
