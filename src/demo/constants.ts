@@ -50,16 +50,56 @@ export const taxonomyOptions: TaxonomyOption[] = [
   'Object',
 ]
 
-// Per-content taxonomy hide list. Anything listed here is removed from the
-// taxonomy dropdown for the matching content even if the underlying JSON has
-// data for it – useful when a tier technically emits the field but the
-// upstream content team hasn't curated/approved it yet for that specific
-// piece of content. Keyed by `ContentItem.id` so adding a new piece of
-// content with its own hide rules is just a new entry.
+// Per-tier taxonomy whitelist. The dropdown only surfaces taxonomies that
+// the upstream tier JSON actually emits — Tier 1 ships IAB + Sentiment +
+// Brand Safety only, Tier 2 adds music_emotion / locations / faces /
+// objects, Tier 3 layers product_match data on top. We enforce this
+// whitelist BEFORE the per-scene data-presence check because the editorial
+// DHYH_LOCATION_TIMELINE retrofits a location for every clip-time
+// regardless of whether the model actually emitted one — without this
+// whitelist Location would (incorrectly) light up at Basic Scene because
+// every scene gets a timeline-derived label.
+//
+// Add a new TierOption -> taxonomies entry when introducing a new tier
+// JSON; entries default to no taxonomies if missing (everything filtered
+// out, panel renders empty).
+export const TAXONOMIES_AVAILABLE_BY_TIER: Record<TierOption, TaxonomyOption[]> = {
+  'Assets Summary': ['IAB', 'Sentiment', 'Brand Safety'],
+  'Basic Scene': ['IAB', 'Sentiment', 'Brand Safety'],
+  'Advanced Scene': [
+    'IAB',
+    'Sentiment',
+    'Brand Safety',
+    'Emotion',
+    'Location',
+    'Faces',
+    'Object',
+  ],
+  'Categorical Product Match': [
+    'IAB',
+    'Sentiment',
+    'Brand Safety',
+    'Emotion',
+    'Location',
+    'Faces',
+    'Object',
+  ],
+  'Exact Product Match': [
+    'IAB',
+    'Sentiment',
+    'Brand Safety',
+    'Emotion',
+    'Location',
+    'Faces',
+    'Object',
+  ],
+}
+
+// Per-content taxonomy hide list. Layered on top of the per-tier whitelist:
+// even if a tier emits the data, this list lets specific content opt out
+// (e.g. `garm_category` exists in Tier 1 but the curated DHYH copy isn't
+// approved). Keyed by `ContentItem.id`.
 export const HIDDEN_TAXONOMIES_BY_CONTENT: Record<string, TaxonomyOption[]> = {
-  // DHYH ("Don't Hate Your House"): Brand Safety data exists in the JSON but
-  // isn't curated for this clip yet, so hide it for now. Other clips can opt
-  // in by leaving the entry off this list.
   dhyh: ['Brand Safety'],
 }
 

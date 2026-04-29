@@ -21,6 +21,7 @@ import {
   PRODUCT_DEDUPE_WINDOW_SECONDS,
   SYNC_IMPULSE_DURATION_SECONDS,
   SYNC_IMPULSE_SEGMENTS,
+  TAXONOMIES_AVAILABLE_BY_TIER,
   taxonomyOptions,
   TOTAL_DURATION_SECONDS,
 } from '../constants'
@@ -499,8 +500,17 @@ export function useDemoPlayback({
     const hidden = selectedContent
       ? HIDDEN_TAXONOMIES_BY_CONTENT[selectedContent.id] ?? []
       : []
+    // Per-tier whitelist (TAXONOMIES_AVAILABLE_BY_TIER) is the source of truth
+    // for which taxonomies the upstream JSON conceptually owns at this tier.
+    // It runs BEFORE the per-scene data-presence check so retrofits like the
+    // editorial DHYH_LOCATION_TIMELINE can't sneak Location into Basic Scene.
+    const tierWhitelist = TAXONOMIES_AVAILABLE_BY_TIER[selectedTier] ?? []
     for (const option of taxonomyOptions) {
       if (hidden.includes(option)) {
+        availability[option] = false
+        continue
+      }
+      if (!tierWhitelist.includes(option)) {
         availability[option] = false
         continue
       }
@@ -513,7 +523,7 @@ export function useDemoPlayback({
       )
     }
     return availability
-  }, [isDhyhContent, playbackScenes, selectedContent])
+  }, [isDhyhContent, playbackScenes, selectedContent, selectedTier])
 
   // Taxonomy options filtered down to only those that actually have data for
   // the currently-selected tier / content. Drives both the collapsed <Select>
