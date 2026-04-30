@@ -507,6 +507,7 @@ function App() {
         adDecisionPayload={demoPlayback.adDecisionPayload}
         adDecisioningTail={demoPlayback.adDecisioningTail}
         videoCurrentSeconds={videoCurrentSeconds}
+        scrubVersion={demoPlayback.scrubVersion}
         onClose={closeExpandedPanel}
         onOpenJsonDownload={() => setIsJsonDownloadModalOpen(true)}
         onExpandedTaxonomiesChange={setExpandedSelectedTaxonomies}

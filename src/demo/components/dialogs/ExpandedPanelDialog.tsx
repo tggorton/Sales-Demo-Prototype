@@ -61,6 +61,13 @@ type ExpandedPanelDialogProps = {
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
   videoCurrentSeconds: number
+  /** Monotonic counter from `useDemoPlayback`. Bumps every time the
+   *  user scrubs the player. The dialog re-fires its open-time scroll
+   *  whenever this changes so the expanded view re-anchors itself to
+   *  the current product/scene after a scrub — without re-firing on
+   *  natural playback drift, which would yank the panel away from the
+   *  user mid-browse. (Phase 9b sync hardening.) */
+  scrubVersion: number
   onClose: () => void
   onOpenJsonDownload: () => void
   onExpandedTaxonomiesChange: (value: TaxonomyOption[]) => void
@@ -84,6 +91,7 @@ export function ExpandedPanelDialog({
   adDecisionPayload,
   adDecisioningTail,
   videoCurrentSeconds,
+  scrubVersion,
   onClose,
   onOpenJsonDownload,
   onExpandedTaxonomiesChange,
@@ -125,10 +133,17 @@ export function ExpandedPanelDialog({
     }
   }
 
-  // Scroll to the active anchor on open. We run after layout via rAF so
-  // the dialog's transition has had a tick to render its content
-  // (otherwise offsetTop is 0 and we'd no-op). Re-runs on subsequent
-  // scrubs are wired in Phase 9b; for now this fires once per open.
+  // Scroll to the active anchor on open AND on every scrub while the
+  // dialog is open (Phase 9b). We run after layout via rAF so the
+  // dialog's transition has had a tick to render its content
+  // (otherwise offsetTop is 0 and we'd no-op).
+  //
+  // Two trigger keys, by design:
+  //   - `expandedPanel`: fires on open (and on panel-type swap).
+  //   - `scrubVersion`: bumps every time the user explicitly scrubs.
+  // Natural playback drift does NOT bump `scrubVersion`, so the user
+  // can browse the expanded view freely between scrubs without the
+  // panel yanking itself back to the live position each frame.
   useEffect(() => {
     if (!expandedPanel) return
     let raf2 = 0
@@ -160,10 +175,13 @@ export function ExpandedPanelDialog({
       window.cancelAnimationFrame(raf1)
       if (raf2) window.cancelAnimationFrame(raf2)
     }
-    // Keyed on `expandedPanel` only — the scroll fires once per open.
-    // Phase 9b will add scrub-driven re-syncs alongside this.
+    // We deliberately depend on `expandedPanel` (open trigger) and
+    // `scrubVersion` (scrub trigger) only — NOT on `activeProductIndex`
+    // or `activeScene.id`, which would re-fire on every natural
+    // playback advance and yank the user away from wherever they're
+    // browsing inside the expanded view.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedPanel])
+  }, [expandedPanel, scrubVersion])
 
   const renderExpandedPanelContent = () => {
     if (expandedPanel === 'taxonomy') {

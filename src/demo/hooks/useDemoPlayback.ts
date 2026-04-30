@@ -752,6 +752,15 @@ export function useDemoPlayback({
     }
   }, [panelTimelineSeconds, currentView])
 
+  // Phase 9b — `scrubVersion` is a monotonic counter that increments
+  // every time `flagPanelScrub` is called. It's exposed from the hook
+  // so the expanded panel dialog can re-fire its open-time scroll
+  // when the user scrubs while the dialog is open. Natural playback
+  // drift does NOT bump this — only explicit scrub events do — which
+  // preserves the "let the user browse the expanded view freely
+  // between scrubs" UX. See `ExpandedPanelDialog`'s scroll effect.
+  const [scrubVersion, setScrubVersion] = useState(0)
+
   // Imperative "the user is scrubbing" signal.
   //
   // The threshold-based scrub detection above only fires when the timeline
@@ -765,7 +774,8 @@ export function useDemoPlayback({
   // mark every user-initiated seek as a scrub unconditionally, regardless
   // of magnitude, so the next RAF frame hard-snaps all three panels to
   // their current-live targets. Smooth scroll is then reserved for what it
-  // was always meant for: natural playback drift.
+  // was always meant for: natural playback drift. Also bumps `scrubVersion`
+  // so an open expanded-panel dialog re-anchors itself.
   const flagPanelScrub = useCallback(() => {
     for (const manual of [
       taxonomyManualScrollRef.current,
@@ -775,6 +785,7 @@ export function useDemoPlayback({
       manual.pauseUntil = 0
       manual.needsSnapOnResume = true
     }
+    setScrubVersion((prev) => prev + 1)
   }, [])
 
   // Segment-flip snap for the product panel.
@@ -1037,6 +1048,7 @@ export function useDemoPlayback({
     availableTaxonomies,
     availableAdModes,
     flagPanelScrub,
+    scrubVersion,
     displayedCurrentSeconds,
     displayedDurationSeconds,
     impulseSegments: isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,
