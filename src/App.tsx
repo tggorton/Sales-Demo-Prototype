@@ -1,16 +1,54 @@
 import { Container, Paper } from '@mui/material'
 import { AppShell } from '@kerv-one/theme'
-import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
 import { AuthenticatedHeader } from './demo/components/layout/AuthenticatedHeader'
-import { CompanionDialog } from './demo/components/dialogs/CompanionDialog'
 import { ContentSelectionView } from './demo/components/ContentSelectionView'
-import { DemoView } from './demo/components/DemoView'
-import { ExpandedPanelDialog } from './demo/components/dialogs/ExpandedPanelDialog'
-import { JsonDownloadDialog } from './demo/components/dialogs/JsonDownloadDialog'
 import { LoginView } from './demo/components/LoginView'
-import { ProfileDrawer } from './demo/components/dialogs/ProfileDrawer'
 import { SelectorDialog } from './demo/components/dialogs/SelectorDialog'
-import { VerifyEmailDialog } from './demo/components/dialogs/VerifyEmailDialog'
+
+// Code-split the heavy demo modules so they don't block the login + content
+// selection screens. `DemoView` carries the player, panel cards, scroll
+// engine, and ~dozen MUI components — by deferring it the login bundle
+// shrinks and the user sees the login screen sooner. The expanded panel
+// dialog, JSON download dialog, companion dialog, profile drawer, and
+// verify-email dialog are also rarely-used surfaces; lazy-loading them
+// keeps the initial JS payload focused on the auth + selection flow.
+const DemoView = lazy(() =>
+  import('./demo/components/DemoView').then((m) => ({ default: m.DemoView }))
+)
+const ExpandedPanelDialog = lazy(() =>
+  import('./demo/components/dialogs/ExpandedPanelDialog').then((m) => ({
+    default: m.ExpandedPanelDialog,
+  }))
+)
+const JsonDownloadDialog = lazy(() =>
+  import('./demo/components/dialogs/JsonDownloadDialog').then((m) => ({
+    default: m.JsonDownloadDialog,
+  }))
+)
+const CompanionDialog = lazy(() =>
+  import('./demo/components/dialogs/CompanionDialog').then((m) => ({
+    default: m.CompanionDialog,
+  }))
+)
+const ProfileDrawer = lazy(() =>
+  import('./demo/components/dialogs/ProfileDrawer').then((m) => ({
+    default: m.ProfileDrawer,
+  }))
+)
+const VerifyEmailDialog = lazy(() =>
+  import('./demo/components/dialogs/VerifyEmailDialog').then((m) => ({
+    default: m.VerifyEmailDialog,
+  }))
+)
 import {
   DEFAULT_MACBOOK_VIEWPORT_MAX_HEIGHT,
   DEFAULT_MACBOOK_VIEWPORT_MAX_WIDTH,
@@ -359,6 +397,12 @@ function App() {
   }
 
   return (
+    // `Suspense` boundary covers every lazy-loaded chunk in the tree
+    // (DemoView + the five dialogs above). Fallback is `null` so the
+    // currently-mounted view remains visible until the chunk arrives —
+    // the alternative (a spinner overlay) would visibly flash on every
+    // dialog open.
+    <Suspense fallback={null}>
     <AppShell sx={{ py: 2 }}>
       <Container maxWidth={false} sx={{ width: 1440, maxWidth: '100%', px: 3 }}>
         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, bgcolor: 'transparent' }}>
@@ -537,6 +581,7 @@ function App() {
         onClose={() => setIsCompanionModalOpen(false)}
       />
     </AppShell>
+    </Suspense>
   )
 }
 

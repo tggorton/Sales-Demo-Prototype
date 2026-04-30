@@ -252,7 +252,14 @@ export function VideoPlayer({
             key={mainVideoSrc}
             muted={isVideoMuted}
             playsInline
-            preload="metadata"
+            // `auto` (vs the previous `metadata`) tells the browser to
+            // download bytes ahead of play, not just the moov atom. The
+            // 58MB DHYH MP4 was producing a visible startup stall on
+            // first-play because metadata alone left zero buffer when
+            // the user hit play; `auto` gives the buffer a head start
+            // from the moment the player mounts. The user explicitly
+            // flagged this as a Vercel-deploy choppiness issue.
+            preload="auto"
             onLoadedMetadata={(event) => {
               const duration = event.currentTarget.duration
               if (!Number.isNaN(duration)) {
