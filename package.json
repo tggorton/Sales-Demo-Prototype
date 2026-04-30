@@ -37,8 +37,13 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "@kerv-one/theme": {
-      "@mui/material": "$@mui/material"
-    }
+    "@mui/material": "$@mui/material",
+    "@mui/icons-material": "$@mui/icons-material",
+    "@mui/system": "^7.3.0",
+    "@mui/utils": "^7.3.0",
+    "@mui/private-theming": "^7.3.0",
+    "@mui/styled-engine": "^7.3.0",
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }

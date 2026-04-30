@@ -5,6 +5,30 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    // Force a single instance of every MUI runtime + React. Belt-and-
+    // suspenders alongside the package.json `overrides` block: even if
+    // a future install ends up with duplicate copies in node_modules
+    // (e.g. nested under `@kerv-one/theme` which has its own MUI 6 +
+    // React 19 peer deps), Vite's bundler resolves all imports to a
+    // single version. The runtime "alpha is not a function" /
+    // "lighten is not a function" errors that hit the first
+    // sales-demo-prototype Vercel deploy traced back to MUI 6 packages
+    // hoisted to top-level node_modules where MUI 7 imports were
+    // looking — dedupe pins the bundler to one tree.
+    dedupe: [
+      '@mui/material',
+      '@mui/system',
+      '@mui/utils',
+      '@mui/styled-engine',
+      '@mui/private-theming',
+      '@mui/icons-material',
+      '@emotion/react',
+      '@emotion/styled',
+      'react',
+      'react-dom',
+    ],
+  },
   test: {
     // Phase 7a — Vitest unit tests for pure-function protected behaviors.
     // Tests live in `tests/unit/` rooted at the project root so the source
