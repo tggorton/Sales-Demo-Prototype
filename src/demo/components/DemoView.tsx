@@ -7,7 +7,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import {
   Box,
-  Chip,
   FormControl,
   IconButton,
   InputLabel,
@@ -22,14 +21,16 @@ import {
 import { useMemo, type MutableRefObject } from 'react'
 import { PanelGlyph } from './primitives/PanelGlyph'
 import { VideoPlayer } from './player/VideoPlayer'
+import { TaxonomySceneCard } from './cards/TaxonomySceneCard'
+import { ProductCard } from './cards/ProductCard'
+import { JsonSceneCard } from './cards/JsonSceneCard'
 import {
-  PRODUCT_PLACEHOLDER_IMAGE,
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
 } from '../constants'
 import { ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
-import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
+import { buildAdBreakJsonString } from '../utils/jsonExport'
 import { groupJsonScenes, type JsonSceneGroup } from '../utils/jsonPanelGroups'
 import {
   dropdownMagentaStyles,
@@ -38,7 +39,6 @@ import {
   panelHeaderIconButtonDarkStyles,
   panelHeaderIconButtonStyles,
   panelPaperStyles,
-  sceneAnchorStyles,
   tooltipStyles,
 } from '../styles'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
@@ -405,46 +405,16 @@ export function DemoView({
                         lastHeadline = taxonomyData.headline
                         lastEmittedAt = scene.start
                         return (
-                        <Box
-                          key={scene.id}
-                          ref={(el: HTMLDivElement | null) => {
-                            taxonomyRefs.current[index] = el
-                          }}
-                          sx={{
-                            p: 0.9,
-                            borderRadius: 1,
-                            border: '1px solid transparent',
-                            backgroundColor: 'transparent',
-                          }}
-                        >
-                          <Typography sx={sceneAnchorStyles}>
-                            {scene.sceneLabel} · {formatTime(scene.start)}
-                          </Typography>
-                          <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                            {selectedTaxonomy}
-                          </Typography>
-                          <Chip
-                            label={`${taxonomyData.headline} (${taxonomyData.chip})`}
-                            size="small"
-                            sx={{
-                              height: 25.27,
-                              borderRadius: '104.48px',
-                              mt: 0.4,
-                              mb: 0.8,
-                              fontSize: 11.5,
+                          <TaxonomySceneCard
+                            key={scene.id}
+                            sceneLabel={scene.sceneLabel}
+                            sceneStart={scene.start}
+                            rows={[{ taxonomy: selectedTaxonomy, data: taxonomyData }]}
+                            variant="collapsed"
+                            containerRef={(el) => {
+                              taxonomyRefs.current[index] = el
                             }}
                           />
-                          {taxonomyData.sections.map((section) => (
-                            <Box key={`${scene.id}-${selectedTaxonomy}-${section.label}`}>
-                              <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                                {section.label}
-                              </Typography>
-                              <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                                {section.value}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Box>
                         )
                       })
                     })()}
@@ -522,65 +492,15 @@ export function DemoView({
                       const isFirstOfScene =
                         index === 0 || productEntries[index - 1].sceneId !== entry.sceneId
                       return (
-                        <Box
+                        <ProductCard
                           key={`${entry.sceneId}-${entry.id}`}
-                          ref={(el: HTMLDivElement | null) => {
+                          entry={entry}
+                          showSceneAnchor={isFirstOfScene}
+                          variant="collapsed"
+                          containerRef={(el) => {
                             productRefs.current[index] = el
                           }}
-                          sx={{
-                            px: 0.75,
-                            pt: isFirstOfScene ? 1.05 : 0.6,
-                            pb: 1.05,
-                            borderBottom: '1px solid #e6e6e6',
-                            backgroundColor: 'transparent',
-                            borderLeft: '3px solid transparent',
-                          }}
-                        >
-                          {isFirstOfScene && (
-                            <Typography sx={sceneAnchorStyles}>
-                              {entry.sceneLabel} · {formatTime(entry.sceneStart)}
-                            </Typography>
-                          )}
-                          <Stack direction="row" spacing={1.2}>
-                            <Box
-                              component="img"
-                              src={entry.image}
-                              alt={entry.name}
-                              onError={(event) => {
-                                const img = event.currentTarget as HTMLImageElement
-                                if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
-                                  img.src = PRODUCT_PLACEHOLDER_IMAGE
-                                }
-                              }}
-                              sx={{
-                                width: 54,
-                                height: 54,
-                                borderRadius: 0.5,
-                                objectFit: 'cover',
-                                flexShrink: 0,
-                              }}
-                            />
-                            <Box sx={{ minWidth: 0 }}>
-                              <Typography sx={{ fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>
-                                {entry.name}
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  fontSize: 12,
-                                  mt: 0.2,
-                                  lineHeight: 1.35,
-                                  opacity: 0.87,
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {entry.description}
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Box>
+                        />
                       )
                     })
                   )}
@@ -675,39 +595,20 @@ export function DemoView({
                         }
                         const isMerged = group.sceneIndices.length > 1
                         return (
-                        <Box
-                          key={scene.id}
-                          ref={(el: HTMLDivElement | null) => {
-                            for (const idx of group.sceneIndices) {
-                              jsonRefs.current[idx] = el
-                            }
-                          }}
-                          sx={{
-                            p: 0.85,
-                            borderRadius: 1,
-                            backgroundColor: 'transparent',
-                            border: '1px solid transparent',
-                          }}
-                        >
-                          <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.4 }}>
-                            {group.label} @ {formatTime(group.startSec)}
-                            {isMerged ? `–${formatTime(group.endSec)}` : ''}
-                          </Typography>
-                          <Typography
-                            component="pre"
-                            sx={{
-                              m: 0,
-                              whiteSpace: 'pre-wrap',
-                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                              fontSize: 10.4,
-                              lineHeight: 1.4,
-                              color: '#f3f7fd',
+                          <JsonSceneCard
+                            key={scene.id}
+                            scene={group.leadScene}
+                            sceneIndex={group.leadIndex}
+                            label={group.label}
+                            startSec={group.startSec}
+                            endSec={isMerged ? group.endSec : undefined}
+                            containerRef={(el) => {
+                              for (const idx of group.sceneIndices) {
+                                jsonRefs.current[idx] = el
+                              }
                             }}
-                          >
-                            {JSON.stringify(buildSceneJsonPayload(group.leadScene, group.leadIndex), null, 2)}
-                          </Typography>
-                        </Box>
-                      )
+                          />
+                        )
                       })}
                     </Stack>
                   )}

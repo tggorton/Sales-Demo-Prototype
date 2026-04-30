@@ -16,13 +16,15 @@ import {
 } from '@mui/material'
 import { useEffect, useRef } from 'react'
 import { PanelGlyph } from '../primitives/PanelGlyph'
-import { PRODUCT_PLACEHOLDER_IMAGE, TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../../constants'
-import { buildAdBreakJsonString, buildSceneJsonPayload } from '../../utils/jsonExport'
+import { TaxonomySceneCard, type TaxonomyRow } from '../cards/TaxonomySceneCard'
+import { ProductCard } from '../cards/ProductCard'
+import { JsonSceneCard } from '../cards/JsonSceneCard'
+import { TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../../constants'
+import { buildAdBreakJsonString } from '../../utils/jsonExport'
 import {
   panelHeaderActionIconSx,
   panelHeaderIconButtonDarkStyles,
   panelHeaderIconButtonStyles,
-  sceneAnchorStyles,
   taxonomyAutocompleteStyles,
 } from '../../styles'
 import { getTaxonomySceneData } from '../../data/taxonomySceneData'
@@ -223,7 +225,7 @@ export function ExpandedPanelDialog({
                 const lastEmittedAt = new Map<TaxonomyOption, number>()
                 return playbackScenes.map((scene, index) => {
                   if (index > activeSceneIndex) return null
-                  const rows = expandedSelectedTaxonomies
+                  const rows: TaxonomyRow[] = expandedSelectedTaxonomies
                     .map((taxonomy) => ({
                       taxonomy,
                       data: getTaxonomySceneData(scene, index, taxonomy),
@@ -231,7 +233,7 @@ export function ExpandedPanelDialog({
                     .filter(
                       (
                         row
-                      ): row is { taxonomy: TaxonomyOption; data: NonNullable<typeof row.data> } =>
+                      ): row is TaxonomyRow =>
                         row.data !== null
                     )
                     .filter(({ taxonomy, data }) => {
@@ -250,30 +252,18 @@ export function ExpandedPanelDialog({
                     })
                   if (expandedSelectedTaxonomies.length > 0 && rows.length === 0) return null
                   return (
-                    <Box key={`expanded-${scene.id}`} data-scene-anchor={scene.id} sx={{ p: 1.1 }}>
-                      <Typography sx={sceneAnchorStyles}>
-                        {scene.sceneLabel} · {formatTime(scene.start)}
-                      </Typography>
-                      {rows.map(({ taxonomy, data }) => (
-                        <Box key={`${scene.id}-${taxonomy}`} sx={{ mb: 1.05 }}>
-                          <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{taxonomy}</Typography>
-                          <Chip
-                            label={`${data.headline} (${data.chip})`}
-                            size="small"
-                            sx={{ height: 25.27, borderRadius: '104.48px', mt: 0.4, mb: 0.8, fontSize: 11.5 }}
-                          />
-                          {data.sections.map((section) => (
-                            <Box key={`${scene.id}-${taxonomy}-${section.label}`}>
-                              <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>{section.label}</Typography>
-                              <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                                {section.value}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                      ))}
+                    <Box key={`expanded-${scene.id}`}>
+                      <TaxonomySceneCard
+                        sceneLabel={scene.sceneLabel}
+                        sceneStart={scene.start}
+                        rows={rows}
+                        variant="expanded"
+                        dataSceneAnchorId={scene.id}
+                      />
                       {expandedSelectedTaxonomies.length === 0 && (
-                        <Typography sx={{ fontSize: 12, color: 'rgba(0,0,0,0.54)', mt: 0.8 }}>
+                        <Typography
+                          sx={{ fontSize: 12, color: 'rgba(0,0,0,0.54)', mt: 0.8, px: 1.1 }}
+                        >
                           Select one or more taxonomies to view scene details.
                         </Typography>
                       )}
@@ -322,53 +312,13 @@ export function ExpandedPanelDialog({
             const isFirstOfScene =
               index === 0 || productEntries[index - 1].sceneId !== entry.sceneId
             return (
-              <Box
+              <ProductCard
                 key={`expanded-${entry.sceneId}-${entry.id}`}
-                data-scene-anchor={isFirstOfScene ? entry.sceneId : undefined}
-                sx={{
-                  px: 0.9,
-                  pt: isFirstOfScene ? 1.2 : 0.7,
-                  pb: 1.2,
-                  borderBottom: '1px solid #e6e6e6',
-                }}
-              >
-                {isFirstOfScene && (
-                  <Typography sx={sceneAnchorStyles}>
-                    {entry.sceneLabel} · {formatTime(entry.sceneStart)}
-                  </Typography>
-                )}
-                <Stack direction="row" spacing={1.2}>
-                  <Box
-                    component="img"
-                    src={entry.image}
-                    alt={entry.name}
-                    onError={(event) => {
-                      const img = event.currentTarget as HTMLImageElement
-                      if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
-                        img.src = PRODUCT_PLACEHOLDER_IMAGE
-                      }
-                    }}
-                    sx={{ width: 64, height: 64, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
-                  />
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: 16, lineHeight: 1.1 }}>{entry.name}</Typography>
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                        mt: 0.2,
-                        lineHeight: 1.35,
-                        opacity: 0.87,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {entry.description}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Box>
+                entry={entry}
+                showSceneAnchor={isFirstOfScene}
+                variant="expanded"
+                dataSceneAnchorId={isFirstOfScene ? entry.sceneId : undefined}
+              />
             )
           })}
         </Box>
@@ -426,24 +376,12 @@ export function ExpandedPanelDialog({
             {playbackScenes.map((scene, index) => {
               if (index > activeSceneIndex || scene.isEmpty) return null
               return (
-              <Box key={`expanded-${scene.id}`} data-scene-anchor={scene.id} sx={{ p: 0.85 }}>
-                <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.4 }}>
-                  {scene.sceneLabel} @ {formatTime(scene.start)}
-                </Typography>
-                <Typography
-                  component="pre"
-                  sx={{
-                    m: 0,
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                    fontSize: 10.4,
-                    lineHeight: 1.4,
-                    color: '#f3f7fd',
-                  }}
-                >
-                  {JSON.stringify(buildSceneJsonPayload(scene, index), null, 2)}
-                </Typography>
-              </Box>
+                <JsonSceneCard
+                  key={`expanded-${scene.id}`}
+                  scene={scene}
+                  sceneIndex={index}
+                  dataSceneAnchorId={scene.id}
+                />
               )
             })}
           </Stack>
