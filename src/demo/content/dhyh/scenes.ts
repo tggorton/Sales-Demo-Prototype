@@ -1,5 +1,6 @@
 import {
   DHYH_CLIP_DURATION_SECONDS,
+  DHYH_CONTENT_ID,
   DHYH_LOCATION_TIMELINE,
   DHYH_MIN_SCENE_CLIP_OVERLAP_SECONDS,
   DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE,
@@ -8,20 +9,15 @@ import {
   DHYH_SEGMENT_A_SOURCE_START,
   DHYH_SEGMENT_B_SOURCE_END,
   DHYH_SEGMENT_B_SOURCE_START,
-} from '../constants'
-import { resolveProductImageUrl, resolveTierPayload } from '../sources'
+} from './timeline'
+import { resolveProductImageUrl, resolveTierPayload } from '../../sources'
 import type {
   SceneMetadata,
   SceneProduct,
   TaxonomyOption,
   TaxonomySceneData,
   TierOption,
-} from '../types'
-
-// DHYH's content id used by the source resolvers. Hardcoded here because
-// dhyhScenes.ts is DHYH-specific by design — content-tile-agnostic resolvers
-// live in src/demo/sources/.
-const DHYH_SOURCE_CONTENT_ID = 'dhyh'
+} from '../../types'
 
 // ---------- Raw JSON shape (trimmed to what we consume) ----------
 
@@ -49,7 +45,7 @@ type DhyhProductMatch = {
 // same swap-point (bundled local vs S3-backed) applies to every content tile.
 // See src/demo/sources/README.md for the URL conventions.
 const resolveProductImage = (match: DhyhProductMatch): string =>
-  resolveProductImageUrl(DHYH_SOURCE_CONTENT_ID, match)
+  resolveProductImageUrl(DHYH_CONTENT_ID, match)
 
 type DhyhObject = {
   name: string
@@ -136,7 +132,7 @@ export const getDhyhScenesForTier = (tier: TierOption): Promise<DhyhSceneBundle>
     // Resolution happens through the shared sources/ layer so the same
     // bundled-local-vs-S3 swap-point applies to every content tile. See
     // src/demo/sources/README.md.
-    bundleCache[tier] = resolveTierPayload(DHYH_SOURCE_CONTENT_ID, tier).then((payload) =>
+    bundleCache[tier] = resolveTierPayload(DHYH_CONTENT_ID, tier).then((payload) =>
       buildBundle(payload as unknown as DhyhPayload, tier)
     )
   }
