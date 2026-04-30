@@ -217,21 +217,12 @@ const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct
 // because total screen-time doesn't reflect *when* a location is on screen,
 // so e.g. "Bathroom" would dominate the entire demo even though the first
 // 2:30 of the clip is clearly construction-site content.
-type ShowLocations = {
-  considered: string[]
-}
-
-const VIDEO_LOCATION_MIN_CONFIDENCE = 0.85
-const VIDEO_LOCATION_MAX_CONSIDERED = 4
-
-const buildShowLocations = (payload: DhyhPayload): ShowLocations => {
-  const considered = (payload.video_metadata?.locations ?? [])
-    .filter((loc) => loc.name && (loc.confidence ?? 0) >= VIDEO_LOCATION_MIN_CONFIDENCE)
-    .sort((a, b) => (b.screen_time ?? 0) - (a.screen_time ?? 0))
-    .slice(0, VIDEO_LOCATION_MAX_CONSIDERED)
-    .map((loc) => loc.name)
-  return { considered }
-}
+// (Show-wide `video_metadata.locations` was previously surfaced as a per-scene
+// "Considered:" line in the Location panel — removed because it's
+// content-level data, not per-scene data, and the label was misleading. If we
+// want to re-introduce show-wide locations they belong in a panel-level
+// header. The `payload.video_metadata.locations` array is still available
+// from the upstream JSON when that work happens.)
 
 // Resolve which curated `DHYH_LOCATION_TIMELINE` entry is active at a given
 // clip-time. The active entry is the one with the largest `fromSec` that is
@@ -254,7 +245,6 @@ const resolveTimelineLocation = (clipTime: number) => {
 // show, we omit it instead of inventing one.
 const buildTaxonomyData = (
   scene: DhyhScene,
-  showLocations: ShowLocations,
   clipStartSec: number
 ): Partial<Record<TaxonomyOption, TaxonomySceneData>> => {
   const data: Partial<Record<TaxonomyOption, TaxonomySceneData>> = {}
@@ -345,36 +335,25 @@ const buildTaxonomyData = (
   //      the first 2:33, then Living Room through the home reveal, etc.
   //   3. Nothing (panel renders empty) – shouldn't happen with the default
   //      timeline whose first band starts at fromSec=0.
-  //
-  // The "Considered" line is always populated from `showLocations.considered`
-  // (top high-confidence entries from `video_metadata.locations`) so prospects
-  // always see the AI's runner-up guesses regardless of which path resolved
-  // the headline.
   const resolvedLocation = resolveSceneLocation(scene, clipStartSec)
   const resolvedName = resolvedLocation?.name ?? null
   const resolvedConfidence = resolvedLocation?.confidence
 
   if (resolvedName) {
-    // Considered = show-wide alternative locations the model proposed,
-    // EXCLUDING the resolved primary so it doesn't double-up with
-    // "Detected Location:" above.
-    const considered = Array.from(
-      new Set(
-        showLocations.considered.filter((name) => Boolean(name) && name !== resolvedName)
-      )
-    )
-      .slice(0, VIDEO_LOCATION_MAX_CONSIDERED)
-      .join(', ')
+    // Per-scene Location card intentionally only surfaces fields backed by
+    // *per-scene* signal — the model's `scene.locations[0].name` and
+    // `confidence`, or the editorial timeline's value when the model didn't
+    // emit one. The previous "Considered:" row pulled from the show-wide
+    // `video_metadata.locations` list, which read as misleading: "Considered:
+    // Bathroom, Kitchen, Neighborhood" attached to a Construction Site scene
+    // implies the model considered those rooms for THIS scene, when it
+    // actually just detected them somewhere else in the clip. If we ever
+    // want to surface show-wide locations they belong in a panel-level
+    // header, not on every per-scene card.
     const sections: TaxonomySceneData['sections'] = [
       { label: 'Detected Location:', value: resolvedName },
+      { label: 'Confidence:', value: formatConfidence(resolvedConfidence, 0.9) },
     ]
-    if (considered) {
-      sections.push({ label: 'Considered:', value: considered })
-    }
-    sections.push({
-      label: 'Confidence:',
-      value: formatConfidence(resolvedConfidence, 0.9),
-    })
     data.Location = {
       headline: resolvedName,
       chip: formatConfidence(resolvedConfidence, 0.9),
@@ -559,8 +538,7 @@ const buildScene = (
   scene: DhyhScene,
   index: number,
   tier: TierOption,
-  clipRange: ClipRange,
-  showLocations: ShowLocations
+  clipRange: ClipRange
 ): SceneMetadata => {
   const sentimentRaw = Array.isArray(scene.sentiment_analysis)
     ? scene.sentiment_analysis[0]
@@ -573,7 +551,7 @@ const buildScene = (
       .join(', ') || sentimentRaw?.name || 'Unknown'
 
   const meaningful = isSceneMeaningful(scene)
-  const taxonomyData = buildTaxonomyData(scene, showLocations, clipRange.start)
+  const taxonomyData = buildTaxonomyData(scene, clipRange.start)
 
   return {
     id: `dhyh-scene-${scene.scene}`,
@@ -663,9 +641,8 @@ const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle =>
     (entry): entry is { scene: DhyhScene; range: ClipRange } => entry.range !== null
   )
   remapped.sort((a, b) => a.range.start - b.range.start)
-  const showLocations = buildShowLocations(payload)
   const scenes = remapped.map(({ scene, range }, index) =>
-    buildScene(scene, index, tier, range, showLocations)
+    buildScene(scene, index, tier, range)
   )
   fillTaxonomyGaps(scenes)
   return {
