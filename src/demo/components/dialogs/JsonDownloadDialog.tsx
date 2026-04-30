@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { jsonDownloadOptions } from '../constants'
-import { dropdownMagentaStyles } from '../styles'
-import type { JsonDownloadOption } from '../types'
+import { jsonDownloadOptions } from '../../constants'
+import { dropdownMagentaStyles } from '../../styles'
+import type { JsonDownloadOption } from '../../types'
 
 type JsonDownloadDialogProps = {
   open: boolean

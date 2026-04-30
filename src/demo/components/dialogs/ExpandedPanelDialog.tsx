@@ -15,25 +15,25 @@ import {
   Typography,
 } from '@mui/material'
 import { useEffect, useRef } from 'react'
-import { PanelGlyph } from './PanelGlyph'
-import { PRODUCT_PLACEHOLDER_IMAGE, TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../constants'
-import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
+import { PanelGlyph } from '../primitives/PanelGlyph'
+import { PRODUCT_PLACEHOLDER_IMAGE, TAXONOMY_DEDUPE_WINDOW_SECONDS } from '../../constants'
+import { buildAdBreakJsonString, buildSceneJsonPayload } from '../../utils/jsonExport'
 import {
   panelHeaderActionIconSx,
   panelHeaderIconButtonDarkStyles,
   panelHeaderIconButtonStyles,
   sceneAnchorStyles,
   taxonomyAutocompleteStyles,
-} from '../styles'
-import { getTaxonomySceneData } from '../data/taxonomySceneData'
+} from '../../styles'
+import { getTaxonomySceneData } from '../../data/taxonomySceneData'
 import type {
   AdDecisioningTailItem,
   ExpandedPanel,
   ProductEntry,
   SceneMetadata,
   TaxonomyOption,
-} from '../types'
-import { formatTime } from '../utils/formatTime'
+} from '../../types'
+import { formatTime } from '../../utils/formatTime'
 
 type ExpandedPanelDialogProps = {
   expandedPanel: ExpandedPanel

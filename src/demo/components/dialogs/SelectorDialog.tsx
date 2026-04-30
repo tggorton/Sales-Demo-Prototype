@@ -1,9 +1,9 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material'
-import { tierOptions } from '../constants'
-import { ENABLED_AD_MODE_IDS } from '../ad-modes'
-import { dropdownMagentaStyles } from '../styles'
-import type { AdPlaybackOption, TierOption } from '../types'
+import { tierOptions } from '../../constants'
+import { ENABLED_AD_MODE_IDS } from '../../ad-modes'
+import { dropdownMagentaStyles } from '../../styles'
+import type { AdPlaybackOption, TierOption } from '../../types'
 
 type SelectorDialogProps = {
   open: boolean

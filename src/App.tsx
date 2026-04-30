@@ -1,16 +1,16 @@
 import { Container, Paper } from '@mui/material'
 import { AppShell } from '@kerv-one/theme'
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
-import { AuthenticatedHeader } from './demo/components/AuthenticatedHeader'
-import { CompanionDialog } from './demo/components/CompanionDialog'
+import { AuthenticatedHeader } from './demo/components/layout/AuthenticatedHeader'
+import { CompanionDialog } from './demo/components/dialogs/CompanionDialog'
 import { ContentSelectionView } from './demo/components/ContentSelectionView'
 import { DemoView } from './demo/components/DemoView'
-import { ExpandedPanelDialog } from './demo/components/ExpandedPanelDialog'
-import { JsonDownloadDialog } from './demo/components/JsonDownloadDialog'
+import { ExpandedPanelDialog } from './demo/components/dialogs/ExpandedPanelDialog'
+import { JsonDownloadDialog } from './demo/components/dialogs/JsonDownloadDialog'
 import { LoginView } from './demo/components/LoginView'
-import { ProfileDrawer } from './demo/components/ProfileDrawer'
-import { SelectorDialog } from './demo/components/SelectorDialog'
-import { VerifyEmailDialog } from './demo/components/VerifyEmailDialog'
+import { ProfileDrawer } from './demo/components/dialogs/ProfileDrawer'
+import { SelectorDialog } from './demo/components/dialogs/SelectorDialog'
+import { VerifyEmailDialog } from './demo/components/dialogs/VerifyEmailDialog'
 import {
   DEFAULT_MACBOOK_VIEWPORT_MAX_HEIGHT,
   DEFAULT_MACBOOK_VIEWPORT_MAX_WIDTH,

@@ -25,7 +25,7 @@ import {
   Button,
 } from '@mui/material'
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
-import { PanelGlyph } from './PanelGlyph'
+import { PanelGlyph } from './primitives/PanelGlyph'
 import {
   PRODUCT_PLACEHOLDER_IMAGE,
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
