@@ -110,11 +110,12 @@ src/
         # pause-ad/, cta-pause/, organic-pause/, carousel-shop/
       README.md                    # the recipe for adding a new mode
 
-    content/                       # NEW — Phase 5 (deferred until 2nd content tile is real)
+    content/                       # NEW — Phase 5a (org now) + 5b (Zod validation when 2nd tile lands)
       dhyh/
-        config.ts                  # tile metadata (title, splash, hero, default tier, available ad modes)
+        config.ts                  # tile metadata + content×tier×ad-mode availability map
+                                   # (which ad modes are valid at which tier for this content)
         timeline.ts                # DHYH_LOCATION_TIMELINE, splice constants (clip cut points, ad break)
-        schema.ts                  # Zod schema for tier JSON
+        schema.ts                  # Zod schema for tier JSON (added in 5b once 2 real consumers exist)
         tiers/                     # tier1.json, tier2.json, tier3.json (current dhyh/ folder relocates here)
         ads/                       # creatives + manifests scoped to this content
           sync-lbar/               # per-mode subdirs mirror ad-modes/modes/* shape
@@ -208,7 +209,8 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ✅ Done — commit `67230b6` (3 active modes + 5 disabled stubs; cookbook in `src/demo/ad-modes/README.md`) |
 | **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ✅ Done — commit `a2d488c` (env-flag swap via `VITE_CONTENT_SOURCE_BASE_URL`; foundation for the future content-upload feature) |
 | **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | 🟡 In progress — 4a done (`4fc701f`, file relocations); 4b/4c remaining. **Recalibrated estimate: 45–75 min total** (down from 1–2 hr based on observed actuals running ~30% under upper bound across phases 1–3) |
-| **5. Content tile pattern** | `src/demo/content/<id>/` per-content bundle: `config.ts`, `timeline.ts`, `schema.ts`, `tiers/`, `ads/`, `products/`, `compliance/`, `review/`. Each piece of content owns its full set of artifacts (tier JSONs, ad creatives + manifests, compliance docs, generated review artifacts) so adding the 2nd tile is a single self-contained directory drop, not a treasure-hunt across the project root. Eliminates root-level files like `dhyh-products.json`. | Low–Medium | ⏳ Deferred until 2nd tile is real |
+| **5a. Per-content org + content×tier×ad-mode model** | Stand up `src/demo/content/dhyh/` with `config.ts`, `timeline.ts`, `tiers/`, `ads/`, `products/`, `compliance/`, `review/`. Relocate existing DHYH artifacts: `src/demo/data/dhyh/tier{1,2,3}.json` → `tiers/`; DHYH-specific constants from `constants.ts` (splice points, ad-break duration, location timeline) → `timeline.ts`; root-level `dhyh-products.json` → `review/`. Update `sources/resolveTierPayload.ts` to read from the new location. Promote ad-mode availability to a **`content × tier`** lookup in each content's `config.ts` so a future Tier-3-only mode (e.g. `carousel-shop`) is one config edit, not a code change — `ENABLED_AD_MODE_IDS` becomes a fallback / global cap. **No behavior changes**; DHYH renders identically, just powered by the new structure. | Medium | ⏳ Pending — gated on Phase 4 wrap-up |
+| **5b. Zod validation + finalize APIs** | Once a real 2nd content tile exists (or is committed-to), add `schema.ts` per content, validate at load time, lock the final shape of `config.ts` / tier JSON / ad manifests with two real consumers having stressed it. | Low | ⏳ Deferred until 2nd tile is real |
 | **6. Hook decomposition** | Split `useDemoPlayback` into 4–7 narrower hooks (scroll engine stays unified) | **High** | ⏳ Blocked on Phase 7 |
 | **7. Test net** | Playwright golden-path + Vitest unit tests for protected behaviors | Low | ⏳ Should land **before** Phase 6 |
 | **8. CI** | GitHub Actions: tsc, build, lint, test | Low | ⏳ Pending |
@@ -216,7 +218,7 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 
 ### Suggested execution order
 
-`0 → 1 → 2 → 3 → 4 → 7 → 6 → 8 → 9` — re-orders 6 and 7 because the test net should exist before the riskiest refactor. Phase 5 lands whenever a second content tile is genuinely on the roadmap (no point building the abstraction speculatively for one). Phase 9 is post-structural fine-tuning — best done after the test net (Phase 7) so any sync regressions get caught.
+`0 → 1 → 2 → 3 → 4 → 5a → 7 → 6 → 8 → 9` — Phase 5a lands before the test net (Phase 7) so the tests pin the new content structure, not the old. Phase 5b stays deferred until a real 2nd content tile is on the roadmap (no point locking down schemas with only one real consumer). Phase 6 and 7 are re-ordered (test net before hook decomposition) because the test net should exist before the riskiest refactor. Phase 9 is post-structural fine-tuning — best done after the test net so any sync regressions get caught.
 
 ### Phase entry criteria
 
