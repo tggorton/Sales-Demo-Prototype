@@ -7,8 +7,10 @@
 This document is the master spec for evolving the prototype into a codebase that is comfortable for engineers (and AI coding tools) to extend. It works in tandem with:
 
 - **[`HANDOFF.md`](HANDOFF.md)** — the project's history, conventions, and protected behaviors. Read this first.
+- **[`SESSION_LOG.md`](SESSION_LOG.md)** — narrative day-by-day history of the engagement (the *why* behind the commits + user observations + future considerations).
 - **[`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md)** — MUI/styling inventory + recommended theme evolution.
 - **[`EXTENSION_POINTS.md`](EXTENSION_POINTS.md)** — cookbook for "how do I add an X?" routine tasks.
+- **[`TIME_LOG.md`](TIME_LOG.md)** — per-session time tracking + phase-estimate calibration.
 - **[`kerv-one-theme/`](kerv-one-theme/)** — the official KERV design-system package, dropped into the repo root for adoption. See [`kerv-one-theme/INTEGRATION_NOTES.md`](kerv-one-theme/INTEGRATION_NOTES.md) for the version-compatibility analysis.
 
 ---
@@ -198,7 +200,7 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | **1b. Migrate inline literals to theme tokens** | Replace 27 hardcoded `#ED005E` → `theme.palette.primary.main`; opacity literals → semantic tokens; outer gradient → `<AppShell>` | Low | ✅ Done — commit `2b79e5a` (17 inline literals migrated; styles.ts deferred to Phase 4) |
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ✅ Done — commit `67230b6` (3 active modes + 5 disabled stubs; cookbook in `src/demo/ad-modes/README.md`) |
 | **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ✅ Done — commit `a2d488c` (env-flag swap via `VITE_CONTENT_SOURCE_BASE_URL`; foundation for the future content-upload feature) |
-| **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | ⏳ Pending |
+| **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | 🟡 In progress — 4a done (`4fc701f`, file relocations); 4b/4c remaining. **Recalibrated estimate: 45–75 min total** (down from 1–2 hr based on observed actuals running ~30% under upper bound across phases 1–3) |
 | **5. Content tile pattern** | `src/demo/content/dhyh/`, Zod schemas for tier JSON | Low | ⏳ Deferred until 2nd tile is real |
 | **6. Hook decomposition** | Split `useDemoPlayback` into 4–7 narrower hooks (scroll engine stays unified) | **High** | ⏳ Blocked on Phase 7 |
 | **7. Test net** | Playwright golden-path + Vitest unit tests for protected behaviors | Low | ⏳ Should land **before** Phase 6 |
@@ -250,6 +252,35 @@ If multiple phases are appetite, suggested order: 1b → 2 → 3, since 1b finis
 | Router | Current view switching is sufficient | If/when deep-link requirements emerge |
 
 ---
+
+## 5b. Process commitments
+
+These rules govern HOW the work happens, not WHAT changes. They're durable across sessions so the agent and the user always know what's expected.
+
+### Time-logging cadence
+
+- The agent updates [`TIME_LOG.md`](TIME_LOG.md) **after every phase commit lands**, not just at session end.
+- The agent updates [`TIME_LOG.md`](TIME_LOG.md) **at the start of each new session** for any work that landed in a prior session that wasn't logged at the time.
+- The user can also invoke the [`/log-time` skill](.claude/skills/log-time/SKILL.md) at any checkpoint to force a focused update.
+- The methodology + per-message archetype model (quick approval / decision / intricate) is documented in `TIME_LOG.md`'s methodology section.
+
+### Phase-estimate calibration
+
+- Each phase's row in §4 below carries an estimate range.
+- The "Phase-estimate tracking" table in `TIME_LOG.md` records actual AI Work time per landed phase against the original estimate.
+- If estimates consistently land on one side (high or low), the agent recalibrates upper/lower bounds for not-yet-started phases. The current pattern (phases 1–3) is averaging ~30% under the upper bound — Phase 4's estimate has been adjusted accordingly.
+
+### Branch + push policy
+
+- All restructuring work happens on `feat/restructuring-pass` (local-only).
+- Never pushed to `origin` or `v2` without **explicit user instruction including the target**.
+- See HANDOFF §2 for the two-deployment workflow.
+
+### Verification gates per commit
+
+- Every runtime-touching commit gets `tsc --noEmit` + `npm run build` + `curl localhost:5173/` (200) before commit.
+- The user does the visual click-through afterward.
+- Doc-only or pure-add commits skip the dev-server check; build is sufficient.
 
 ## 6. Verification standards (per phase)
 
