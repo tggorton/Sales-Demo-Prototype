@@ -144,7 +144,9 @@ The user explicitly requested the design split: collapsed inline panel = grouped
 
 ---
 
-### 2026-04-30 — Session 4: Phase 3 + Location cleanup + Phase 4 (a/b/c) + Phase 5a (long day)
+### 2026-04-30 — Session 4: Phases 3 → 9 (full restructure landing day)
+
+The longest single-day sprint of the engagement. Started with Phase 3 (S3 source resolvers) and the Location panel cleanup; ended with Phase 9e (cross-view sync refinement) — the full restructure complete except for the explicitly-deferred Phase 5b (Zod validation, gated on a 2nd content tile arriving). Total day produced 33 commits across Phases 3, 4 (a/b/c), 5a, 6 (a/b/c/d), 7 (a/b), 8, and 9 (a/b/c/d/e), plus three TIME_LOG / SESSION_LOG checkpoints and four `RESTRUCTURING_PLAN` updates.
 
 **Phase 3 — S3 source resolvers** (`a2d488c`, `4c1db75`). The user flagged two future-proofing considerations *before* I started: (1) a new "very different" ad playback mode coming, and (2) eventual content-upload feature for new content packages. I structured Phase 3 to support both:
 
@@ -194,6 +196,46 @@ Created `src/demo/content/index.ts` with `CONTENT_REGISTRY`, `getContentConfig(i
 Per-content `hiddenTaxonomies` retired the old `HIDDEN_TAXONOMIES_BY_CONTENT` global lookup; the value lives on each ContentConfig now and the hook reads it via `getContentConfig(id)?.hiddenTaxonomies`. Build chunked tier1/2/3 to identical sizes after the move (verified — Vite still split them per the dynamic imports in `resolveTierPayload.ts`).
 
 **No behavior changes** in 5a. Golden-path verified by user; the only outstanding observation is the known sync drift queued for Phase 9.
+
+**Phase 7 — test net** (`6299cdf`, `762f717`, `a25393c`). After Phase 5a landed, the next structural slice was the test net so subsequent phases would have regression coverage. Split into:
+- **7a** — Vitest scaffold + 38 unit tests across 4 files: `formatTime`, DHYH timeline invariants (HANDOFF §6 splice + §8 location timeline), `groupJsonScenes` (Phase 4 algorithm), `getAvailableAdModes` (Phase 5a content×tier resolver). `npm run test:run` and `npm run test:run` scripts wired through `vite.config.ts`'s `test` block (no separate config file).
+- **7b** — Playwright + Chromium download + golden-path spec (login → DHYH → START → demo loads). Runs via `npm run test:e2e`; the config auto-starts `vite dev` so the test net is one command. The HANDOFF §9 panel-scroll discontinuity heuristic deferred from this phase to Phase 6's hook decomposition (testing it in-place would have required either a full hook-render harness or extraction-first anyway).
+
+Phase 7 came in well under the original 75–90m estimate (~10m wall-clock total). The work was simpler than expected — Vitest plays nicely with the existing Vite config, and the pure-function tests were straightforward against the modules already extracted in Phases 4–5.
+
+**Phase 6 — pure-function extractions from `useDemoPlayback`** (`23eb1b8` → `d27ec9a`, `6c07ed6`). User asked to push through the restructure; the original Phase 6 plan (split the 1300-LOC hook into 4–7 narrower hooks) turned out to be more cosmetic than valuable once I read the full hook body — splitting would require lifting state across hook boundaries, threading 8+ refs through subhooks, and maintaining careful effect ordering across files. **Net would be a more complex graph for engineers to reason about, not less.**
+
+Surfaced this mid-phase. Three options: (A) continue with hook splits, (B) redirect to pure-function extractions in 6a's shape, (C) stop. User picked (B), with the asked-for assurance that the codebase still meets a deployable production-quality bar. Confirmed: tsc strict, 60+ tests at that point, clean module boundaries, pluggable seams (Cognito, S3, content uploads), known-imperfect surfaces queued (Phase 9), no error boundaries / telemetry by design (sales-demo prototype scope, not full production webapp).
+
+Sub-phases:
+- **6a** — `src/demo/hooks/panelScroll.ts` (HANDOFF §9 discontinuity heuristic + scroll target resolvers). 22 tests pinning the snap-vs-smooth decision.
+- **6b** — `src/demo/utils/adBreakMath.ts` (HANDOFF §6 player↔clip mapping + impulse segments). 24 tests.
+- **6c** — `src/demo/utils/productEntries.ts` (HANDOFF §6 segment isolation). 18 tests.
+- **6d** — `src/demo/utils/sceneState.ts` (active-scene + taxonomy-availability resolvers). 14 tests.
+
+Hook went **1362 → 1047 LOC** (–315 LOC, all to testable modules). 78 new unit tests. No behavior change.
+
+**Phase 8 — CI workflow** (`5115a90`). User asked to clarify: Phase 8 is creating the file locally, not pushing. Confirmed — the workflow is a no-op until pushed to GitHub Actions on a remote. Per the established branching policy (no pushes without explicit instruction), this just stages the file for whenever the user decides to push. Workflow mirrors the local chain: tsc → lint → unit tests → build → e2e. Triggers on push (any branch) + PR. No deploy step (Vercel handles deployment via its own GitHub integration). Lint config tightened in the same commit: `kerv-one-theme/` ignored as a vendored package, `argsIgnorePattern: '^_'` added so stub interfaces don't error.
+
+**Phase 9 — panel sync hardening** (`f2a26de` → `c1c0a26`, `0d35042`). User's most detailed mandate of the engagement: *"This is really important that this part is bullet proof... we need this to be SOLID."* The demo's primary story is "everything connects" — content + taxonomies + product match + raw JSON moving together — so any visible drift undermines the value prop.
+
+Audited the full sync surface across all 6 panel-state combinations (3 panels × collapsed/expanded). Identified four issues that all flowed from the original Products bug the user reported earlier:
+
+- **9a — Products exact-anchor + segment-aligned data source** (`f2a26de`). Two bugs in one fix: (i) the expanded dialog's open-time scroll fallback used `videoCurrentSeconds` (player-time, post-ad-break offset) while the inline panel used `panelTimelineSeconds` (clip-time), so post-ad-break the expanded view lagged by ~30s; (ii) `data-scene-anchor` was stamped only on first-of-scene products, so multi-product scenes always landed the expanded scroll on product #1 regardless of which one collapsed was on. Switch the expanded view to use the SAME segment-isolated `productEntries` (so indices align), pass `activeProductIndex` through, stamp `data-product-anchor={entry.id}` on every expanded product card. Drop the now-unused `allProductEntries` export.
+- **9b — Scrub-triggered re-sync** (`119c33f`). Open-time scroll only fired once per dialog open; a scrub during playback didn't re-anchor. Added a `scrubVersion` counter to `useDemoPlayback` that bumps on every `flagPanelScrub` call. Dialog re-fires its scroll effect on `(open ∪ scrubVersion change)`. Natural playback drift doesn't bump it, so the user can browse the expanded view freely between scrubs.
+- **9c — Sync invariant tests** (`8b9c175`). 8 tests pinning the cross-resolver composition: for any panel-time, the `(activeSceneIndex, activeProductIndex)` pair both panels see must be coherent. Sweep across a synthetic timeline confirms we never point at a future product. Segment-isolation invariant explicitly pinned.
+- **9d — Ad-break response future-proofing** (`c1c0a26`). User flagged: future ad formats will have their own response shapes — *"a bit different in some cases."* Audited the contract. Payload was already fully open (`Record<string, unknown>` per-mode). Label was hardcoded to `'_AdBreak-{1|2} Response'` and not overridable. Added optional `dhyhAdResponseLabel?: string` on `AdModeDefinition` so future modes can override (`'_PauseAd Response'`, etc.) without touching core code.
+
+**User verification of Phase 9 a–d** caught more drift. Two screenshots: the expanded Products panel showed FUTURE products (scenes 88–118 below the active product at clip-time 03:52); the collapsed panels showed Taxonomy parked on scene 77/79 (~03:32–03:42, near playback) but Products parked on scene 64 (02:52, ~1 min behind). Diagnosed both:
+
+- **(A)** Expanded view didn't apply the inline panel's `index > activeProductIndex` filter, so it rendered every product in the list including unreached scenes.
+- **(B)** Cross-panel scene drift. At clip-time 03:52, the active scene is ~80, but every candidate product in scenes 65–87 had appeared earlier in the clip and got deduped under the 180s window — leaving the most-recent-past product on scene 64 (02:52). The fallback resolver was returning the right answer for that data; the data just had a 75-second product gap.
+
+**Phase 9e — cross-view sync refinement** (`0d35042`). Two fixes:
+- **(A)** Apply the same `index > activeProductIndex` gate to the expanded Products view.
+- **(B)** Drop `PRODUCT_DEDUPE_WINDOW_SECONDS` from 180 → 90 so recurring products re-emerge once per ~1.5 min beat. The 180s window was originally tuned against 1–10s adjacent-scene spam; 90s still suppresses that pattern but lets the panel track playback more closely through product-less stretches. Constant comment updated with the specific incident that prompted the change.
+
+User verified: *"This definitely seems better... we may have to make further adjustments later."* Tracking that further-adjustments may be needed is itself a Phase 9 outcome — the diagnostic + dedupe-tuning loop is now well-trodden, so future iteration should be cheap.
 
 ---
 
@@ -292,6 +334,23 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 38 | `7e0a576` | 04-30 13:06 | `RESTRUCTURING_PLAN`: split Phase 5 into 5a (org now) + 5b (validation later) |
 | 39 | `d7fefe7` | 04-30 13:27 | Phase 5a: per-content org + content×tier×ad-mode availability model |
 | 40 | `c370275` | 04-30 13:54 | `RESTRUCTURING_PLAN`: mark Phase 5a done with commit hash |
+| 41 | `df541ad` | 04-30 15:18 | Phase 5a: complete consumer wire-up missed in d7fefe7 |
+| 42 | `e674600` | 04-30 15:18 | Housekeeping: SESSION_LOG + TIME_LOG + sources/README updates for Session 4 |
+| 43 | `6299cdf` | 04-30 15:23 | Phase 7a: Vitest scaffold + 38 unit tests for pure-function protected behaviors |
+| 44 | `762f717` | 04-30 15:24 | `RESTRUCTURING_PLAN`: split Phase 7 into 7a (done) + 7b |
+| 45 | `a25393c` | 04-30 15:28 | Phase 7b: Playwright golden-path E2E |
+| 46 | `23eb1b8` | 04-30 15:43 | Phase 6a: extract panel-scroll engine helpers + HANDOFF §9 unit tests |
+| 47 | `b468854` | 04-30 15:51 | Phase 6b: extract ad-break / clip-time math (HANDOFF §6) + unit tests |
+| 48 | `2a018e0` | 04-30 15:54 | Phase 6c: extract product-entry building (HANDOFF §6 segment isolation) + tests |
+| 49 | `d27ec9a` | 04-30 15:57 | Phase 6d: extract active-scene + taxonomy-availability resolvers + tests |
+| 50 | `6c07ed6` | 04-30 15:58 | `RESTRUCTURING_PLAN`: mark Phase 6 done; document the mid-phase redirect |
+| 51 | `5115a90` | 04-30 16:04 | Phase 8: GitHub Actions CI workflow + lint config tightening |
+| 52 | `f2a26de` | 04-30 16:19 | Phase 9a: Products exact-anchor sync + segment-aligned data source |
+| 53 | `119c33f` | 04-30 16:21 | Phase 9b: scrub-triggered re-sync of expanded panel dialogs |
+| 54 | `8b9c175` | 04-30 16:24 | Phase 9c: cross-resolver sync invariant tests |
+| 55 | `c1c0a26` | 04-30 16:26 | Phase 9d: ad-break response future-proofing — per-mode label override |
+| 56 | `b2eb452` | 04-30 16:27 | `RESTRUCTURING_PLAN`: mark Phase 9 (a/b/c/d) done with commit hashes |
+| 57 | `0d35042` | 04-30 16:50 | Phase 9e: tighten cross-view product sync (gate expanded + reduce dedupe) |
 
 ---
 

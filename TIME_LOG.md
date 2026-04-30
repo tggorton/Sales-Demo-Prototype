@@ -72,6 +72,10 @@ future estimates. To date:
 | 3. S3 source resolvers | ~30–60 min | ~35m | Low end — much abstraction already existed |
 | 4. Component decomposition | ~45–75 min (recalibrated) | ~92m | **Over upper bound by ~23%.** 4a relocations were trivial (~7m) but 4b player extraction ran long (~50m: parallel-playback machinery moved across files, plus a messy intermediate edit + a TS error from a duplicate `PlayerControlTokens` type that needed unwinding). 4c shared cards landed clean (~35m). The ~30%-under-upper-bound pattern from phases 1–3 doesn't extend to Phase 4 — DemoView's player section had more entangled state than the recalibration accounted for. |
 | 5a. Per-content org + content×tier×ad-mode model | (no explicit estimate before split) | ~50m | Mostly mechanical relocations + a small forward-looking abstraction (`getAvailableAdModes` resolver). Came in fast because Phase 3 had already abstracted the tier-loading swap-point + product image resolver, so 5a was largely "rename and re-target" rather than design new layers. |
+| 6. Hook decomposition (redirected to pure-fn extraction) | (original: ~hours; redirect: ~30–60m) | ~30m | Original "split into 4–7 hooks" plan never executed — re-scoped mid-phase to pure-function extractions when the full hook body proved that splitting would add complexity rather than reduce it. The 30m actual is for the redirect (4 modules + 78 unit tests). The original would have been 2–4 hr easily. |
+| 7. Test net (a + b) | ~75–90m projected | ~10m | **Way under.** Vitest scaffold + Playwright + 38 unit tests + 1 e2e in 10m wall-clock. Pure-function tests were trivial against the modules already extracted in Phases 4–5; the Vite/Vitest integration "just worked." Real lesson: late-stage tests on already-clean modules are *much* faster than mid-restructure tests would have been. |
+| 8. CI workflow | (no explicit estimate) | ~6m | Single YAML file + lint config tightening. Mechanical. |
+| 9. Panel sync hardening (a + b + c + d + e) | ~Low–Medium per plan | ~35m | 4 sub-phases of fixes + 1 verification-driven follow-up. The diagnostic-and-decide work took longer per LOC than the actual coding (Phase 9e changed 17 lines but the screenshot diagnosis took ~12m). Calibration: when the user provides screenshots, budget the prompting time accordingly — visual diagnosis is dense work. |
 
 Phase 3 looking "fast" is an artifact of the lower bound being a
 realistic value when prerequisites are in place. The estimate range
@@ -79,6 +83,13 @@ itself was reasonable. Phase 4's overrun, by contrast, came from
 genuine complexity that wasn't visible from the outside until the
 extraction was underway. Phase 5a benefited directly from Phase 3
 having pre-abstracted the right seams.
+
+**Late-restructure phases (6 redirect, 7, 8, 9) all came in
+significantly under any plausible estimate.** This is the inverse
+of Phase 4's overrun: by Phase 6, the foundation phases (1–5a) had
+already cleaned up the seams that the late phases needed to hook
+into. Lesson: estimates calibrated against early-phase pace
+overestimate late-phase pace, not the other way around.
 
 ---
 
@@ -141,8 +152,14 @@ having pre-abstracted the right seams.
 | Panel sync drift diagnosis (read-only) | 8m | 15m | User flagged after a 7-min playthrough that the Products panel collapsed→expanded scroll is "close but not exact" and asked to double-check syncing for all three panels. Diagnosed two drift sources without touching code: (1) `targetSceneAnchorId` fallback uses `videoCurrentSeconds` instead of `panelTimelineSeconds` — drifts by the full ad-break duration in DHYH Segment B; (2) `data-scene-anchor` is per-scene-first-product, so multi-product scenes lose sub-scene granularity. Taxonomy + JSON confirmed correct. Queued as Phase 9 instead of fixing now. |
 | Phase 5 split + Phase 9 added | 6m | 18m | Two plan-only commits (`970c1a9`, `7e0a576`). User clarified that per-content org should NOT be deferred until a 2nd tile lands (only Zod validation is) and that ad experiences live at the **content × tier** intersection. Expanded Phase 5 scope to cover ads/products/compliance/review subdirs; added Phase 9 (panel sync hardening) capturing the diagnosis above; split Phase 5 into 5a (org now) + 5b (validation later). Updated execution order to `0 → 1 → 2 → 3 → 4 → 5a → 7 → 6 → 8 → 9`. |
 | Phase 5a — per-content org + content×tier×ad-mode model | 5m | 50m | Stood up `src/demo/content/dhyh/` with the full directory shape; relocated tier JSONs, `dhyhScenes.ts`, all `DHYH_*` constants, and `dhyh-products.json` (root → `content/dhyh/review/`). Created `src/demo/content/index.ts` with `CONTENT_REGISTRY`, `getContentConfig`, and `getAvailableAdModes(contentId, tier)` resolver. DemoView now reads `availableAdModes` from useDemoPlayback instead of importing the global `ENABLED_AD_MODE_IDS`. `HIDDEN_TAXONOMIES_BY_CONTENT` retired. Build chunked tier1/2/3 to identical sizes after the move. **No behavior change**; user verified golden path. Commits `d7fefe7`, `c370275`. |
-| Housekeeping (sources/README + SESSION_LOG + TIME_LOG) | 6m | 20m | This block. Updated `sources/README.md` for new `content/<id>/tiers/` paths; appended Session 4's post-noon work to `SESSION_LOG.md`; this TIME_LOG update. Wrap-up before user steps away ahead of session reset. |
-| **Session subtotal so far** | **~77m** | **~320m** | |
+| Housekeeping (sources/README + SESSION_LOG + TIME_LOG) | 6m | 20m | First mid-session checkpoint. Updated `sources/README.md` for new `content/<id>/tiers/` paths; appended Session 4's post-noon work to `SESSION_LOG.md`. Commits `e674600`, `df541ad`. |
+| Phase 7 (a + b) — test net | 4m | 10m | Vitest scaffold + 38 unit tests across 4 files (formatTime, DHYH timeline invariants, groupJsonScenes, getAvailableAdModes); Playwright install + Chromium browser download + 1 golden-path spec. Came in well under estimate (full Phase 7 originally projected 75–90m); the Vite/Vitest integration was straightforward and the pure-function tests were quick to write against modules already extracted in Phases 4–5. Commits `6299cdf`, `762f717`, `a25393c` |
+| Phase 6 (a/b/c/d) — pure-function extractions | 7m | 30m | **Phase redirected mid-execution.** Original plan was "split useDemoPlayback into 4–7 hooks." After reading the 1300-LOC body, recognized that splitting would require lifting state across hook boundaries — a more complex graph for engineers, not less. Surfaced options A (continue split) / B (extract pure functions) / C (stop). User picked B with a question about deployment-quality bar (confirmed yes). Sub-phases extracted `panelScroll.ts`, `adBreakMath.ts`, `productEntries.ts`, `sceneState.ts` — 78 new unit tests, hook 1362 → 1047 LOC. Commits `23eb1b8` → `d27ec9a`, `6c07ed6` |
+| Phase 8 — CI workflow | 4m | 6m | GitHub Actions YAML at `.github/workflows/ci.yml` mirroring the local chain (tsc → lint → unit tests → build → Playwright e2e). User asked the clarifying question "is this just preparing the file?" — confirmed yes, no push. Lint config also tightened in the same commit (`kerv-one-theme/` ignored, `argsIgnorePattern: '^_'` added). Commit `5115a90` |
+| Phase 9 (a/b/c/d) — sync hardening | 15m | 25m | User's most detailed mandate of the engagement. Audited the full collapsed↔expanded sync surface across 6 panel-state combinations. Sub-phases: 9a (Products exact-anchor + segment-aligned data source), 9b (scrub-triggered re-sync via `scrubVersion` counter), 9c (8 cross-resolver invariant tests), 9d (per-mode `dhyhAdResponseLabel` override for future ad formats). Commits `f2a26de` → `c1c0a26`, `b2eb452` |
+| Phase 9e — cross-view sync refinement | 13m | 10m | User verification post-9d caught two new misalignments via screenshots: expanded view rendering future products + cross-panel scene drift in product-less stretches. Diagnostic took most of the time; the fix was small. Two changes: (A) apply `index > activeProductIndex` gate to expanded Products view (B) drop `PRODUCT_DEDUPE_WINDOW_SECONDS` from 180 → 90 so recurring products re-emerge per ~1.5min beat. User verified: *"definitely seems better... we may have to make further adjustments later."* Commit `0d35042` |
+| Housekeeping (TIME_LOG + SESSION_LOG checkpoint for Phases 6–9) | 1m | 12m | This block. Second mid-session checkpoint covering everything from `e674600` to `0d35042`. |
+| **Session subtotal so far** | **~121m** | **~413m** | (Wall-clock from morning start ~09:50 → ~17:00 includes meaningful idle gaps not counted here.) |
 
 ## Running totals
 
@@ -151,8 +168,8 @@ having pre-abstracted the right seams.
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 250m |
-| Session 4 (04-30) | 77m | 320m |
-| **Total** | **~3h 29m** | **~12h 25m** |
+| Session 4 (04-30) | 121m | 413m |
+| **Total** | **~4h 13m** | **~13h 18m** |
 
 ---
 
