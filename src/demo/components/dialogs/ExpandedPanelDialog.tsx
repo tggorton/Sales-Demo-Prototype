@@ -354,6 +354,13 @@ export function ExpandedPanelDialog({
       return (
         <Box ref={scrollContainerRef} sx={{ px: 2, py: 1.25, height: '100%', overflowY: 'auto' }}>
           {productEntries.map((entry, index) => {
+            // Phase 9e — gate by activeProductIndex so the expanded
+            // view shows the SAME set of products as the collapsed
+            // view (only past + current, never future). Without this,
+            // the expanded view rendered every product including ones
+            // whose scene hadn't been reached yet, which read as a
+            // misalignment with the collapsed view.
+            if (index > activeProductIndex) return null
             const isFirstOfScene =
               index === 0 || productEntries[index - 1].sceneId !== entry.sceneId
             return (

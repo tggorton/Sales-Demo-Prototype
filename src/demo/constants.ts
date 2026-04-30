@@ -130,8 +130,17 @@ export const PRODUCT_PLACEHOLDER_IMAGE = '/assets/elements/product-placeholder.s
 // playback timeline. A gap larger than the window lets the product reappear so the
 // temporal narrative (product returns later in the content) is preserved.
 //
+// 90s default chosen in Phase 9e: the previous 180s window left a noticeable gap
+// in DHYH around clip-time 03:00–04:00 where every upstream-emitted product had
+// already appeared earlier and got deduped, so the Products panel stayed parked on
+// scene 64 (~02:52) for a full minute while playback advanced to 03:52. Dropping
+// to 90s lets recurring products re-emerge once per ~1.5-min beat, which keeps
+// the panel tracking playback more closely without re-introducing the original
+// "same item every other card" spam (the original problem was 1–10s adjacent
+// emissions, not 60–90s spacing).
+//
 // Set to 0 to disable dedupe entirely (useful for QA / side-by-side comparison).
-export const PRODUCT_DEDUPE_WINDOW_SECONDS = 180
+export const PRODUCT_DEDUPE_WINDOW_SECONDS = 90
 
 // Time-windowed dedupe for taxonomy panel cards. Same shape as the products
 // dedupe but a *much tighter* default. Why: products have many distinct keys
