@@ -34,6 +34,13 @@ import {
   type PanelManualScrollState,
   type PanelScrollTarget,
 } from './panelScroll'
+import {
+  buildDhyhImpulseSegments,
+  computeAdBreakProgress,
+  findActiveImpulseSegment,
+  isAdBreakSegment,
+  mapPlayerToClipSeconds,
+} from '../utils/adBreakMath'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
@@ -146,17 +153,16 @@ export function useDemoPlayback({
 
   // DHYH scrubber segments are recomputed per-mode so the cyan ad slot matches the
   // actual ad duration (Impulse/L-Bar = 30s, Sync = 45s). All three use a single break
-  // anchored at 3:32 of the clip.
-  const dhyhImpulseSegments = useMemo(() => {
-    const adStart = DHYH_AD_BREAK_CLIP_SECONDS
-    const adEnd = adStart + dhyhAdBreakDurationSeconds
-    const total = DHYH_CLIP_DURATION_SECONDS + dhyhAdBreakDurationSeconds
-    return [
-      { start: 0, end: adStart, kind: 'content' as const },
-      { start: adStart, end: adEnd, kind: 'ad-break-1' as const },
-      { start: adEnd, end: total, kind: 'content' as const },
-    ]
-  }, [dhyhAdBreakDurationSeconds])
+  // anchored at the splice point of the clip. See `utils/adBreakMath.ts`.
+  const dhyhImpulseSegments = useMemo(
+    () =>
+      buildDhyhImpulseSegments({
+        adBreakClipSeconds: DHYH_AD_BREAK_CLIP_SECONDS,
+        adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
+        clipDurationSeconds: DHYH_CLIP_DURATION_SECONDS,
+      }),
+    [dhyhAdBreakDurationSeconds]
+  )
 
   // `playbackDurationSeconds` is the *internal* scrubber length used by the MUI slider.
   // For DHYH sync-ad-break modes this includes the per-mode ad block (30-45s) so the
@@ -194,23 +200,17 @@ export function useDemoPlayback({
     playbackDurationSeconds,
   ])
 
-  // For DHYH sync-ad-break modes, map the internal scrubber position (which includes a
-  // 30-45s ad block at the Segment A / Segment B splice point) back onto the spliced
-  // clip timeline (0 .. DHYH_CLIP_DURATION_SECONDS). Inside the ad block the helper
-  // freezes just *before* the splice point – that keeps the Taxonomy / Product / JSON
-  // panels anchored to the last Segment A scene for the duration of the ad instead
-  // of flipping to Segment B the instant the scrubber enters the break (Segment B
-  // scenes start at clip-time === DHYH_AD_BREAK_CLIP_SECONDS, so even a 0-length nudge
-  // matters for scene-window selection).
-  const dhyhClipSeconds = useMemo(() => {
-    if (!isDhyhContent) return videoCurrentSeconds
-    if (!isSyncImpulseMode) return videoCurrentSeconds
-    if (videoCurrentSeconds < DHYH_AD_BREAK_CLIP_SECONDS) return videoCurrentSeconds
-    if (videoCurrentSeconds < DHYH_AD_BREAK_CLIP_SECONDS + dhyhAdBreakDurationSeconds) {
-      return Math.max(0, DHYH_AD_BREAK_CLIP_SECONDS - 0.001)
-    }
-    return videoCurrentSeconds - dhyhAdBreakDurationSeconds
-  }, [isDhyhContent, isSyncImpulseMode, videoCurrentSeconds, dhyhAdBreakDurationSeconds])
+  // Player-time → clip-time mapping (HANDOFF §6). See utils/adBreakMath.ts.
+  const dhyhClipSeconds = useMemo(
+    () =>
+      mapPlayerToClipSeconds(videoCurrentSeconds, {
+        isDhyhContent,
+        isAdBreakMode: isSyncImpulseMode,
+        adBreakClipSeconds: DHYH_AD_BREAK_CLIP_SECONDS,
+        adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
+      }),
+    [isDhyhContent, isSyncImpulseMode, videoCurrentSeconds, dhyhAdBreakDurationSeconds]
+  )
 
   const panelTimelineSeconds = isDhyhContent
     ? dhyhClipSeconds
@@ -244,16 +244,10 @@ export function useDemoPlayback({
   const activeImpulseSegment = useMemo(() => {
     if (!isSyncImpulseMode) return null
     const segments = isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS
-    return (
-      segments.find(
-        (segment) => videoCurrentSeconds >= segment.start && videoCurrentSeconds < segment.end
-      ) ?? segments[segments.length - 1]
-    )
+    return findActiveImpulseSegment(segments, videoCurrentSeconds)
   }, [isSyncImpulseMode, isDhyhContent, videoCurrentSeconds, dhyhImpulseSegments])
 
-  const isAdBreakPlayback =
-    isSyncImpulseMode &&
-    (activeImpulseSegment?.kind === 'ad-break-1' || activeImpulseSegment?.kind === 'ad-break-2')
+  const isAdBreakPlayback = isSyncImpulseMode && isAdBreakSegment(activeImpulseSegment)
 
   // For DHYH, both ad breaks share the new ad creative + the same companion URL.
   const activeAdBreakImage = isDhyhContent
@@ -302,12 +296,10 @@ export function useDemoPlayback({
 
   const hasPlaybackEnded = videoCurrentSeconds >= playbackDurationSeconds
 
-  const adBreakSegmentProgress = useMemo(() => {
-    if (!isSyncImpulseMode || !isAdBreakPlayback || !activeImpulseSegment) return 0
-    const duration = Math.max(1, activeImpulseSegment.end - activeImpulseSegment.start)
-    const elapsed = videoCurrentSeconds - activeImpulseSegment.start
-    return Math.min(1, Math.max(0, elapsed / duration))
-  }, [isSyncImpulseMode, isAdBreakPlayback, activeImpulseSegment, videoCurrentSeconds])
+  const adBreakSegmentProgress = useMemo(
+    () => computeAdBreakProgress(activeImpulseSegment, videoCurrentSeconds, isAdBreakPlayback),
+    [activeImpulseSegment, videoCurrentSeconds, isAdBreakPlayback]
+  )
 
   const originalJsonDownloadString = useMemo(
     () =>
