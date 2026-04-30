@@ -8,8 +8,8 @@ import {
   DHYH_SEGMENT_A_SOURCE_START,
   DHYH_SEGMENT_B_SOURCE_END,
   DHYH_SEGMENT_B_SOURCE_START,
-  PRODUCT_PLACEHOLDER_IMAGE,
 } from '../constants'
+import { resolveProductImageUrl, resolveTierPayload } from '../sources'
 import type {
   SceneMetadata,
   SceneProduct,
@@ -17,6 +17,11 @@ import type {
   TaxonomySceneData,
   TierOption,
 } from '../types'
+
+// DHYH's content id used by the source resolvers. Hardcoded here because
+// dhyhScenes.ts is DHYH-specific by design — content-tile-agnostic resolvers
+// live in src/demo/sources/.
+const DHYH_SOURCE_CONTENT_ID = 'dhyh'
 
 // ---------- Raw JSON shape (trimmed to what we consume) ----------
 
@@ -40,20 +45,11 @@ type DhyhProductMatch = {
   dedupe_key?: string
 }
 
-// Product images shipped alongside the app live under `public/assets/products/`
-// using the same relative path the JSON references (e.g. `homedpt/335027444.jpg`).
-// Served from the public root at runtime.
-const PRODUCT_IMAGE_BASE = '/assets/products/'
-
-const resolveProductImage = (match: DhyhProductMatch): string => {
-  if (match.image && match.image.length > 0) {
-    return `${PRODUCT_IMAGE_BASE}${match.image.replace(/^\/+/, '')}`
-  }
-  if (match.image_url && match.image_url.length > 0) {
-    return match.image_url
-  }
-  return PRODUCT_PLACEHOLDER_IMAGE
-}
+// Product images route through the shared `src/demo/sources/` resolver so the
+// same swap-point (bundled local vs S3-backed) applies to every content tile.
+// See src/demo/sources/README.md for the URL conventions.
+const resolveProductImage = (match: DhyhProductMatch): string =>
+  resolveProductImageUrl(DHYH_SOURCE_CONTENT_ID, match)
 
 type DhyhObject = {
   name: string
@@ -133,31 +129,16 @@ export type DhyhSceneBundle = {
 
 // ---------- Tier → JSON resolution ----------
 
-const resolveTierModule = async (tier: TierOption): Promise<DhyhPayload> => {
-  switch (tier) {
-    case 'Exact Product Match':
-    case 'Categorical Product Match': {
-      const mod = await import('./dhyh/tier3.json')
-      return (mod.default ?? mod) as unknown as DhyhPayload
-    }
-    case 'Advanced Scene': {
-      const mod = await import('./dhyh/tier2.json')
-      return (mod.default ?? mod) as unknown as DhyhPayload
-    }
-    case 'Basic Scene':
-    case 'Assets Summary':
-    default: {
-      const mod = await import('./dhyh/tier1.json')
-      return (mod.default ?? mod) as unknown as DhyhPayload
-    }
-  }
-}
-
 const bundleCache: Partial<Record<TierOption, Promise<DhyhSceneBundle>>> = {}
 
 export const getDhyhScenesForTier = (tier: TierOption): Promise<DhyhSceneBundle> => {
   if (!bundleCache[tier]) {
-    bundleCache[tier] = resolveTierModule(tier).then((payload) => buildBundle(payload, tier))
+    // Resolution happens through the shared sources/ layer so the same
+    // bundled-local-vs-S3 swap-point applies to every content tile. See
+    // src/demo/sources/README.md.
+    bundleCache[tier] = resolveTierPayload(DHYH_SOURCE_CONTENT_ID, tier).then((payload) =>
+      buildBundle(payload as unknown as DhyhPayload, tier)
+    )
   }
   return bundleCache[tier] as Promise<DhyhSceneBundle>
 }

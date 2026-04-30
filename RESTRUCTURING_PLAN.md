@@ -115,10 +115,12 @@ src/
         schema.ts                  # Zod schema for tier JSON
         tiers/                     # tier1.json, tier2.json, tier3.json (current dhyh/ folder relocates here)
 
-    sources/                       # NEW — Phase 3 (S3 prep)
-      resolveTierUrl.ts            # tier-JSON loader (env-flag swappable)
-      resolveProductImage.ts       # product-image URL resolver
-      README.md                    # S3 wiring checklist
+    sources/                       # ✅ Done — Phase 3
+      types.ts                     # ContentId, TierJsonPayload, ProductImageInput
+      resolveTierPayload.ts        # tier-JSON loader (env-flag swappable + bundled fallback)
+      resolveProductImage.ts       # product-image URL resolver (content-id aware)
+      index.ts                     # barrel
+      README.md                    # S3 wiring + upload-feature pathway
 
     components/
       DemoView.tsx                 # shell + composition, ~300 LOC after decomposition
@@ -195,7 +197,7 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | **1a. Adopt KERV theme kit (install + wire)** | `npm install ./kerv-one-theme --legacy-peer-deps`, Open Sans `<link>`, `<ThemeProvider>` + `<CssBaseline>` in main.tsx | Low | ✅ Done — commit `4faa100` (Path A; visually verified by user) |
 | **1b. Migrate inline literals to theme tokens** | Replace 27 hardcoded `#ED005E` → `theme.palette.primary.main`; opacity literals → semantic tokens; outer gradient → `<AppShell>` | Low | ✅ Done — commit `2b79e5a` (17 inline literals migrated; styles.ts deferred to Phase 4) |
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ✅ Done — commit `67230b6` (3 active modes + 5 disabled stubs; cookbook in `src/demo/ad-modes/README.md`) |
-| **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ⏳ Pending |
+| **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ✅ Done — commit `<pending>` (env-flag swap via `VITE_CONTENT_SOURCE_BASE_URL`; foundation for the future content-upload feature) |
 | **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | ⏳ Pending |
 | **5. Content tile pattern** | `src/demo/content/dhyh/`, Zod schemas for tier JSON | Low | ⏳ Deferred until 2nd tile is real |
 | **6. Hook decomposition** | Split `useDemoPlayback` into 4–7 narrower hooks (scroll engine stays unified) | **High** | ⏳ Blocked on Phase 7 |

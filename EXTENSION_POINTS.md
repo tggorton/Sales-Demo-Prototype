@@ -17,7 +17,8 @@ This document is the **recipe book**. When you (or an AI assistant) need to do s
 > | Add a new content tile | ⚠️ Possible but not formalized; see Phase 5 |
 > | Add a new taxonomy | ✅ Ready (small change) |
 > | Wire Cognito live | ⏳ Stub in place; details when AWS pool is ready |
-> | Wire S3 / CloudFront for media | ⏳ Phase 3 abstraction not yet built |
+> | Switch tier JSON / product images to S3 | ✅ Ready (env-flag swap — see `src/demo/sources/README.md`) |
+> | Upload a new content package | ⏳ Resolver layer ready; manifest registry + UI deferred to Phase 5 |
 
 A ⚠️ recipe means the task is doable today but the codebase pattern isn't yet ergonomic. Following the recipe will get you there; the same task will become significantly cleaner after the corresponding restructuring phase lands.
 
@@ -47,7 +48,7 @@ See the integration checklist in [`src/demo/auth/README.md`](src/demo/auth/READM
 ## Recipe: Override a media URL via env var
 
 **Status:** ✅ Ready
-**Pattern owner:** [`src/demo/constants.ts`](src/demo/constants.ts) (`envString` helper, lines 157–166)
+**Pattern owner:** [`src/demo/constants.ts`](src/demo/constants.ts) (uses `envString` helper from [`src/demo/utils/env.ts`](src/demo/utils/env.ts))
 
 ### Why you'd do this
 
@@ -55,7 +56,7 @@ Point the player at a higher-fidelity local copy, an S3-hosted file, or a stagin
 
 ### Steps
 
-1. Find the relevant constant in [`src/demo/constants.ts`](src/demo/constants.ts) — e.g. `DHYH_VIDEO_URL`, `DHYH_IMPULSE_AD_VIDEO_URL`, `PLACEHOLDER_VIDEO_URL`.
+1. Find the relevant constant in [`src/demo/constants.ts`](src/demo/constants.ts) — e.g. `DHYH_VIDEO_URL`, `PLACEHOLDER_VIDEO_URL`, or in [`src/demo/ad-modes/modes/<id>/config.ts`](src/demo/ad-modes/) for ad creatives.
 2. Add the corresponding `VITE_*` key to `.env.local`. Example:
    ```bash
    VITE_DHYH_VIDEO_URL=https://kerv-cdn.example.com/dhyh-cmp.mp4
@@ -65,6 +66,67 @@ Point the player at a higher-fidelity local copy, an S3-hosted file, or a stagin
 ### Available keys
 
 See [`.env.example`](.env.example) (kept in sync with the actual constants).
+
+---
+
+## Recipe: Switch tier JSON / product images to S3
+
+**Status:** ✅ Ready
+**Pattern owner:** [`src/demo/sources/`](src/demo/sources/) — full cookbook in [`src/demo/sources/README.md`](src/demo/sources/README.md).
+
+### Why you'd do this
+
+Today, tier JSONs (`tier1.json` / `tier2.json` / `tier3.json`) and product images ship bundled with the app. To host them on S3 / CloudFront — for example to roll out updated analysis without redeploying the frontend, or to keep the Vercel build small — set one env var. The resolver layer handles the swap.
+
+### Steps
+
+1. Upload tier JSONs and product images to your bucket / CDN at the path
+   structure documented in [`src/demo/sources/README.md`](src/demo/sources/README.md):
+   ```
+   {base}/
+   └── {contentId}/             # e.g. dhyh/
+       ├── tier1.json
+       ├── tier2.json
+       ├── tier3.json
+       └── products/
+           └── {image_path}     # e.g. homedpt/335027444.jpg
+   ```
+2. Add to `.env.local` (or your production deploy env):
+   ```bash
+   VITE_CONTENT_SOURCE_BASE_URL=https://kerv-content.example.com
+   ```
+3. Restart Vite / rebuild. Tier JSONs are now fetched from the base URL; product images route through it (or use their existing absolute `image_url` when present).
+
+### Reverting
+
+Unset `VITE_CONTENT_SOURCE_BASE_URL` and the build resumes using bundled local copies — full reversibility.
+
+---
+
+## Recipe: Upload a new content package (FUTURE)
+
+**Status:** ⏳ Resolver layer ready; backend + UI + manifest registry deferred (Phase 5 in `RESTRUCTURING_PLAN.md`)
+**Pattern owner:** [`src/demo/sources/`](src/demo/sources/) — see "Future: content upload pipeline" in its README.
+
+### Where the resolver layer fits
+
+When a user uploads a content zip, the backend extracts to S3 under a new
+`contentId`. The app's `resolveTierPayload(contentId, tier)` and
+`resolveProductImageUrl(contentId, ...)` already accept the content id as a
+parameter, so once the manifest registry exists and points
+`getDhyhScenesForTier` (or its content-tile-aware successor) at the right
+content id, no further refactoring is needed in the resolver layer.
+
+### What's still needed (Phase 5 work)
+
+- A manifest schema and per-content registry (where `DHYH_*` constants in
+  `constants.ts` and the DHYH-specific code in `dhyhScenes.ts` live today).
+- An upload UI + backend endpoint that extracts zips and writes the manifest.
+- A way for `useDemoPlayback` to dispatch on `selectedContent.id` rather than
+  hardcoding `dhyh` everywhere.
+
+The current build is the right shape to slot all that in when the team
+prioritizes it; today's resolver covers the data-fetching half of the work.
 
 ---
 
