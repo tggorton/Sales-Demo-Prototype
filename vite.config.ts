@@ -1,9 +1,21 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    // Phase 7a — Vitest unit tests for pure-function protected behaviors.
+    // Tests live in `tests/unit/` rooted at the project root so the source
+    // tree stays clean; co-located *.test.ts files would also be picked up
+    // if we ever want them. `node` environment by default — pure-function
+    // tests don't need DOM. Add `environment: 'jsdom'` (and the jsdom dep)
+    // when component or hook tests land in 7b.
+    include: ['tests/unit/**/*.test.ts', 'src/**/*.test.ts'],
+    environment: 'node',
+    globals: false,
+  },
   build: {
     // Split heavy third-party libraries into their own long-lived chunks so
     // that (a) the browser can download them in parallel with the app code,
