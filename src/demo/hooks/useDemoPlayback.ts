@@ -41,6 +41,11 @@ import {
   isAdBreakSegment,
   mapPlayerToClipSeconds,
 } from '../utils/adBreakMath'
+import {
+  buildAllProductEntries,
+  resolveActiveProductIndex,
+  splitProductEntriesAroundAdBreak,
+} from '../utils/productEntries'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
@@ -348,103 +353,24 @@ export function useDemoPlayback({
 
   const activeScene = playbackScenes[activeSceneIndex] ?? playbackScenes[0]
 
-  // Segment-gated product lists.
-  //
-  // DHYH in Sync:Impulse mode plays two stitched content segments (pre-ad and
-  // post-ad) with an ad break between them. The product panel should ONLY
-  // expose products from the segment the viewer is currently in – otherwise
-  // the post-ad items leak into the tail of the pre-ad viewport (and vice
-  // versa), and scrubbing across the ad boundary can leave the panel parked
-  // on the wrong segment's products.
-  //
-  // We build two independent lists (each with its own dedupe state so a
-  // product that appears in both segments gets to show up once per segment)
-  // and pick whichever matches the current clip time below. For content
-  // without an ad break (e.g. non-DHYH, or modes other than Sync:Impulse)
-  // everything lives in `preAdProductEntries` and `postAdProductEntries`
-  // stays empty.
-  //
-  // Time-windowed dedupe: within a segment, if a product already emitted
-  // within the last PRODUCT_DEDUPE_WINDOW_SECONDS (on the playback timeline),
-  // skip subsequent occurrences. A gap larger than the window lets the
-  // product reappear so recurring on-screen items still show up naturally
-  // later in the clip. Set PRODUCT_DEDUPE_WINDOW_SECONDS to 0 in
-  // constants.ts to disable.
-  const { preAdProductEntries, postAdProductEntries } = useMemo<{
-    preAdProductEntries: ProductEntry[]
-    postAdProductEntries: ProductEntry[]
-  }>(() => {
-    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
-    const buildList = (scenes: SceneMetadata[]): ProductEntry[] => {
-      const result: ProductEntry[] = []
-      const lastEmittedAt = new Map<string, number>()
-      for (const scene of scenes) {
-        for (const product of scene.products) {
-          const previous = lastEmittedAt.get(product.productKey)
-          if (
-            windowSeconds > 0 &&
-            previous !== undefined &&
-            scene.start - previous < windowSeconds
-          ) {
-            continue
-          }
-          result.push({
-            ...product,
-            sceneId: scene.id,
-            sceneLabel: scene.sceneLabel,
-            sceneStart: scene.start,
-          })
-          lastEmittedAt.set(product.productKey, scene.start)
-        }
-      }
-      return result
-    }
+  // Segment-gated product lists for HANDOFF §6 segment isolation.
+  // See `utils/productEntries.ts` for the dedupe + split logic.
+  const { preAdProductEntries, postAdProductEntries } = useMemo(
+    () =>
+      splitProductEntriesAroundAdBreak(playbackScenes, {
+        hasAdBreak: isDhyhContent && isSyncImpulseMode,
+        boundarySeconds: DHYH_AD_BREAK_CLIP_SECONDS,
+        dedupeWindowSeconds: PRODUCT_DEDUPE_WINDOW_SECONDS,
+      }),
+    [playbackScenes, isDhyhContent, isSyncImpulseMode]
+  )
 
-    const hasAdBreak = isDhyhContent && isSyncImpulseMode
-    if (!hasAdBreak) {
-      return { preAdProductEntries: buildList(playbackScenes), postAdProductEntries: [] }
-    }
-    const boundary = DHYH_AD_BREAK_CLIP_SECONDS
-    const preAdScenes = playbackScenes.filter((scene) => scene.start < boundary)
-    const postAdScenes = playbackScenes.filter((scene) => scene.start >= boundary)
-    return {
-      preAdProductEntries: buildList(preAdScenes),
-      postAdProductEntries: buildList(postAdScenes),
-    }
-  }, [playbackScenes, isDhyhContent, isSyncImpulseMode])
-
-  // Full product list across BOTH segments – used by the expanded panel
-  // dialog, which shows everything regardless of where the viewer is in the
-  // timeline. Dedupe is applied once across the whole clip (same window as
-  // the per-segment lists) so recurring items don't pile up, but no segment
-  // boundary is enforced. The collapsed inline panel uses the segment-gated
-  // `productEntries` below instead so the scroll viewport only ever surfaces
-  // products from the currently-playing segment.
-  const allProductEntries = useMemo<ProductEntry[]>(() => {
-    const windowSeconds = PRODUCT_DEDUPE_WINDOW_SECONDS
-    const result: ProductEntry[] = []
-    const lastEmittedAt = new Map<string, number>()
-    for (const scene of playbackScenes) {
-      for (const product of scene.products) {
-        const previous = lastEmittedAt.get(product.productKey)
-        if (
-          windowSeconds > 0 &&
-          previous !== undefined &&
-          scene.start - previous < windowSeconds
-        ) {
-          continue
-        }
-        result.push({
-          ...product,
-          sceneId: scene.id,
-          sceneLabel: scene.sceneLabel,
-          sceneStart: scene.start,
-        })
-        lastEmittedAt.set(product.productKey, scene.start)
-      }
-    }
-    return result
-  }, [playbackScenes])
+  // Full product list spanning both segments — for the expanded Products
+  // dialog, which shows everything regardless of the active segment.
+  const allProductEntries = useMemo(
+    () => buildAllProductEntries(playbackScenes, PRODUCT_DEDUPE_WINDOW_SECONDS),
+    [playbackScenes]
+  )
 
   // Pick the segment-appropriate list for the current clip time. During the
   // ad break itself `panelTimelineSeconds` is pinned just below the boundary
@@ -537,29 +463,20 @@ export function useDemoPlayback({
     [selectedContent, selectedTier]
   )
 
-  // Returns -1 when no product has been reached yet on the timeline (e.g. the DHYH color-bar
-  // intro). When the current scene itself has no products, we keep the last past scene's
-  // products visible so the panel doesn't jump back to the top of the list.
-  //
-  // Important: we match against `playbackScenes[activeSceneIndex]` (guarded by the
-  // activeSceneIndex >= 0 check) rather than the `activeScene ?? playbackScenes[0]`
-  // fallback — using the fallback would make the product panel jump to Scene 1's
-  // products any time the activeSceneIndex fallback kicks in.
-  const activeProductIndex = useMemo(() => {
-    if (productEntries.length === 0) return -1
-    if (activeSceneIndex < 0) return -1
-    const currentScene = playbackScenes[activeSceneIndex]
-    if (currentScene) {
-      const firstMatch = productEntries.findIndex(
-        (entry) => entry.sceneId === currentScene.id
-      )
-      if (firstMatch >= 0) return firstMatch
-    }
-    for (let i = productEntries.length - 1; i >= 0; i--) {
-      if (productEntries[i].sceneStart <= panelTimelineSeconds) return i
-    }
-    return -1
-  }, [activeSceneIndex, playbackScenes, productEntries, panelTimelineSeconds])
+  // Resolve the "current" product index. The `activeScene ?? playbackScenes[0]`
+  // fallback is intentionally NOT used here — the resolver matches against the
+  // scene at the active index directly so the panel stays at the top during
+  // the pre-product intro instead of leaping to Scene 1's products. See
+  // `utils/productEntries.ts`.
+  const activeProductIndex = useMemo(
+    () =>
+      resolveActiveProductIndex(productEntries, {
+        activeSceneIndex,
+        activeScene: playbackScenes[activeSceneIndex] ?? null,
+        panelTimelineSeconds,
+      }),
+    [activeSceneIndex, playbackScenes, productEntries, panelTimelineSeconds]
+  )
 
   const hasReachedFirstProduct = activeProductIndex >= 0
 
