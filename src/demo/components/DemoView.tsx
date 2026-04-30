@@ -4,11 +4,7 @@ import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import PauseRoundedIcon from '@mui/icons-material/PauseRounded'
-import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
-import VolumeOffRoundedIcon from '@mui/icons-material/VolumeOffRounded'
-import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded'
 import {
   Box,
   Chip,
@@ -18,20 +14,20 @@ import {
   MenuItem,
   Paper,
   Select,
-  Slider,
   Stack,
   Tooltip,
   Typography,
   Button,
 } from '@mui/material'
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
+import { useMemo, type MutableRefObject } from 'react'
 import { PanelGlyph } from './primitives/PanelGlyph'
+import { VideoPlayer } from './player/VideoPlayer'
 import {
   PRODUCT_PLACEHOLDER_IMAGE,
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
 } from '../constants'
-import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../ad-modes'
+import { ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString, buildSceneJsonPayload } from '../utils/jsonExport'
 import { groupJsonScenes, type JsonSceneGroup } from '../utils/jsonPanelGroups'
@@ -177,27 +173,11 @@ export function DemoView({
   onOpenJsonDownload,
   onOpenCompanionModal,
 }: DemoViewProps) {
-  // Map of mounted ad-video elements keyed by src URL. All enabled DHYH ad
-  // creatives mount concurrently (see JSX below) and play in parallel while
-  // the ad break is active — only the active one is visible (opacity 1) and
-  // unmuted. Mounting them all keeps every decoder warm; switching ad mode
-  // mid-break is then a pure opacity + mute flip, no play() startup cost,
-  // because the newly-visible element's decoder is already producing frames.
-  const adVideoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map())
-
-  // Effect 1: forward whichever element is currently active to the parent's
-  // adVideoRef so the playback hook's seek effect targets the right one.
-  // No play/pause logic here — Effect 2 owns that.
-  useEffect(() => {
-    if (activeAdVideoUrl) {
-      const el = adVideoElementsRef.current.get(activeAdVideoUrl) ?? null
-      adVideoRef.current = el
-    } else {
-      adVideoRef.current = null
-    }
-    // adVideoRef is a stable mutable ref; not a reactive dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeAdVideoUrl])
+  // (Ad-creative parallel-playback logic moved into player/VideoPlayer.tsx
+  // as part of Phase 4b. The Map of mounted ad-video elements + the two
+  // effects that forward the active element to adVideoRef and drive
+  // play/pause for all elements during the break now live entirely in that
+  // component.)
 
   // Group adjacent scenes with the same content fingerprint into a single
   // JSON-panel card. Scenes in DHYH are emitted at scene-cut granularity (often
@@ -221,48 +201,6 @@ export function DemoView({
     }
     return map
   }, [jsonGroups])
-
-  // Effect 2: drive parallel play/pause for every preloaded ad creative.
-  // While the break is active and master playback is on, all elements play
-  // (inactive ones are silently muted via the JSX, so no audio multiplex).
-  // When the break ends or master playback pauses, all elements pause; on
-  // break end we also reset currentTime to 0 so the next entry starts fresh.
-  // Including activeAdVideoUrl in deps lets us recover an ended video (e.g.
-  // 30s Impulse finishing while 45s Sync is still playing) when the user
-  // selects it after end — we seek to 0 and re-play.
-  useEffect(() => {
-    const elements = adVideoElementsRef.current
-    if (!isAdBreakPlayback) {
-      for (const el of elements.values()) {
-        if (!el.paused) el.pause()
-        try {
-          el.currentTime = 0
-        } catch {
-          /* ignore seek errors on unloaded element */
-        }
-      }
-      return
-    }
-    if (isVideoPlaying) {
-      for (const el of elements.values()) {
-        if (el.ended) {
-          try {
-            el.currentTime = 0
-          } catch {
-            /* ignore */
-          }
-        }
-        if (el.paused) {
-          const p = el.play()
-          if (p && typeof p.catch === 'function') p.catch(() => {})
-        }
-      }
-    } else {
-      for (const el of elements.values()) {
-        if (!el.paused) el.pause()
-      }
-    }
-  }, [isAdBreakPlayback, isVideoPlaying, activeAdVideoUrl])
 
   return (
     <Stack spacing={2}>
@@ -358,338 +296,32 @@ export function DemoView({
               alignItems: 'stretch',
             }}
           >
-            <Box
-              sx={{
-                minWidth: 0,
-                display: 'flex',
-                justifyContent: visiblePanels.length === 0 ? 'center' : 'flex-start',
-                alignSelf: 'start',
-              }}
-            >
-              <Box
-                sx={{
-                  width: visiblePanels.length <= 1 ? 'min(100%, 976px)' : '100%',
-                  maxWidth: '100%',
-                  height: 'auto',
-                  aspectRatio: '16 / 9',
-                  alignSelf: 'start',
-                  position: 'relative',
-                  borderRadius: 1,
-                  overflow: 'hidden',
-                  bgcolor: '#00152A',
-                  boxShadow: '0 6px 14px rgba(0,0,0,0.2)',
-                }}
-              >
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundColor: '#1a1a1a',
-                    backgroundImage: activeAdVideoUrl || !activeAdBreakImage ? 'none' : `url(${activeAdBreakImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    opacity: isAdBreakPlayback ? 1 : 0,
-                    transition: 'opacity 320ms ease-in-out',
-                  }}
-                >
-                  {/* Render every enabled DHYH ad creative concurrently in the
-                      same absolute frame; switch which one is visible via
-                      opacity, not src. Because the user-visible element
-                      doesn't change identity, switching ad mode mid-break is
-                      now an opacity flip (instant) instead of a source swap
-                      (visible stutter while the browser parses + decodes the
-                      new file). The ref-Map effect at the top of DemoView
-                      forwards the active element to the parent's adVideoRef
-                      and pauses any inactive element so we don't multiplex
-                      audio. Inactive videos remain mounted, buffered, and
-                      ready — the opacity flip is the entire transition. */}
-                  {ENABLED_AD_MODE_IDS.map((modeId) => {
-                    const modeUrl = AD_MODE_REGISTRY[modeId].dhyhAdVideoUrl
-                    if (!modeUrl) return null
-                    const isActive = modeUrl === activeAdVideoUrl
-                    return (
-                      <Box
-                        key={modeId}
-                        component="video"
-                        ref={(el: HTMLVideoElement | null) => {
-                          const elements = adVideoElementsRef.current
-                          if (el) {
-                            elements.set(modeUrl, el)
-                          } else {
-                            elements.delete(modeUrl)
-                          }
-                        }}
-                        src={modeUrl}
-                        muted={isActive ? isVideoMuted : true}
-                        playsInline
-                        preload="auto"
-                        aria-hidden={!isActive}
-                        sx={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                          backgroundColor: '#000',
-                          opacity: isActive ? 1 : 0,
-                          pointerEvents: isActive ? 'auto' : 'none',
-                        }}
-                      />
-                    )
-                  })}
-                </Box>
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    opacity: isAdBreakPlayback ? 0 : 1,
-                    transition: 'opacity 320ms ease-in-out',
-                  }}
-                >
-                  <Box
-                    component="video"
-                    ref={contentVideoRef}
-                    src={mainVideoSrc}
-                    key={mainVideoSrc}
-                    muted={isVideoMuted}
-                    playsInline
-                    preload="metadata"
-                    onLoadedMetadata={(event) => {
-                      const duration = event.currentTarget.duration
-                      if (!Number.isNaN(duration)) {
-                        onVideoMetadataLoaded(duration)
-                      }
-                    }}
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                      backgroundColor: '#1a1a1a',
-                      '@keyframes contentFadeIn': {
-                        from: { opacity: 0 },
-                        to: { opacity: 1 },
-                      },
-                      animation: 'contentFadeIn 1100ms ease-out',
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      backgroundColor: isSyncImpulseMode ? 'rgba(255,0,40,0.14)' : 'rgba(0,0,0,0.3)',
-                      pointerEvents: 'none',
-                    }}
-                  />
-                </Box>
-                {isSyncImpulseMode && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                      background:
-                        'radial-gradient(circle at 18% 35%, rgba(0,255,255,0.12), transparent 36%), radial-gradient(circle at 80% 20%, rgba(255,40,90,0.16), transparent 34%), radial-gradient(circle at 65% 78%, rgba(255,80,120,0.14), transparent 40%)',
-                      mixBlendMode: 'screen',
-                      opacity: isAdBreakPlayback ? 0 : 1,
-                      transition: 'opacity 320ms ease-in-out',
-                    }}
-                  />
-                )}
-                {isSyncImpulseMode && isAdBreakPlayback && !activeAdVideoUrl && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      left: '83.9%',
-                      transform: 'translateX(-50%)',
-                      bottom: '8.9%',
-                      width: '19.1%',
-                      aspectRatio: '1 / 1',
-                      zIndex: 3,
-                      borderRadius: 0.5,
-                      overflow: 'hidden',
-                      backgroundColor: '#fff',
-                      p: '0.1%',
-                      boxSizing: 'border-box',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    <Box component="img" src={activeAdQrImage} alt="Ad QR code" sx={{ width: '100%', height: '100%', display: 'block', backgroundColor: '#fff' }} />
-                  </Box>
-                )}
-                {/* Whole-ad click target. Covers the full player area except the control
-                    bar along the bottom, so clicking anywhere on the ad opens the
-                    companion experience without us having to track per-creative QR
-                    placements. */}
-                {isSyncImpulseMode && isAdBreakPlayback && (
-                  <Box
-                    role="button"
-                    aria-label="Open companion experience"
-                    onClick={onOpenCompanionModal}
-                    sx={{
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      bottom: `${playerControlTokens.controlBarHeight}px`,
-                      cursor: 'pointer',
-                      zIndex: 4,
-                      backgroundColor: 'transparent',
-                    }}
-                  />
-                )}
-
-                {shouldShowInContentCta && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      right: '35px',
-                      bottom: `${playerControlTokens.controlBarHeight + 10}px`,
-                      px: 2.25,
-                      py: 1.1,
-                      borderRadius: 0.75,
-                      bgcolor: 'rgba(255,255,255,0.92)',
-                    }}
-                  >
-                    <Typography sx={{ fontSize: 15, fontWeight: 500, color: '#1d1d1d' }}>
-                      {activeScene.cta}
-                    </Typography>
-                  </Box>
-                )}
-
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    px: playerControlTokens.overlayPx,
-                    py: playerControlTokens.overlayPy,
-                    background: 'linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15))',
-                  }}
-                >
-                  <Stack direction="row" alignItems="center" spacing={1.4}>
-                    <IconButton onClick={onToggleVideoPlaying} sx={{ color: '#fff', p: playerControlTokens.controlButtonPadding }}>
-                      {isVideoPlaying ? (
-                        <PauseRoundedIcon sx={{ fontSize: playerControlTokens.playIconSize }} />
-                      ) : (
-                        <PlayArrowRoundedIcon sx={{ fontSize: playerControlTokens.playIconSize }} />
-                      )}
-                    </IconButton>
-                    <Typography
-                      sx={{
-                        color: '#fff',
-                        fontSize: playerControlTokens.timeFontSize,
-                        width: playerControlTokens.timeWidth,
-                      }}
-                    >
-                      {formatTime(displayedCurrentSeconds)} / {formatTime(displayedDurationSeconds)}
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        flex: 1,
-                        position: 'relative',
-                        height: playerControlTokens.sliderContainerHeight,
-                      }}
-                    >
-                      {isSyncImpulseMode ? (
-                        <>
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: playerControlTokens.timelineTop,
-                              left: 0,
-                              right: 0,
-                              height: playerControlTokens.timelineHeight,
-                              bgcolor: '#404040',
-                            }}
-                          />
-                          {impulseSegments.map((segment, idx) => (
-                            <Box
-                              key={`${segment.kind}-${idx}`}
-                              sx={{
-                                position: 'absolute',
-                                top: playerControlTokens.timelineTop,
-                                left: `${(segment.start / playbackDurationSeconds) * 100}%`,
-                                width: `${((segment.end - segment.start) / playbackDurationSeconds) * 100}%`,
-                                height: playerControlTokens.timelineHeight,
-                                bgcolor: segment.kind === 'content' ? '#D7283B' : '#18D1E5',
-                                pointerEvents: 'none',
-                              }}
-                            />
-                          ))}
-                        </>
-                      ) : (
-                        <>
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: playerControlTokens.timelineTop,
-                              left: 0,
-                              right: 0,
-                              height: playerControlTokens.timelineHeight,
-                              bgcolor: '#404040',
-                            }}
-                          />
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: playerControlTokens.timelineTop,
-                              left: 0,
-                              height: playerControlTokens.timelineHeight,
-                              width: `${(videoCurrentSeconds / playbackDurationSeconds) * 100}%`,
-                              bgcolor: '#1a9ee9',
-                            }}
-                          />
-                        </>
-                      )}
-                      <Slider
-                        min={0}
-                        max={playbackDurationSeconds}
-                        value={videoCurrentSeconds}
-                        onChange={(_, value) => onVideoTimeChange(Array.isArray(value) ? value[0] : value)}
-                        sx={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: playerControlTokens.timelineTop,
-                          height: playerControlTokens.timelineHeight,
-                          p: 0,
-                          color: '#1a9ee9',
-                          '& .MuiSlider-rail': { opacity: 0 },
-                          '& .MuiSlider-track': { opacity: 0 },
-                          '& .MuiSlider-thumb': {
-                            width: playerControlTokens.thumbSize,
-                            height: playerControlTokens.thumbSize,
-                            top: '50%',
-                            bgcolor: '#1a9ee9',
-                            border: 'none',
-                            boxShadow: 'none',
-                            '&:hover, &.Mui-focusVisible': { boxShadow: 'none' },
-                          },
-                        }}
-                      />
-                    </Box>
-
-                    <Tooltip title={isVideoMuted ? 'Unmute' : 'Mute'} arrow>
-                      <IconButton
-                        onClick={onToggleVideoMuted}
-                        aria-label={isVideoMuted ? 'Unmute' : 'Mute'}
-                        sx={{ color: '#fff', p: playerControlTokens.controlButtonPadding }}
-                      >
-                        {isVideoMuted ? (
-                          <VolumeOffRoundedIcon sx={{ fontSize: playerControlTokens.secondaryIconSize }} />
-                        ) : (
-                          <VolumeUpRoundedIcon sx={{ fontSize: playerControlTokens.secondaryIconSize }} />
-                        )}
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </Box>
-              </Box>
-            </Box>
+            <VideoPlayer
+              visiblePanelCount={visiblePanels.length}
+              contentVideoRef={contentVideoRef}
+              adVideoRef={adVideoRef}
+              mainVideoSrc={mainVideoSrc}
+              activeAdVideoUrl={activeAdVideoUrl}
+              activeAdBreakImage={activeAdBreakImage}
+              activeAdQrImage={activeAdQrImage}
+              isVideoPlaying={isVideoPlaying}
+              isVideoMuted={isVideoMuted}
+              isAdBreakPlayback={isAdBreakPlayback}
+              isSyncImpulseMode={isSyncImpulseMode}
+              shouldShowInContentCta={shouldShowInContentCta}
+              inContentCtaText={activeScene.cta}
+              videoCurrentSeconds={videoCurrentSeconds}
+              playbackDurationSeconds={playbackDurationSeconds}
+              displayedCurrentSeconds={displayedCurrentSeconds}
+              displayedDurationSeconds={displayedDurationSeconds}
+              impulseSegments={impulseSegments}
+              playerControlTokens={playerControlTokens}
+              onToggleVideoPlaying={onToggleVideoPlaying}
+              onToggleVideoMuted={onToggleVideoMuted}
+              onVideoTimeChange={onVideoTimeChange}
+              onVideoMetadataLoaded={onVideoMetadataLoaded}
+              onOpenCompanionModal={onOpenCompanionModal}
+            />
 
             {visiblePanels.includes('taxonomy') && (
               <Paper elevation={0} sx={{ ...panelPaperStyles, height: visiblePanels.length === 1 ? 549 : '100%' }}>
