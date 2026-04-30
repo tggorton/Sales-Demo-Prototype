@@ -54,6 +54,11 @@ _archive/
 # TypeScript incremental build cache (regenerated on every `npm run build`).
 *.tsbuildinfo
 
+# Playwright artifacts (regenerated on every `npm run test:e2e` run).
+/playwright-report/
+/test-results/
+/playwright/.cache/
+
 # Local Claude Code settings (user-specific, not project-wide).
 # (Ignore specific local-only files inside .claude/ but DO track .claude/skills/
 # so project-level skills like /log-time are shared across the team.)
