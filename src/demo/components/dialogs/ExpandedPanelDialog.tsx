@@ -41,7 +41,14 @@ type ExpandedPanelDialogProps = {
   expandedPanel: ExpandedPanel
   expandedSelectedTaxonomies: TaxonomyOption[]
   playbackScenes: SceneMetadata[]
+  /** Segment-isolated product list — same array the inline collapsed
+   *  panel uses, so `activeProductIndex` lines up across both views. */
   productEntries: ProductEntry[]
+  /** Index into `productEntries` of the product the inline panel is
+   *  currently centered on. Drives the open-time scroll target so the
+   *  expanded view lands on the EXACT same product, not just the first
+   *  product of the active scene. */
+  activeProductIndex: number
   productsUnavailableMessage: string | null
   hasReachedFirstProduct: boolean
   taxonomyAvailability: Record<TaxonomyOption, boolean>
@@ -64,6 +71,7 @@ export function ExpandedPanelDialog({
   expandedSelectedTaxonomies,
   playbackScenes,
   productEntries,
+  activeProductIndex,
   productsUnavailableMessage,
   hasReachedFirstProduct,
   taxonomyAvailability,
@@ -84,46 +92,66 @@ export function ExpandedPanelDialog({
   // bind whichever panel's outer scroll Box is currently mounted.
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
-  // Compute the target scene id the panel should "land on" when it opens.
-  // For Taxonomy + JSON it's just the active scene. For Products we prefer
-  // the first product entry that belongs to the active scene; if the current
-  // scene has no products, we fall back to the most recent product whose
-  // scene started at or before the current playback moment, which keeps the
-  // panel anchored near the user's place in the timeline (e.g. when expanding
-  // mid-Segment B, lead with the most recent Segment B product, not the top
-  // of the Segment A list).
+  // Phase 9a — compute the open-time scroll anchor. Two anchor families:
+  //
+  //   - `targetProductAnchorId` for the Products panel: pinpoints the
+  //     EXACT product entry the inline panel is centered on. Every
+  //     expanded ProductCard carries `data-product-anchor={entry.id}`,
+  //     so the scroll lands on the exact card regardless of how many
+  //     products share its scene. Resolved via `activeProductIndex`,
+  //     which is computed against the same segment-isolated list both
+  //     panels render — so the indices line up by construction.
+  //
+  //   - `targetSceneAnchorId` for the Taxonomy + JSON panels and as a
+  //     fallback for Products when the index is out of range. Each
+  //     scene wrapper carries `data-scene-anchor={scene.id}`.
+  let targetProductAnchorId: string | null = null
   let targetSceneAnchorId: string | null = null
   if (expandedPanel === 'taxonomy' || expandedPanel === 'json') {
     targetSceneAnchorId = activeScene?.id ?? null
   } else if (expandedPanel === 'product' && productEntries.length > 0) {
-    const exact = productEntries.find((e) => e.sceneId === activeScene?.id)
-    if (exact) {
-      targetSceneAnchorId = exact.sceneId
+    const activeEntry =
+      activeProductIndex >= 0 && activeProductIndex < productEntries.length
+        ? productEntries[activeProductIndex]
+        : null
+    if (activeEntry) {
+      targetProductAnchorId = activeEntry.id
+      targetSceneAnchorId = activeEntry.sceneId
     } else {
-      let best: ProductEntry | null = null
-      for (const entry of productEntries) {
-        if (entry.sceneStart <= videoCurrentSeconds) best = entry
-        else break
-      }
-      targetSceneAnchorId = best ? best.sceneId : productEntries[0].sceneId
+      // Pre-product stretch (DHYH color-bar intro). Fall back to the
+      // first product so the panel doesn't render mid-list with the
+      // user disoriented.
+      targetSceneAnchorId = productEntries[0].sceneId
     }
   }
 
-  // Scroll to the active anchor on open. We run after layout via rAF so the
-  // dialog's transition has had a tick to render its content (otherwise
-  // offsetTop is 0 and we'd no-op). Re-runs if the active scene moves while
-  // the panel is open are intentionally NOT triggered – on-open snap only,
-  // so the user can freely scroll once they're inside.
+  // Scroll to the active anchor on open. We run after layout via rAF so
+  // the dialog's transition has had a tick to render its content
+  // (otherwise offsetTop is 0 and we'd no-op). Re-runs on subsequent
+  // scrubs are wired in Phase 9b; for now this fires once per open.
   useEffect(() => {
-    if (!expandedPanel || !targetSceneAnchorId) return
+    if (!expandedPanel) return
     let raf2 = 0
     const raf1 = window.requestAnimationFrame(() => {
       raf2 = window.requestAnimationFrame(() => {
         const container = scrollContainerRef.current
         if (!container) return
-        const target = container.querySelector<HTMLElement>(
-          `[data-scene-anchor="${targetSceneAnchorId}"]`
-        )
+        // Prefer the per-product anchor (Products panel only); fall back
+        // to the per-scene anchor for Taxonomy + JSON, and for the
+        // Products pre-product stretch where there's no entry yet.
+        const productSelector = targetProductAnchorId
+          ? `[data-product-anchor="${targetProductAnchorId}"]`
+          : null
+        const sceneSelector = targetSceneAnchorId
+          ? `[data-scene-anchor="${targetSceneAnchorId}"]`
+          : null
+        const target =
+          (productSelector
+            ? container.querySelector<HTMLElement>(productSelector)
+            : null) ??
+          (sceneSelector
+            ? container.querySelector<HTMLElement>(sceneSelector)
+            : null)
         if (!target) return
         container.scrollTop = Math.max(0, target.offsetTop - 12)
       })
@@ -132,9 +160,8 @@ export function ExpandedPanelDialog({
       window.cancelAnimationFrame(raf1)
       if (raf2) window.cancelAnimationFrame(raf2)
     }
-    // We deliberately key on `expandedPanel` only – the scroll fires once per
-    // open. Subsequent activeScene changes (live playback, scrubs) don't
-    // re-trigger the snap so the user keeps control while the panel is open.
+    // Keyed on `expandedPanel` only — the scroll fires once per open.
+    // Phase 9b will add scrub-driven re-syncs alongside this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expandedPanel])
 
@@ -317,7 +344,15 @@ export function ExpandedPanelDialog({
                 entry={entry}
                 showSceneAnchor={isFirstOfScene}
                 variant="expanded"
+                // Per-scene anchor only on the first product of each
+                // scene group (matches the inline panel and feeds the
+                // dialog's scene-level fallback selector).
                 dataSceneAnchorId={isFirstOfScene ? entry.sceneId : undefined}
+                // Per-product anchor on EVERY card so the open-time
+                // scroll can land on the exact product the inline panel
+                // was centered on, not just the first product of its
+                // scene (Phase 9a sync hardening).
+                dataProductAnchorId={entry.id}
               />
             )
           })}

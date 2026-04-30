@@ -489,7 +489,12 @@ function App() {
         expandedPanel={expandedPanel}
         expandedSelectedTaxonomies={expandedSelectedTaxonomies}
         playbackScenes={demoPlayback.playbackScenes}
-        productEntries={demoPlayback.allProductEntries}
+        // Phase 9a — expanded panel uses the SAME segment-isolated list
+        // as the inline panel. This guarantees `activeProductIndex` lines
+        // up across both views and the open-time scroll lands on the
+        // exact product the collapsed panel was centered on.
+        productEntries={demoPlayback.productEntries}
+        activeProductIndex={demoPlayback.activeProductIndex}
         productsUnavailableMessage={demoPlayback.productsUnavailableMessage}
         hasReachedFirstProduct={demoPlayback.hasReachedFirstProduct}
         taxonomyAvailability={demoPlayback.taxonomyAvailability}

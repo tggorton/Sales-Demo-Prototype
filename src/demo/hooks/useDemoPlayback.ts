@@ -42,7 +42,6 @@ import {
   mapPlayerToClipSeconds,
 } from '../utils/adBreakMath'
 import {
-  buildAllProductEntries,
   resolveActiveProductIndex,
   splitProductEntriesAroundAdBreak,
 } from '../utils/productEntries'
@@ -359,12 +358,6 @@ export function useDemoPlayback({
     [playbackScenes, isDhyhContent, isSyncImpulseMode]
   )
 
-  // Full product list spanning both segments — for the expanded Products
-  // dialog, which shows everything regardless of the active segment.
-  const allProductEntries = useMemo(
-    () => buildAllProductEntries(playbackScenes, PRODUCT_DEDUPE_WINDOW_SECONDS),
-    [playbackScenes]
-  )
 
   // Pick the segment-appropriate list for the current clip time. During the
   // ad break itself `panelTimelineSeconds` is pinned just below the boundary
@@ -1033,7 +1026,6 @@ export function useDemoPlayback({
     activeSceneIndex,
     activeScene,
     productEntries,
-    allProductEntries,
     activeProductIndex,
     originalJsonDownloadString,
     summaryJsonDownloadString,

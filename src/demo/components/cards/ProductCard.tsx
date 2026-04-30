@@ -8,7 +8,14 @@ type ProductCardProps = {
   entry: ProductEntry
   showSceneAnchor: boolean
   variant: 'collapsed' | 'expanded'
+  /** Stamps the wrapper with `data-scene-anchor`. Used by the expanded
+   *  dialog's per-scene scroll fallback. */
   dataSceneAnchorId?: string
+  /** Stamps the wrapper with `data-product-anchor` (per Phase 9a sync
+   *  hardening — every product card in the expanded view carries one
+   *  so the open-time scroll lands on the EXACT product the collapsed
+   *  panel was centered on, not just the first product of its scene). */
+  dataProductAnchorId?: string
   containerRef?: (el: HTMLDivElement | null) => void
 }
 
@@ -30,6 +37,7 @@ export function ProductCard({
   showSceneAnchor,
   variant,
   dataSceneAnchorId,
+  dataProductAnchorId,
   containerRef,
 }: ProductCardProps) {
   const isCollapsed = variant === 'collapsed'
@@ -38,6 +46,7 @@ export function ProductCard({
     <Box
       ref={containerRef}
       data-scene-anchor={dataSceneAnchorId}
+      data-product-anchor={dataProductAnchorId}
       sx={{
         px: isCollapsed ? 0.75 : 0.9,
         pt: showSceneAnchor ? (isCollapsed ? 1.05 : 1.2) : (isCollapsed ? 0.6 : 0.7),
