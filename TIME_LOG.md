@@ -71,12 +71,14 @@ future estimates. To date:
 | 2. Ad-mode registry | ~60–90 min | ~50m | Below range — registry pattern was straightforward once designed |
 | 3. S3 source resolvers | ~30–60 min | ~35m | Low end — much abstraction already existed |
 | 4. Component decomposition | ~45–75 min (recalibrated) | ~92m | **Over upper bound by ~23%.** 4a relocations were trivial (~7m) but 4b player extraction ran long (~50m: parallel-playback machinery moved across files, plus a messy intermediate edit + a TS error from a duplicate `PlayerControlTokens` type that needed unwinding). 4c shared cards landed clean (~35m). The ~30%-under-upper-bound pattern from phases 1–3 doesn't extend to Phase 4 — DemoView's player section had more entangled state than the recalibration accounted for. |
+| 5a. Per-content org + content×tier×ad-mode model | (no explicit estimate before split) | ~50m | Mostly mechanical relocations + a small forward-looking abstraction (`getAvailableAdModes` resolver). Came in fast because Phase 3 had already abstracted the tier-loading swap-point + product image resolver, so 5a was largely "rename and re-target" rather than design new layers. |
 
 Phase 3 looking "fast" is an artifact of the lower bound being a
 realistic value when prerequisites are in place. The estimate range
 itself was reasonable. Phase 4's overrun, by contrast, came from
 genuine complexity that wasn't visible from the outside until the
-extraction was underway.
+extraction was underway. Phase 5a benefited directly from Phase 3
+having pre-abstracted the right seams.
 
 ---
 
@@ -135,8 +137,12 @@ extraction was underway.
 | Process commitments + companion docs | 14m | 30m | Intricate prompt: Phase 4 timing observation + conversation-download Q + auto-time-tracking + skill request. Wrote 268-line `SESSION_LOG.md` (narrative day-by-day history), created `.claude/skills/log-time/SKILL.md`, updated `.gitignore` to track project skills, added §5b process commitments + Phase 4 recalibration to `RESTRUCTURING_PLAN.md`. Commits `14ced8f`, `9f08c5a`, `c3e63d1` |
 | Phase 4b — VideoPlayer + PlayerControls extraction | 3m | 50m | Major extraction: `VideoPlayer.tsx` (377 LOC) + `PlayerControls.tsx` (182 LOC), with the parallel-playback `adVideoElementsRef` Map + 2 useEffects relocating from DemoView into VideoPlayer. Hit a messy intermediate edit (orphaned `</Box>`) requiring `sed` cleanup, and a TS error from defining `PlayerControlTokens` locally instead of importing the canonical one in `src/demo/types.ts`. Worked across a `/compact` boundary — full conversation context was summarized mid-extraction and resumed. DemoView 1161 → 793 LOC. Commit `db145da` |
 | Phase 4c — shared panel cards | 4m | 35m | Created `TaxonomySceneCard` / `ProductCard` / `JsonSceneCard` in `src/demo/components/cards/`; refactored both `DemoView` (collapsed) and `ExpandedPanelDialog` (expanded) to use them via `variant: 'collapsed' \| 'expanded'` props. ~250 LOC of card-shape duplication collapsed into ~257 LOC of canonical implementation. DemoView 793 → 694 LOC, ExpandedPanelDialog 525 → 462 LOC. Commit `5f0d843` |
-| TIME_LOG update + Phase 4 verification offer | 5m | 10m | This block — pre-break checkpoint. Provided a golden-path browser verification checklist for Phase 4 (deferred — user breaking before walking through). |
-| **Session subtotal so far** | **~52m** | **~217m** | |
+| TIME_LOG update + Phase 4 verification offer | 5m | 10m | Pre-break checkpoint. Provided a golden-path browser verification checklist for Phase 4 (deferred — user breaking before walking through). |
+| Panel sync drift diagnosis (read-only) | 8m | 15m | User flagged after a 7-min playthrough that the Products panel collapsed→expanded scroll is "close but not exact" and asked to double-check syncing for all three panels. Diagnosed two drift sources without touching code: (1) `targetSceneAnchorId` fallback uses `videoCurrentSeconds` instead of `panelTimelineSeconds` — drifts by the full ad-break duration in DHYH Segment B; (2) `data-scene-anchor` is per-scene-first-product, so multi-product scenes lose sub-scene granularity. Taxonomy + JSON confirmed correct. Queued as Phase 9 instead of fixing now. |
+| Phase 5 split + Phase 9 added | 6m | 18m | Two plan-only commits (`970c1a9`, `7e0a576`). User clarified that per-content org should NOT be deferred until a 2nd tile lands (only Zod validation is) and that ad experiences live at the **content × tier** intersection. Expanded Phase 5 scope to cover ads/products/compliance/review subdirs; added Phase 9 (panel sync hardening) capturing the diagnosis above; split Phase 5 into 5a (org now) + 5b (validation later). Updated execution order to `0 → 1 → 2 → 3 → 4 → 5a → 7 → 6 → 8 → 9`. |
+| Phase 5a — per-content org + content×tier×ad-mode model | 5m | 50m | Stood up `src/demo/content/dhyh/` with the full directory shape; relocated tier JSONs, `dhyhScenes.ts`, all `DHYH_*` constants, and `dhyh-products.json` (root → `content/dhyh/review/`). Created `src/demo/content/index.ts` with `CONTENT_REGISTRY`, `getContentConfig`, and `getAvailableAdModes(contentId, tier)` resolver. DemoView now reads `availableAdModes` from useDemoPlayback instead of importing the global `ENABLED_AD_MODE_IDS`. `HIDDEN_TAXONOMIES_BY_CONTENT` retired. Build chunked tier1/2/3 to identical sizes after the move. **No behavior change**; user verified golden path. Commits `d7fefe7`, `c370275`. |
+| Housekeeping (sources/README + SESSION_LOG + TIME_LOG) | 6m | 20m | This block. Updated `sources/README.md` for new `content/<id>/tiers/` paths; appended Session 4's post-noon work to `SESSION_LOG.md`; this TIME_LOG update. Wrap-up before user steps away ahead of session reset. |
+| **Session subtotal so far** | **~77m** | **~320m** | |
 
 ## Running totals
 
@@ -145,8 +151,8 @@ extraction was underway.
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 250m |
-| Session 4 (04-30) | 52m | 217m |
-| **Total** | **~3h 04m** | **~9h 42m** |
+| Session 4 (04-30) | 77m | 320m |
+| **Total** | **~3h 29m** | **~12h 25m** |
 
 ---
 

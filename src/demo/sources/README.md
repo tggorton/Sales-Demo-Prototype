@@ -7,10 +7,11 @@ multi-content support routes the right files for the right content tile.
 
 ## Why this layer exists
 
-Two consumers of external content data live in `src/demo/data/`:
+Two consumers of external content data live under each content's
+`src/demo/content/<id>/` bundle (Phase 5a):
 
-- **Tier JSONs** (`tier1.json` / `tier2.json` / `tier3.json`) — the upstream
-  model's per-scene analysis.
+- **Tier JSONs** (`tier1.json` / `tier2.json` / `tier3.json` under
+  `content/<id>/tiers/`) — the upstream model's per-scene analysis.
 - **Product images** — the SKU thumbnails the Product panel renders.
 
 Both used to be hardcoded against bundled local paths. This module makes
@@ -36,7 +37,7 @@ purely an abstraction; no behavior change in production today.
 
 ## How it's used
 
-`src/demo/data/dhyhScenes.ts` calls both resolvers during bundle build:
+`src/demo/content/dhyh/scenes.ts` calls both resolvers during bundle build:
 
 ```ts
 import { resolveTierPayload, resolveProductImageUrl } from '../sources'
@@ -80,25 +81,30 @@ local dev keep working without configuring an S3 bucket.
 
 ## Adding a new content tile (bundled path)
 
-For content the build ships with locally (no upload step), add a folder
-and register a loader:
+For content the build ships with locally (no upload step), follow the
+content-tile pattern in [`../content/README.md`](../content/README.md):
 
-1. Create `src/demo/data/<contentId>/tier{1,2,3}.json` with the upstream
-   payload.
+1. Create `src/demo/content/<contentId>/` with `config.ts`, `timeline.ts`,
+   and `tiers/tier{1,2,3}.json` (upstream payload).
 2. Open `src/demo/sources/resolveTierPayload.ts`. Add an entry to
    `bundledTierLoaders`:
    ```ts
    const bundledTierLoaders = {
      dhyh: { ... },
      newContent: {
-       'Basic Scene': () => import('../data/newContent/tier1.json').then(m => m.default ?? m),
+       'Basic Scene': () =>
+         import('../content/newContent/tiers/tier1.json').then(m => m.default ?? m),
        // ... etc
      },
    }
    ```
 3. Drop the spliced video into `public/assets/video/` and ad creatives into
-   `public/assets/ads/`.
-4. Add a tile entry in `src/demo/data/contentItems.ts`.
+   `public/assets/ads/` (or under `content/<id>/ads/` once that surface
+   wires through — currently `public/assets/` is still where served files
+   live).
+4. Register the new `ContentConfig` in
+   `src/demo/content/index.ts`'s `CONTENT_REGISTRY` and add a tile entry
+   in `src/demo/data/contentItems.ts`.
 
 ## Future: content upload pipeline
 
@@ -160,12 +166,13 @@ The expected manifest fields (per content) — exact schema TBD by the team:
 }
 ```
 
-That manifest shape directly mirrors what currently lives in
-`src/demo/constants.ts` (DHYH_*) + `src/demo/ad-modes/modes/*/config.ts`.
-The content-tile pattern (Phase 5 in `RESTRUCTURING_PLAN.md`) is where the
-manifest-driven config layer would land — it's deliberately deferred until
-a second piece of content is on the roadmap, since speculative abstraction
-without a real second use case usually gets the abstraction wrong.
+That manifest shape directly mirrors what now lives in
+`src/demo/content/<id>/timeline.ts` + `src/demo/content/<id>/config.ts`
++ `src/demo/ad-modes/modes/*/config.ts` (Phase 5a landed the per-content
+org). The remaining work — Zod schemas + manifest-driven config — is
+Phase 5b in `RESTRUCTURING_PLAN.md`, deliberately deferred until a
+second piece of content is on the roadmap (no point locking schemas with
+only one real consumer).
 
 ## Constraints
 
@@ -176,5 +183,6 @@ without a real second use case usually gets the abstraction wrong.
   `${base}/${contentId}/products/...` only fires for the small set of
   product entries where `image_url` is missing.
 - The default (no env var) preserves bundled-local behavior exactly — the
-  app continues to ship product images and tier JSONs in `public/assets/`
-  and `src/demo/data/` until a deploy explicitly opts into remote.
+  app continues to ship product images in `public/assets/` and tier JSONs
+  in `src/demo/content/<id>/tiers/` until a deploy explicitly opts into
+  remote.

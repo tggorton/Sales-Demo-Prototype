@@ -144,7 +144,7 @@ The user explicitly requested the design split: collapsed inline panel = grouped
 
 ---
 
-### 2026-04-30 — Session 4: Phase 3 + Location panel cleanup + Phase 4a (today)
+### 2026-04-30 — Session 4: Phase 3 + Location cleanup + Phase 4 (a/b/c) + Phase 5a (long day)
 
 **Phase 3 — S3 source resolvers** (`a2d488c`, `4c1db75`). The user flagged two future-proofing considerations *before* I started: (1) a new "very different" ad playback mode coming, and (2) eventual content-upload feature for new content packages. I structured Phase 3 to support both:
 
@@ -170,6 +170,30 @@ The user explicitly requested the design split: collapsed inline panel = grouped
 - `primitives/` ← PanelGlyph
 
 Updated all consumers; rewrote `../X` imports inside moved files to `../../X`. ~12 min of work. **No behavior change.** This established the directory shape for Phase 4b/4c content extraction.
+
+**Process refinement** (`14ced8f`, `9f08c5a`, `c3e63d1`). Mid-session the user flagged that my Phase 4 estimate (1–2 hr) felt high vs. observed pacing on phases 1–3. We agreed on three deliverables before resuming code: (1) `SESSION_LOG.md` itself, as the narrative-history doc this is part of; (2) `/log-time` skill at [`.claude/skills/log-time/SKILL.md`](.claude/skills/log-time/SKILL.md) so the time-log update procedure is invokable rather than ad-hoc; (3) §5b "Process commitments" in [`RESTRUCTURING_PLAN.md`](RESTRUCTURING_PLAN.md) capturing the time-log cadence + phase-estimate calibration rules + the Phase 4 recalibration to 45–75 min.
+
+**Phase 4b — VideoPlayer + PlayerControls extraction** (`db145da`). Pulled the player surface out of `DemoView` into `src/demo/components/player/`: `VideoPlayer.tsx` (video element + ad creative grid + parallel-playback machinery) and `PlayerControls.tsx` (scrubber + play/pause + mute + time readout). The parallel-playback `adVideoElementsRef` Map and its two driving useEffects moved with the player. Two complications: (1) a messy intermediate edit left an orphaned `</Box>` requiring `sed` cleanup; (2) I initially defined a local `PlayerControlTokens` type instead of importing the canonical one from `src/demo/types.ts`, which TS caught with an incompatible `timelineTop` (string vs. number). Fixed the import. Worked across a `/compact` boundary. DemoView dropped 1161 → 793 LOC.
+
+**Phase 4c — shared panel cards** (`5f0d843`). Created `TaxonomySceneCard` / `ProductCard` / `JsonSceneCard` in `src/demo/components/cards/`. Refactored both `DemoView` (collapsed) and `ExpandedPanelDialog` (expanded) to use them via a `variant: 'collapsed' | 'expanded'` prop. ~250 LOC of card-shape duplication collapsed into ~257 LOC of canonical implementation. DemoView 793 → 694, ExpandedPanelDialog 525 → 462.
+
+**Phase 4 actual vs. estimate.** Total ~92 min vs. 45–75 min recalibrated estimate (~23% over). First phase to overshoot. Logged in `TIME_LOG.md`'s phase-estimate tracking — the "phases 1–3 averaging 30% under upper bound" pattern doesn't extend to Phase 4. Phase 4b's player-state entanglement was bigger than the recalibration accounted for; 4a + 4c landed clean.
+
+**Sync diagnosis (read-only)** — user flagged after a 7-min playthrough: Products panel expand-sync is "close but not exact" no matter where playback is. Diagnosed two drift sources without touching code: (1) the on-open `targetSceneAnchorId` fallback uses `videoCurrentSeconds` (player-time) instead of `panelTimelineSeconds` (clip-time), so post-ad-break the expanded view picks a product ~30s ahead of where the collapsed panel was; (2) `data-scene-anchor` is stamped per-scene-first-product, so a scene with multiple products always lands the expanded scroll on product #1. Taxonomy and JSON panels confirmed correct (both pivot on `activeScene` which is panel-time-derived). Queued as a new Phase 9 in the plan rather than a same-session fix — the user wanted to finish the structural restructure before fine-tuning sync.
+
+**Phase 5 split** (`970c1a9`, `7e0a576`). The user clarified that the per-content organizational work in Phase 5 should NOT be deferred until a 2nd content tile lands — only the Zod-schema-validation portion is gated on having a 2nd real consumer. They also flagged that ad experiences need to live at the **content × tier** intersection, not globally, because some future ad modes (e.g. carousel-shop) may be valid only at certain tier levels for a given piece of content. Split Phase 5 into:
+- **5a** — per-content org + content×tier×ad-mode availability model (do now)
+- **5b** — Zod validation + final API lockdown (still deferred until 2nd tile)
+
+Also added Phase 9 (panel sync hardening) capturing the diagnosis above.
+
+**Phase 5a — per-content org + content×tier×ad-mode** (`d7fefe7`). Stood up `src/demo/content/dhyh/` as the canonical home for everything DHYH owns: `config.ts` (ContentConfig — id, title, hiddenTaxonomies, defaultAdModes, optional adModesByTier), `timeline.ts` (all DHYH_* constants relocated from `constants.ts` — splice points, ad-break time, location timeline, override/overlap thresholds, video URL, companion URL), `scenes.ts` (was `data/dhyhScenes.ts`), `tiers/tier{1,2,3}.json`, plus empty `ads/` `products/` `compliance/` `review/` placeholders. Root-level `dhyh-products.json` moved into `review/` (still gitignored — rule generalized to `src/demo/content/*/review/`).
+
+Created `src/demo/content/index.ts` with `CONTENT_REGISTRY`, `getContentConfig(id)`, and the key new helper `getAvailableAdModes(contentId, tier)` which resolves `config.adModesByTier?.[tier] ?? config.defaultAdModes` then intersects with the globally-enabled set in `ad-modes/registry.ts`. DemoView's ad-mode dropdown now reads `availableAdModes` from `useDemoPlayback` instead of importing `ENABLED_AD_MODE_IDS` directly. A future Tier-3-only mode (the user's `carousel-shop` example) is one config edit, not a code change. Currently DHYH declares `defaultAdModes` only since all 3 enabled tiers offer the same modes today — `adModesByTier` stays unused until the divergence appears.
+
+Per-content `hiddenTaxonomies` retired the old `HIDDEN_TAXONOMIES_BY_CONTENT` global lookup; the value lives on each ContentConfig now and the hook reads it via `getContentConfig(id)?.hiddenTaxonomies`. Build chunked tier1/2/3 to identical sizes after the move (verified — Vite still split them per the dynamic imports in `resolveTierPayload.ts`).
+
+**No behavior changes** in 5a. Golden-path verified by user; the only outstanding observation is the known sync drift queued for Phase 9.
 
 ---
 
@@ -258,6 +282,16 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 28 | `cc8ac8b` | 04-30 11:27 | Remove misleading "Considered:" line from per-scene Location card |
 | 29 | `357eea4` | 04-30 11:31 | `TIME_LOG`: append Session 4 (Phase 3 + Location panel cleanup) + phase-estimate tracking |
 | 30 | `4fc701f` | 04-30 11:38 | Phase 4a: relocate components into subdirectories |
+| 31 | `14ced8f` | 04-30 11:49 | Add `SESSION_LOG.md` — narrative day-by-day history |
+| 32 | `9f08c5a` | 04-30 11:51 | Add `/log-time` skill for end-of-session time-log updates |
+| 33 | `c3e63d1` | 04-30 11:52 | `RESTRUCTURING_PLAN`: process commitments + Phase 4 recalibration |
+| 34 | `db145da` | 04-30 12:04 | Phase 4b: extract VideoPlayer + PlayerControls from DemoView |
+| 35 | `5f0d843` | 04-30 12:13 | Phase 4c: extract shared panel cards (Taxonomy/Product/JsonScene) |
+| 36 | `ae17c5b` | 04-30 12:21 | `TIME_LOG`: append Phase 4 (a/b/c) + process commitments |
+| 37 | `970c1a9` | 04-30 12:55 | `RESTRUCTURING_PLAN`: expand Phase 5 scope + add Phase 9 (panel sync hardening) |
+| 38 | `7e0a576` | 04-30 13:06 | `RESTRUCTURING_PLAN`: split Phase 5 into 5a (org now) + 5b (validation later) |
+| 39 | `d7fefe7` | 04-30 13:27 | Phase 5a: per-content org + content×tier×ad-mode availability model |
+| 40 | `c370275` | 04-30 13:54 | `RESTRUCTURING_PLAN`: mark Phase 5a done with commit hash |
 
 ---
 
