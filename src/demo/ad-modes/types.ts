@@ -39,6 +39,14 @@ export type AdModeDefinition = {
   dhyhAdVideoUrl?: string
   /** DHYH ad-compliance JSON shown in the JSON panel during the break. */
   dhyhCompliancePayload?: AdCompliancePayload
+  /** Optional override for the JSON-panel ad-response label (the
+   *  string rendered above the compliance payload, e.g.
+   *  `"_AdBreak-1 Response"`). When unset, the default
+   *  `'_AdBreak-{1|2} Response'` label is derived from the active
+   *  impulse segment kind. Future ad formats whose response shape
+   *  reads differently (e.g. `'_PauseAd Response'`,
+   *  `'_CarouselShop Response'`) supply their own label here. */
+  dhyhAdResponseLabel?: string
 }
 
 export type AdModeRegistry = Record<AdPlaybackOption, AdModeDefinition>

@@ -278,8 +278,14 @@ export function useDemoPlayback({
     : activeImpulseSegment?.kind === 'ad-break-1'
       ? AD_QR_IMAGE_1
       : AD_QR_IMAGE_2
-  const activeAdBreakLabel =
+  // Default label is derived from the active impulse segment kind
+  // (`'_AdBreak-1 Response' | '_AdBreak-2 Response'`). Per-mode override
+  // via `activeMode.dhyhAdResponseLabel` lets future ad formats supply
+  // their own response label without touching the core hook (Phase 9d
+  // ad-break-response future-proofing).
+  const defaultAdBreakLabel =
     activeImpulseSegment?.kind === 'ad-break-1' ? '_AdBreak-1 Response' : '_AdBreak-2 Response'
+  const activeAdBreakLabel = activeMode.dhyhAdResponseLabel ?? defaultAdBreakLabel
 
   // DHYH ad creative + compliance JSON come from the active mode's registry entry.
   // Placeholder content still runs with no video ad and the legacy compliance payload.

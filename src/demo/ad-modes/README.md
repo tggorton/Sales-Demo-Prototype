@@ -47,7 +47,13 @@ src/demo/ad-modes/
 - `mode.dhyhAdVideoUrl` — sourced into the `<video>` element during the
   break
 - `mode.dhyhCompliancePayload` — surfaces in the JSON panel during the
-  break
+  break. Shape is fully open (`Record<string, unknown>`); future ad
+  formats with their own response shape supply whatever object they
+  need.
+- `mode.dhyhAdResponseLabel` (optional) — overrides the default
+  `'_AdBreak-{1|2} Response'` label rendered above the compliance
+  payload. Use when a future ad format wants its own label
+  (e.g. `'_PauseAd Response'`).
 
 `SelectorDialog` reads `ENABLED_AD_MODE_IDS` to populate the dropdown.
 Disabled modes aren't shown.
