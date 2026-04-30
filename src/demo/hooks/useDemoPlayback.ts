@@ -17,7 +17,6 @@ import {
   AD_QR_IMAGE_1,
   AD_QR_IMAGE_2,
   DEFAULT_START_SECONDS,
-  PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC,
   PANEL_MANUAL_SCROLL_PAUSE_MS,
   PLACEHOLDER_VIDEO_URL,
   PRODUCT_DEDUPE_WINDOW_SECONDS,
@@ -27,6 +26,14 @@ import {
   taxonomyOptions,
   TOTAL_DURATION_SECONDS,
 } from '../constants'
+import {
+  createPanelManualScrollState,
+  decidePanelScrollAction,
+  resolveProductScrollTarget,
+  resolveSceneScrollTarget,
+  type PanelManualScrollState,
+  type PanelScrollTarget,
+} from './panelScroll'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
@@ -75,36 +82,11 @@ export function useDemoPlayback({
   const productScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const jsonScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const panelScrollRafRef = useRef<number | null>(null)
-  // Manual-scroll state is tracked PER PANEL so interacting with one panel
-  // doesn't freeze the others. `pauseUntil` is an epoch timestamp (ms) – while
-  // Date.now() is below it the RAF leaves that panel's scrollTop alone. Once
-  // the pause expires, `needsSnapOnResume` tells the RAF to jump straight to
-  // the current live target in a single frame (no animated catch-up), after
-  // which normal smooth tracking resumes.
-  //
-  // `lastTarget` is the scroll-position target we computed the *previous* RAF
-  // frame. It powers the global "target-discontinuity" snap rule in
-  // applyScroll: if the target jumps by more than one frame of natural
-  // playback drift could account for, we one-shot snap instead of smooth-
-  // scrolling. That makes smooth scroll apply ONLY to natural playback (the
-  // user's explicit ask) and auto-handles every non-playback cause of target
-  // change – taxonomy switch, tier switch, content swap, ad-break flip, panel
-  // re-open, window resize, slider scrub – without us having to flag each
-  // trigger individually. `-1` is a sentinel meaning "no previous target yet,
-  // snap on the first write" (used on fresh mount or after a state reset).
-  type PanelManualScrollState = {
-    pauseUntil: number
-    needsSnapOnResume: boolean
-    lastTarget: number
-  }
-  const createManualState = (): PanelManualScrollState => ({
-    pauseUntil: 0,
-    needsSnapOnResume: false,
-    lastTarget: -1,
-  })
-  const taxonomyManualScrollRef = useRef<PanelManualScrollState>(createManualState())
-  const productManualScrollRef = useRef<PanelManualScrollState>(createManualState())
-  const jsonManualScrollRef = useRef<PanelManualScrollState>(createManualState())
+  // Per-panel manual-scroll override state. See `./panelScroll.ts` for the
+  // shape and the discontinuity heuristic that consumes it.
+  const taxonomyManualScrollRef = useRef<PanelManualScrollState>(createPanelManualScrollState())
+  const productManualScrollRef = useRef<PanelManualScrollState>(createPanelManualScrollState())
+  const jsonManualScrollRef = useRef<PanelManualScrollState>(createPanelManualScrollState())
   // Previous `panelTimelineSeconds`. Used by the scrub-detection effect below
   // to spot timeline discontinuities (any scrub – forward or backward – or a
   // large forward jump that isn't natural playback) and flag all three panels
@@ -659,209 +641,41 @@ export function useDemoPlayback({
   useEffect(() => {
     if (currentView !== 'demo') return
 
-    const TOP_PADDING = 12
-    // Exponential catch-up factor per frame. Combined with the velocity cap below,
-    // this gives us a smooth ease at 60fps: small deltas close quickly, big deltas
-    // are paced by the cap so nothing darts across the panel.
-    const SMOOTH_FACTOR = 0.14
-    // Threshold below which we just write the final value to clean up sub-pixel residue.
-    const SNAP_THRESHOLD_PX = 0.25
-    // Per-frame velocity cap derived from the user-facing px/sec setting. Assumes
-    // ~60fps; cheaper and simpler than measuring real frame delta.
-    const MAX_PX_PER_FRAME = PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC / 60
-
-    // Global "target-discontinuity" threshold.
-    //
-    // Natural playback advances `panelTimelineSeconds` in small per-frame
-    // increments, which `resolveSceneTarget` / `resolveProductTarget`
-    // translate into small per-frame deltas in the pixel target (normally
-    // well under MAX_PX_PER_FRAME). Any frame-over-frame target change that
-    // blows past this threshold is NOT playback drift – it's a state jump
-    // (taxonomy switch, tier/content swap, scene reindex, ad-break flip,
-    // panel re-open, window resize, or a slider scrub). We treat every one
-    // of those uniformly by snapping straight to the new target in one frame
-    // instead of smooth-scrolling through the intermediate range.
-    //
-    // The multiplier (8) is generous on purpose: normal playback produces
-    // per-frame deltas of ~2-8px, so 8 * MAX_PX_PER_FRAME (~66px at default
-    // settings) comfortably covers scene-boundary smoothing while still
-    // catching every legitimate discontinuity.
-    const TARGET_JUMP_THRESHOLD_PX = MAX_PX_PER_FRAME * 8
-
-    // Scroll target = the pixel position the panel "wants" to be at this
-    // frame. We carry two values so the smooth-vs-snap heuristic doesn't get
-    // confused by `maxScroll` clamping:
-    //   * `unclamped` is the raw interpolated offset (how far down the active
-    //     scene actually sits from the top of the rendered list). This is
-    //     what we compare frame-over-frame to detect real state jumps.
-    //   * `clamped` is `unclamped` clamped to [0, scrollHeight - clientHeight]
-    //     and is what we actually write to `scrollTop`.
-    // After a backward scrub (e.g. clip 2 → clip 1) only a small subset of
-    // scenes is mounted, so the panel is short and `maxScroll` is small.
-    // Each new scene that mounts on autoplay grows `scrollHeight`, which
-    // suddenly relaxes the clamp – the *clamped* target jumps in big steps
-    // even though the *unclamped* one is moving smoothly. Using the clamped
-    // value for jump detection misclassified that as a state discontinuity
-    // and snapped on every new scene mount, which read as "auto-scroll
-    // doesn't work". Tracking the unclamped value fixes that without
-    // changing snap behavior for true state changes (taxonomy swap, content
-    // swap, scrub, etc.) – their unclamped deltas are still huge.
-    type ScrollTargetValue = { clamped: number; unclamped: number }
-
+    // Apply one frame of scroll updates for a single panel. The decision
+    // logic (snap vs. smooth vs. settle vs. paused) lives in the pure
+    // function `decidePanelScrollAction` (./panelScroll); this thin
+    // wrapper performs the side effects (`scrollTop` write + `manual`
+    // ref bookkeeping) on the chosen action.
     const applyScroll = (
       el: HTMLDivElement,
-      target: ScrollTargetValue,
+      target: PanelScrollTarget,
       manual: PanelManualScrollState
     ) => {
-      // During the manual-scroll pause we don't touch scrollTop at all – the
-      // user owns the panel. The RAF keeps running so the next frame after the
-      // pause expires can snap straight to the current live target.
-      if (Date.now() < manual.pauseUntil) {
-        // Keep `lastTarget` tracking the live target even while paused so
-        // the target-jump heuristic doesn't spuriously fire on the very
-        // first frame after the pause expires (by then the target has
-        // typically drifted further than the jump threshold, but that's
-        // playback drift we intentionally slept through – not a state
-        // discontinuity worth snapping for). The explicit
-        // `needsSnapOnResume` path below still handles the resume-from-
-        // manual-scroll case exactly the same way it always did.
-        manual.lastTarget = target.unclamped
-        return
+      const decision = decidePanelScrollAction(target, manual, el.scrollTop, Date.now())
+      switch (decision.kind) {
+        case 'paused':
+          // Keep `lastTarget` tracking the live target even while paused so
+          // the target-jump heuristic doesn't spuriously fire on the first
+          // frame after the pause expires (by then the target has typically
+          // drifted further than the jump threshold, but that's playback
+          // drift we intentionally slept through — not a state
+          // discontinuity worth snapping for).
+          manual.lastTarget = target.unclamped
+          return
+        case 'snap':
+          manual.needsSnapOnResume = false
+          manual.lastTarget = target.unclamped
+          el.scrollTop = target.clamped
+          return
+        case 'settle':
+          manual.lastTarget = target.unclamped
+          if (target.clamped !== el.scrollTop) el.scrollTop = target.clamped
+          return
+        case 'smooth':
+          manual.lastTarget = target.unclamped
+          el.scrollTop += decision.step
+          return
       }
-      if (manual.needsSnapOnResume) {
-        // "Load to current" on resume: one-frame jump, no animated catch-up.
-        // This is what the user wants when they finish browsing – the panel
-        // should reappear at the live playback spot instantly, then track
-        // smoothly from there.
-        manual.needsSnapOnResume = false
-        manual.lastTarget = target.unclamped
-        el.scrollTop = target.clamped
-        return
-      }
-      // Global target-discontinuity snap: if the target itself moved further
-      // than one playback frame could plausibly move it, the cause is a
-      // state change, not drift. Snap. This is the single rule that
-      // eliminates "aggressive scroll to current" across the entire app –
-      // every non-playback trigger (taxonomy change, tier swap, scene
-      // reindex, ad-break flip, panel open, scrub, etc.) produces a target
-      // discontinuity and is handled here uniformly, without us having to
-      // enumerate each trigger.
-      const prevTarget = manual.lastTarget
-      manual.lastTarget = target.unclamped
-      if (
-        prevTarget < 0 ||
-        Math.abs(target.unclamped - prevTarget) > TARGET_JUMP_THRESHOLD_PX
-      ) {
-        el.scrollTop = target.clamped
-        return
-      }
-      const delta = target.clamped - el.scrollTop
-      const absDelta = Math.abs(delta)
-      if (absDelta < SNAP_THRESHOLD_PX) {
-        if (delta !== 0) el.scrollTop = target.clamped
-        return
-      }
-      // Exponential ease, then clamp the per-frame step so normal scene-to-
-      // scene advancement glides smoothly. Smooth scroll is now reserved
-      // exclusively for natural playback drift – anything else has already
-      // snapped above.
-      const eased = delta * SMOOTH_FACTOR
-      const step =
-        eased > 0
-          ? Math.min(eased, MAX_PX_PER_FRAME)
-          : Math.max(eased, -MAX_PX_PER_FRAME)
-      el.scrollTop += step
-    }
-
-    // Walk backward through a refs array to find the most recent populated ref at
-    // or before `upToIdx`. Taxonomy and JSON panels skip scenes that don't emit
-    // data for the current selection (e.g. scenes without `music_emotion`), so the
-    // refs array is sparse. Without this walk-back, interpolation would fall back
-    // to offset 0 (the top of the container), causing the scroll to snap to the
-    // top every time a scene with no data became active – a big source of the
-    // "stall then aggressively catch up" behavior.
-    const walkBackForRef = (
-      refs: Array<HTMLDivElement | null>,
-      upToIdx: number
-    ): HTMLDivElement | null => {
-      for (let i = upToIdx; i >= 0; i--) {
-        const node = refs[i]
-        if (node) return node
-      }
-      return null
-    }
-
-    // Target position for scene-based panels (Taxonomy, JSON). Interpolates from
-    // the nearest rendered scene BEFORE the active one to the active scene's own
-    // card, using the active scene's duration as the time window. If the active
-    // scene has no rendered ref (no data for the current selection) we stay
-    // parked on the previous rendered ref until the timeline reaches a new one.
-    const buildTarget = (raw: number, maxScroll: number): ScrollTargetValue => {
-      const safe = Math.max(0, raw)
-      return { clamped: Math.min(maxScroll, safe), unclamped: safe }
-    }
-
-    const resolveSceneTarget = (
-      container: HTMLDivElement | null,
-      refs: Array<HTMLDivElement | null>,
-      scenes: SceneMetadata[],
-      activeIdx: number,
-      time: number
-    ): ScrollTargetValue | null => {
-      if (!container || scenes.length === 0 || activeIdx < 0) return null
-      const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
-
-      const currentRef = refs[activeIdx] ?? null
-      // If the current scene has no rendered ref, hold on the most recent one we
-      // have (or the top, if none). This prevents the panel from resetting to 0.
-      if (!currentRef) {
-        const fallback = walkBackForRef(refs, activeIdx - 1)
-        if (!fallback) return { clamped: 0, unclamped: 0 }
-        return buildTarget(fallback.offsetTop - TOP_PADDING, maxScroll)
-      }
-
-      const prevRef = walkBackForRef(refs, activeIdx - 1)
-      const activeScene = scenes[activeIdx]
-      const sceneDuration = Math.max(0.001, activeScene.end - activeScene.start)
-      const progress = Math.min(
-        1,
-        Math.max(0, (time - activeScene.start) / sceneDuration)
-      )
-      const startOffset = prevRef ? prevRef.offsetTop : 0
-      const endOffset = currentRef.offsetTop
-      const interpolated = startOffset + (endOffset - startOffset) * progress
-      return buildTarget(interpolated - TOP_PADDING, maxScroll)
-    }
-
-    // Products are always all rendered (no null gaps), so we can use a tighter
-    // interpolation driven by the adjacent products' sceneStart times.
-    const resolveProductTarget = (
-      container: HTMLDivElement | null,
-      products: ProductEntry[],
-      activeIdx: number,
-      time: number,
-      fallbackSceneProgress: number
-    ): ScrollTargetValue | null => {
-      if (!container || products.length === 0 || activeIdx < 0) return null
-      const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
-      const currentRef = productRefs.current[activeIdx]
-      if (!currentRef) return null
-      const prevIdx = activeIdx - 1
-      const prevRef = prevIdx >= 0 ? productRefs.current[prevIdx] : null
-      const currentProduct = products[activeIdx]
-      const prevProduct = prevIdx >= 0 ? products[prevIdx] : null
-
-      let progress = fallbackSceneProgress
-      if (prevProduct && currentProduct.sceneStart > prevProduct.sceneStart) {
-        progress =
-          (time - prevProduct.sceneStart) /
-          (currentProduct.sceneStart - prevProduct.sceneStart)
-      }
-      progress = Math.min(1, Math.max(0, progress))
-      const startOffset = prevRef ? prevRef.offsetTop : 0
-      const endOffset = currentRef.offsetTop
-      const interpolated = startOffset + (endOffset - startOffset) * progress
-      return buildTarget(interpolated - TOP_PADDING, maxScroll)
     }
 
     const animate = () => {
@@ -899,7 +713,7 @@ export function useDemoPlayback({
         : 0
 
       if (ctx.visible.taxonomy && taxonomyScrollContainerRef.current) {
-        const target = resolveSceneTarget(
+        const target = resolveSceneScrollTarget(
           taxonomyScrollContainerRef.current,
           taxonomyRefs.current,
           ctx.scenes,
@@ -922,7 +736,7 @@ export function useDemoPlayback({
             jsonManualScrollRef.current
           )
         } else {
-          const target = resolveSceneTarget(
+          const target = resolveSceneScrollTarget(
             jsonScrollContainerRef.current,
             jsonRefs.current,
             ctx.scenes,
@@ -944,8 +758,9 @@ export function useDemoPlayback({
             productManualScrollRef.current
           )
         } else {
-          const target = resolveProductTarget(
+          const target = resolveProductScrollTarget(
             productScrollContainerRef.current,
+            productRefs.current,
             ctx.products,
             ctx.activeProductIndex,
             liveTimeline,
