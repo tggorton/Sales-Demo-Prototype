@@ -340,9 +340,16 @@ export function useDemoPlayback({
         selectedTier,
         selectedAdPlayback,
         playbackDurationSeconds,
-        isSyncImpulseMode,
+        contentTitle: selectedContent?.title ?? 'Untitled',
+        contentId: selectedContent?.id ?? 'unknown',
       }),
-    [playbackScenes, selectedTier, selectedAdPlayback, playbackDurationSeconds, isSyncImpulseMode]
+    [
+      playbackScenes,
+      selectedTier,
+      selectedAdPlayback,
+      playbackDurationSeconds,
+      selectedContent,
+    ]
   )
 
   const activeSceneIndex = useMemo(
