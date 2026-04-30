@@ -28,7 +28,6 @@ import {
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
 } from '../constants'
-import { ENABLED_AD_MODE_IDS } from '../ad-modes'
 import { formatTime } from '../utils/formatTime'
 import { buildAdBreakJsonString } from '../utils/jsonExport'
 import { groupJsonScenes, type JsonSceneGroup } from '../utils/jsonPanelGroups'
@@ -84,6 +83,7 @@ type DemoViewProps = {
   hasReachedFirstProduct: boolean
   taxonomyAvailability: Record<TaxonomyOption, boolean>
   availableTaxonomies: TaxonomyOption[]
+  availableAdModes: AdPlaybackOption[]
   activeSceneIndex: number
   activeProductIndex: number
   shouldShowInContentCta: boolean
@@ -144,6 +144,7 @@ export function DemoView({
   hasReachedFirstProduct,
   taxonomyAvailability,
   availableTaxonomies,
+  availableAdModes,
   activeSceneIndex,
   activeProductIndex,
   shouldShowInContentCta,
@@ -260,7 +261,7 @@ export function DemoView({
                   label="Ad Playback Mode"
                   onChange={(event) => onAdPlaybackChange(event.target.value as AdPlaybackOption)}
                 >
-                  {ENABLED_AD_MODE_IDS.map((option) => (
+                  {availableAdModes.map((option) => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>

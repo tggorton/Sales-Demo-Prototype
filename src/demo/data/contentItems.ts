@@ -1,4 +1,4 @@
-import { DHYH_CONTENT_ID, DHYH_VIDEO_URL } from '../constants'
+import { DHYH_CONTENT_ID, DHYH_VIDEO_URL } from '../content/dhyh/timeline'
 import type { ContentItem } from '../types'
 
 // Full library – kept for reference. To restore a hidden title to the content grid,

@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { adDecisionPayload, adDecisioningTail } from '../data/adFixtures'
 import { AD_MODE_REGISTRY, isSyncAdBreakMode } from '../ad-modes'
+import { getAvailableAdModes, getContentConfig } from '../content'
+import {
+  DHYH_AD_BREAK_CLIP_SECONDS,
+  DHYH_CLIP_DURATION_SECONDS,
+  DHYH_CONTENT_ID,
+  DHYH_IMPULSE_AD_COMPANION_URL,
+  DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
+} from '../content/dhyh/timeline'
 import {
   AD_BREAK_1_IMAGE,
   AD_BREAK_2_IMAGE,
@@ -9,12 +17,6 @@ import {
   AD_QR_IMAGE_1,
   AD_QR_IMAGE_2,
   DEFAULT_START_SECONDS,
-  DHYH_AD_BREAK_CLIP_SECONDS,
-  DHYH_CLIP_DURATION_SECONDS,
-  DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
-  DHYH_CONTENT_ID,
-  HIDDEN_TAXONOMIES_BY_CONTENT,
-  DHYH_IMPULSE_AD_COMPANION_URL,
   PANEL_AUTOSCROLL_MAX_VELOCITY_PX_PER_SEC,
   PANEL_MANUAL_SCROLL_PAUSE_MS,
   PLACEHOLDER_VIDEO_URL,
@@ -26,7 +28,7 @@ import {
   TOTAL_DURATION_SECONDS,
 } from '../constants'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
-import { getDhyhScenesForTier, type DhyhSceneBundle } from '../data/dhyhScenes'
+import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
 import { SCENE_METADATA } from '../data/sceneMetadata'
 import { getPlayerControlTokens } from '../styles'
@@ -515,7 +517,7 @@ export function useDemoPlayback({
       Object: false,
     }
     const hidden = selectedContent
-      ? HIDDEN_TAXONOMIES_BY_CONTENT[selectedContent.id] ?? []
+      ? getContentConfig(selectedContent.id)?.hiddenTaxonomies ?? []
       : []
     // Per-tier whitelist (TAXONOMIES_AVAILABLE_BY_TIER) is the source of truth
     // for which taxonomies the upstream JSON conceptually owns at this tier.
@@ -550,6 +552,15 @@ export function useDemoPlayback({
   const availableTaxonomies = useMemo<TaxonomyOption[]>(
     () => taxonomyOptions.filter((option) => taxonomyAvailability[option]),
     [taxonomyAvailability]
+  )
+
+  // Per-content × per-tier ad-mode availability. Empty `selectedContent`
+  // falls back to the global enabled list. See `src/demo/content/index.ts`
+  // for the resolver — `defaultAdModes` for the content, narrowed by any
+  // `adModesByTier` override, intersected with the globally-enabled set.
+  const availableAdModes = useMemo<AdPlaybackOption[]>(
+    () => getAvailableAdModes(selectedContent?.id ?? null, selectedTier),
+    [selectedContent, selectedTier]
   )
 
   // Returns -1 when no product has been reached yet on the timeline (e.g. the DHYH color-bar
@@ -1342,6 +1353,7 @@ export function useDemoPlayback({
     hasReachedFirstProduct,
     taxonomyAvailability,
     availableTaxonomies,
+    availableAdModes,
     flagPanelScrub,
     displayedCurrentSeconds,
     displayedDurationSeconds,

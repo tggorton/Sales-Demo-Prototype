@@ -37,16 +37,19 @@ const tierFileName = (tier: TierOption): string => {
 
 // Bundled-import map for content the build ships with. Vite chunks these
 // individually so a tier change downloads only its own file. Adding bundled
-// support for a new content id = create `src/demo/data/<id>/tier{1,2,3}.json`
-// and add the entries here. Most new content should NOT use this path —
-// upload-flow content lives entirely under VITE_CONTENT_SOURCE_BASE_URL.
+// support for a new content id = drop tier JSONs under
+// `src/demo/content/<id>/tiers/` and add the entries here. Most new content
+// should NOT use this path — upload-flow content lives entirely under
+// VITE_CONTENT_SOURCE_BASE_URL.
 const bundledTierLoaders: Record<ContentId, Record<TierOption, () => Promise<unknown>>> = {
   dhyh: {
-    'Basic Scene': () => import('../data/dhyh/tier1.json').then((m) => m.default ?? m),
-    'Assets Summary': () => import('../data/dhyh/tier1.json').then((m) => m.default ?? m),
-    'Advanced Scene': () => import('../data/dhyh/tier2.json').then((m) => m.default ?? m),
-    'Exact Product Match': () => import('../data/dhyh/tier3.json').then((m) => m.default ?? m),
-    'Categorical Product Match': () => import('../data/dhyh/tier3.json').then((m) => m.default ?? m),
+    'Basic Scene': () => import('../content/dhyh/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () => import('../content/dhyh/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () => import('../content/dhyh/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/dhyh/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/dhyh/tiers/tier3.json').then((m) => m.default ?? m),
   },
 }
 

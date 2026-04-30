@@ -420,6 +420,7 @@ function App() {
                   hasReachedFirstProduct={demoPlayback.hasReachedFirstProduct}
                   taxonomyAvailability={demoPlayback.taxonomyAvailability}
                   availableTaxonomies={demoPlayback.availableTaxonomies}
+                  availableAdModes={demoPlayback.availableAdModes}
                   activeSceneIndex={demoPlayback.activeSceneIndex}
                   activeProductIndex={demoPlayback.activeProductIndex}
                   shouldShowInContentCta={demoPlayback.shouldShowInContentCta}

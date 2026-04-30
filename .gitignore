@@ -10,7 +10,8 @@ lerna-debug.log*
 node_modules
 
 # One-off review artifacts generated from source JSON; regenerable on demand.
-/dhyh-products.json
+# Each content tile owns its review/ subdirectory under src/demo/content/<id>/.
+src/demo/content/*/review/
 dist
 dist-ssr
 *.local
