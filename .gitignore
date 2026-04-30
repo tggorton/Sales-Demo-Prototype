@@ -54,4 +54,8 @@ _archive/
 *.tsbuildinfo
 
 # Local Claude Code settings (user-specific, not project-wide).
-.claude/
+# (Ignore specific local-only files inside .claude/ but DO track .claude/skills/
+# so project-level skills like /log-time are shared across the team.)
+.claude/settings.json
+.claude/settings.local.json
+.claude/cache/
