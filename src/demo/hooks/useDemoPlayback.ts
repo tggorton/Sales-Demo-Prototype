@@ -46,6 +46,10 @@ import {
   resolveActiveProductIndex,
   splitProductEntriesAroundAdBreak,
 } from '../utils/productEntries'
+import {
+  resolveActiveSceneIndex,
+  resolveTaxonomyAvailability,
+} from '../utils/sceneState'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
 import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
@@ -331,25 +335,10 @@ export function useDemoPlayback({
     [playbackScenes, selectedTier, selectedAdPlayback, playbackDurationSeconds, isSyncImpulseMode]
   )
 
-  const activeSceneIndex = useMemo(() => {
-    if (playbackScenes.length === 0) return -1
-    // Fast path: time lies inside a scene window.
-    const foundIndex = playbackScenes.findIndex(
-      (scene) => panelTimelineSeconds >= scene.start && panelTimelineSeconds < scene.end
-    )
-    if (foundIndex >= 0) return foundIndex
-    // Before the first scene: no active scene yet (panel stays at top).
-    if (panelTimelineSeconds < playbackScenes[0].start) return -1
-    // In a gap between scenes, or past the end of the clip: pick the last scene
-    // that has already started. The previous fallback (playbackScenes.length - 1)
-    // snapped to the very last scene of the clip any time the timeline landed in
-    // a gap, which is what caused the panels to lurch to the bottom and then
-    // snap back when the next real scene kicked in.
-    for (let i = playbackScenes.length - 1; i >= 0; i--) {
-      if (playbackScenes[i].start <= panelTimelineSeconds) return i
-    }
-    return -1
-  }, [playbackScenes, panelTimelineSeconds])
+  const activeSceneIndex = useMemo(
+    () => resolveActiveSceneIndex(playbackScenes, panelTimelineSeconds),
+    [playbackScenes, panelTimelineSeconds]
+  )
 
   const activeScene = playbackScenes[activeSceneIndex] ?? playbackScenes[0]
 
@@ -397,52 +386,24 @@ export function useDemoPlayback({
       ? 'No product match data is associated with this Tier'
       : null
 
-  // Which taxonomies have zero data across all scenes of the current content? Used to
-  // render a "No … information currently" empty state for real-content (DHYH) tiers
-  // that don't emit certain fields (e.g. music_emotion on Exact Product Match).
-  //
-  // We also honor the per-content hide list (`HIDDEN_TAXONOMIES_BY_CONTENT`)
-  // so individual pieces of content can opt out of taxonomies that exist in
-  // the JSON but aren't curated yet. A hidden taxonomy is treated as
-  // unavailable, which removes it from the dropdown and triggers the same
-  // auto-correct path that fires when a tier genuinely lacks data.
-  const taxonomyAvailability = useMemo(() => {
-    const availability: Record<TaxonomyOption, boolean> = {
-      IAB: false,
-      Location: false,
-      Sentiment: false,
-      'Brand Safety': false,
-      Faces: false,
-      Emotion: false,
-      Object: false,
-    }
-    const hidden = selectedContent
-      ? getContentConfig(selectedContent.id)?.hiddenTaxonomies ?? []
-      : []
-    // Per-tier whitelist (TAXONOMIES_AVAILABLE_BY_TIER) is the source of truth
-    // for which taxonomies the upstream JSON conceptually owns at this tier.
-    // It runs BEFORE the per-scene data-presence check so retrofits like the
-    // editorial DHYH_LOCATION_TIMELINE can't sneak Location into Basic Scene.
-    const tierWhitelist = TAXONOMIES_AVAILABLE_BY_TIER[selectedTier] ?? []
-    for (const option of taxonomyOptions) {
-      if (hidden.includes(option)) {
-        availability[option] = false
-        continue
-      }
-      if (!tierWhitelist.includes(option)) {
-        availability[option] = false
-        continue
-      }
-      if (!isDhyhContent) {
-        availability[option] = true
-        continue
-      }
-      availability[option] = playbackScenes.some(
-        (scene, index) => getTaxonomySceneData(scene, index, option) !== null
-      )
-    }
-    return availability
-  }, [isDhyhContent, playbackScenes, selectedContent, selectedTier])
+  // Three-layer taxonomy gating (per-content hides → per-tier whitelist →
+  // per-scene data presence for DHYH-style content). See `utils/sceneState.ts`.
+  const taxonomyAvailability = useMemo(
+    () =>
+      resolveTaxonomyAvailability({
+        hiddenTaxonomies: selectedContent
+          ? getContentConfig(selectedContent.id)?.hiddenTaxonomies ?? []
+          : [],
+        tierWhitelist: TAXONOMIES_AVAILABLE_BY_TIER[selectedTier] ?? [],
+        allTaxonomies: taxonomyOptions,
+        isContentDataDriven: isDhyhContent,
+        hasDataForOption: (option) =>
+          playbackScenes.some(
+            (scene, index) => getTaxonomySceneData(scene, index, option) !== null
+          ),
+      }),
+    [isDhyhContent, playbackScenes, selectedContent, selectedTier]
+  )
 
   // Taxonomy options filtered down to only those that actually have data for
   // the currently-selected tier / content. Drives both the collapsed <Select>
