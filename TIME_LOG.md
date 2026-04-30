@@ -55,6 +55,26 @@ revision below uses the new methodology and lands closer to 50m for
 that session. If a future session's estimate feels off, tell me and
 I'll recalibrate the typing speed or thinking-time defaults.
 
+### Phase-estimate tracking
+
+Each entry in `RESTRUCTURING_PLAN.md` carries a phase-time estimate
+(e.g. "Phase 3: ~30–60 min, low risk"). Actual phase times are
+recorded in this log's per-session blocks. If a phase systematically
+lands above or below its estimate, that's a calibration signal for
+future estimates. To date:
+
+| Phase | Estimate | Actual AI Work | Note |
+|---|---|---:|---|
+| 0. Auth abstraction | (no explicit estimate) | ~30m | Bundled with docs in Session 1 |
+| 1a. Kit install + wire | ~30 min | ~25m | At low end |
+| 1b. Inline literal migration | ~30 min | ~30m | On target |
+| 2. Ad-mode registry | ~60–90 min | ~50m | Below range — registry pattern was straightforward once designed |
+| 3. S3 source resolvers | ~30–60 min | ~35m | Low end — much abstraction already existed |
+
+Phase 3 looking "fast" is an artifact of the lower bound being a
+realistic value when prerequisites are in place. The estimate range
+itself was reasonable.
+
 ---
 
 ## Backlog (sessions to date)
@@ -98,6 +118,18 @@ I'll recalibrate the typing speed or thinking-time defaults.
 
 ---
 
+### 2026-04-30 — Session 4: Phase 3 + Location panel cleanup
+
+**Wall-clock span:** ~09:00 – ongoing.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Phase 3 — S3 source resolvers | 7m | 35m | `src/demo/sources/` module + content-id-aware resolvers + README. Came in at the low end of the original 30–60m estimate; most abstraction (env-flag video URLs, S3 product `image_url` fields) was already in place from earlier phases — only tier loading needed real new code. Commits `a2d488c`, `4c1db75` |
+| Location panel-JSON sync (concern #2) | 8m | 25m | Refactored location resolution into a shared `resolveSceneLocation` helper; injected timeline-resolved location into displayed JSON with `source` field marking provenance. Commit `3fbf6da` |
+| 'Considered:' cleanup (concern #1) | 6m | 15m | Removed misleading show-wide "Considered:" row from per-scene Location card; cleaned up dead `ShowLocations` plumbing. Commit `cc8ac8b` |
+| TIME_LOG update + next-phase coordination | 3m | 10m | This block. |
+| **Session subtotal so far** | **~24m** | **~85m** | |
+
 ## Running totals
 
 | | Prompting | AI Work |
@@ -105,7 +137,8 @@ I'll recalibrate the typing speed or thinking-time defaults.
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 250m |
-| **Total** | **~2h 12m** | **~6h 5m** |
+| Session 4 (04-30) | 24m | 85m |
+| **Total** | **~2h 36m** | **~7h 30m** |
 
 ---
 
