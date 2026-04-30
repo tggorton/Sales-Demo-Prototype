@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material'
-import { useEffect, useRef, type MutableRefObject } from 'react'
+import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
@@ -98,6 +98,16 @@ export function VideoPlayer({
   // is then a pure opacity + mute flip with no play() startup cost.
   const adVideoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map())
 
+  // Hover state for the YouTube/Netflix-style auto-hide control bar. The
+  // bar fades out when the user's mouse leaves the player AND playback
+  // is in progress; it stays visible while paused so first-load users
+  // always see the play button. Any explicit interaction with the bar
+  // (clicking play/pause, dragging the scrubber) keeps the mouse inside
+  // the player so the hover state stays true throughout — no separate
+  // "interaction lock" needed.
+  const [isHovered, setIsHovered] = useState(false)
+  const controlsVisible = isHovered || !isVideoPlaying
+
   // Effect 1: forward whichever element is currently active to the parent's
   // adVideoRef so the playback hook's seek effect targets the right one.
   useEffect(() => {
@@ -156,6 +166,8 @@ export function VideoPlayer({
       }}
     >
       <Box
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         sx={{
           width: visiblePanelCount <= 1 ? 'min(100%, 976px)' : '100%',
           maxWidth: '100%',
@@ -367,6 +379,7 @@ export function VideoPlayer({
           displayedDurationSeconds={displayedDurationSeconds}
           impulseSegments={impulseSegments}
           playerControlTokens={playerControlTokens}
+          controlsVisible={controlsVisible}
           onToggleVideoPlaying={onToggleVideoPlaying}
           onToggleVideoMuted={onToggleVideoMuted}
           onVideoTimeChange={onVideoTimeChange}

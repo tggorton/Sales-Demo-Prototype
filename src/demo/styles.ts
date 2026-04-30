@@ -31,53 +31,60 @@ export const navButtonStyles = (isActive: boolean) => ({
 })
 
 export const getPlayerControlTokens = (visiblePanelCount: number): PlayerControlTokens => {
+  // Slim defaults across all states. Phase 9-follow-up trim — the previous
+  // tokens reserved enough vertical space that the bottom strip felt
+  // chunky in the 2+ panel "small player" state. Cuts: lower overlayPy
+  // (the gradient strip's top/bottom padding), shorter sliderContainer,
+  // smaller timeline + thumb, smaller play/mute icons in the small
+  // states. The 0-panel "full player" state stays roomier since vertical
+  // real estate isn't constrained there.
   if (visiblePanelCount === 0) {
     return {
       overlayPx: 2,
-      overlayPy: 1.4,
-      timelineHeight: 8,
+      overlayPy: 0.8,
+      timelineHeight: 6,
       timelineTop: 8,
-      sliderContainerHeight: 24,
+      sliderContainerHeight: 22,
       thumbSize: 14,
-      playIconSize: 32,
-      secondaryIconSize: 24,
+      playIconSize: 30,
+      secondaryIconSize: 22,
       controlButtonPadding: 0.4,
-      timeFontSize: 14,
-      timeWidth: 96,
-      controlBarHeight: 56,
+      timeFontSize: 13,
+      timeWidth: 92,
+      controlBarHeight: 44,
     }
   }
 
   if (visiblePanelCount === 1) {
     return {
       overlayPx: 1.5,
-      overlayPy: 1.15,
-      timelineHeight: 10,
-      timelineTop: 8,
-      sliderContainerHeight: 26,
-      thumbSize: 16,
-      playIconSize: 30,
-      secondaryIconSize: 24,
-      controlButtonPadding: 0.45,
-      timeFontSize: 13,
-      timeWidth: 92,
-      controlBarHeight: 54,
+      overlayPy: 0.6,
+      timelineHeight: 6,
+      timelineTop: 7,
+      sliderContainerHeight: 20,
+      thumbSize: 12,
+      playIconSize: 26,
+      secondaryIconSize: 20,
+      controlButtonPadding: 0.35,
+      timeFontSize: 12,
+      timeWidth: 86,
+      controlBarHeight: 38,
     }
   }
 
   return {
     overlayPx: 1.2,
-    overlayPy: 1,
-    timelineHeight: 11,
-    timelineTop: 7.5,
-    sliderContainerHeight: 28,
-    thumbSize: 18,
-    playIconSize: 28,
-    secondaryIconSize: 24,
-    controlButtonPadding: 0.5,
-    timeFontSize: 12,
-    timeWidth: 86,
-    controlBarHeight: 52,
+    overlayPy: 0.5,
+    timelineHeight: 5,
+    timelineTop: 6.5,
+    sliderContainerHeight: 18,
+    thumbSize: 11,
+    playIconSize: 22,
+    secondaryIconSize: 18,
+    controlButtonPadding: 0.3,
+    timeFontSize: 11,
+    timeWidth: 78,
+    controlBarHeight: 32,
   }
 }
 

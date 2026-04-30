@@ -16,6 +16,12 @@ type PlayerControlsProps = {
   displayedDurationSeconds: number
   impulseSegments: readonly SyncImpulseSegment[]
   playerControlTokens: PlayerControlTokens
+  /** When false, the control bar fades out and stops accepting clicks
+   *  (typical YouTube/Netflix-style hover behavior). Computed by the
+   *  parent player as `isHovered || !isVideoPlaying` — controls always
+   *  show when the video is paused so there's no "where's the play
+   *  button" moment on first load. */
+  controlsVisible: boolean
   onToggleVideoPlaying: () => void
   onToggleVideoMuted: () => void
   onVideoTimeChange: (value: number) => void
@@ -40,6 +46,7 @@ export function PlayerControls({
   displayedDurationSeconds,
   impulseSegments,
   playerControlTokens,
+  controlsVisible,
   onToggleVideoPlaying,
   onToggleVideoMuted,
   onVideoTimeChange,
@@ -54,6 +61,13 @@ export function PlayerControls({
         px: playerControlTokens.overlayPx,
         py: playerControlTokens.overlayPy,
         background: 'linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15))',
+        opacity: controlsVisible ? 1 : 0,
+        // When hidden, suppress pointer events so phantom hovers/clicks
+        // on the invisible bar don't fire (e.g. dropping a tooltip on
+        // the unmute button when the user is just moving their mouse
+        // across the player).
+        pointerEvents: controlsVisible ? 'auto' : 'none',
+        transition: 'opacity 220ms ease-out',
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1.4}>
