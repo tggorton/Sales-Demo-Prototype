@@ -5,6 +5,7 @@ import type {
   SceneMetadata,
   TierOption,
 } from '../types'
+import { groupJsonScenes } from './jsonPanelGroups'
 
 export const buildSceneJsonPayload = (scene: SceneMetadata, index: number) => {
   if (scene.rawJson !== undefined) {
@@ -79,15 +80,25 @@ export const buildOriginalJsonString = ({
 // ---- Summary JSON ----------------------------------------------------------
 //
 // "Summary JSON" = condensed, higher-level abstraction of the per-scene
-// detail JSON. Designed for indexing / cataloging / quick review rather
-// than granular analysis. Schema follows the spec roughed out in Phase 9
-// follow-up — `summary_metadata` provenance, `content_fingerprint` overall
-// shape, `aggregated_taxonomy` rollups (top IAB, locations, objects,
-// emotion arc, sentiment), `commerce_summary`, `scene_digest` (compact
-// per-scene), and `statistical_metadata`. Brand-safety verdict is
-// included only when the source content actually emits GARM data
-// (DHYH hides Brand Safety per its `ContentConfig.hiddenTaxonomies`,
-// so this defaults to "not_evaluated" for now).
+// detail JSON. The shape is deliberately compact — designed for
+// indexing / cataloging / quick review rather than granular analysis.
+// Typical output for a 10-min DHYH episode lands in the 5–15 KB range
+// vs. the ~1 MB+ original; ~50–100× smaller.
+//
+// Trimming choices:
+//   - Per-scene digest replaced with **beats** (adjacent same-beat
+//     scenes merged via the existing `groupJsonScenes` algorithm —
+//     same chunking the JSON panel uses). For DHYH this collapses
+//     ~175 scenes to ~25–35 beats.
+//   - Rollups carry just `{name, share}` per item. The `weight` and
+//     `appearances` fields the panel would use internally are derived
+//     and consumers can recompute if needed.
+//   - Empty rollup categories are omitted entirely (e.g. `emotion`
+//     for DHYH — it uses `sentiment_analysis` instead).
+//   - `brand_safety` collapses to `{ verdict }` when there's no signal.
+//   - Redundant fields dropped: `start_timestamp` strings (compute
+//     from seconds), `duration_seconds` per scene (compute from
+//     start/end), `meaningful_scene_count` (== `beat_count` upstream).
 //
 // Everything is derived at runtime from `playbackScenes` — the same
 // data that drives the panels — so the summary stays consistent with
@@ -123,79 +134,64 @@ const firstName = (value: RawJsonNamed | RawJsonNamed[] | undefined): string | n
   return item?.name?.trim() || null
 }
 
-/** Aggregate `{name, weight}` rollup, sorted desc by weight, top N. */
-const topByWeight = <T extends { name: string }>(
-  items: Array<T & { weight: number }>,
-  topN: number
-): Array<T & { weight: number }> =>
-  [...items].sort((a, b) => b.weight - a.weight).slice(0, topN)
-
 const round = (value: number, decimals = 3): number => {
   const factor = 10 ** decimals
   return Math.round(value * factor) / factor
 }
 
-type WeightedTally = Map<string, { weight: number; appearances: number }>
+type WeightedTally = Map<string, number>
 
 const tallyAdd = (tally: WeightedTally, name: string, weight: number): void => {
   if (!name) return
-  const prev = tally.get(name) ?? { weight: 0, appearances: 0 }
-  tally.set(name, { weight: prev.weight + weight, appearances: prev.appearances + 1 })
+  tally.set(name, (tally.get(name) ?? 0) + weight)
 }
 
-const tallyTop = (
-  tally: WeightedTally,
-  topN: number,
-  totalWeight: number
-): Array<{ name: string; weight: number; share: number; appearances: number }> => {
+type RollupEntry = { name: string; share: number }
+
+/** Top-N rollup: `{name, share}` per item, sorted desc by share. The
+ *  caller is responsible for picking a sensible total (usually the
+ *  show's total scene-seconds). Rollups are omitted entirely from the
+ *  final summary when the underlying tally is empty. */
+const tallyTop = (tally: WeightedTally, topN: number, totalWeight: number): RollupEntry[] => {
   const totals = totalWeight > 0 ? totalWeight : 1
-  return topByWeight(
-    Array.from(tally, ([name, agg]) => ({
-      name,
-      weight: round(agg.weight, 2),
-      share: round(agg.weight / totals, 4),
-      appearances: agg.appearances,
-    })),
-    topN
-  )
+  return Array.from(tally, ([name, weight]) => ({
+    name,
+    share: round(weight / totals, 4),
+  }))
+    .sort((a, b) => b.share - a.share)
+    .slice(0, topN)
 }
 
 const sceneSeconds = (scene: SceneMetadata): number =>
   Math.max(0, scene.end - scene.start)
 
-const formatTimestamp = (seconds: number): string => {
-  const safe = Math.max(0, Math.floor(seconds))
-  const m = Math.floor(safe / 60)
-  const s = safe % 60
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-}
-
-const oneLineDescription = (scene: SceneMetadata): string => {
+const oneLineHeadline = (scene: SceneMetadata): string => {
   const raw = rawJsonOf(scene)
   if (raw?.audio_transcript) {
     const trimmed = raw.audio_transcript.trim().replace(/\s+/g, ' ')
-    return trimmed.length > 140 ? `${trimmed.slice(0, 137)}…` : trimmed
+    return trimmed.length > 120 ? `${trimmed.slice(0, 117)}…` : trimmed
   }
   if (scene.reasoning) return scene.reasoning
   if (scene.considered) return `Considered: ${scene.considered}`
   return scene.sceneLabel
 }
 
-const primaryTagsForScene = (scene: SceneMetadata): string[] => {
+/** Compact tags for a beat (max 3): primary IAB, primary location,
+ *  primary sentiment. Skips empties; no `Key: Value` prefix since the
+ *  consumer can disambiguate from order. */
+const compactTagsForScene = (scene: SceneMetadata): string[] => {
   const tags: string[] = []
   const raw = rawJsonOf(scene)
   if (raw) {
     const iab = firstName(raw.iab_taxonomy)
-    if (iab) tags.push(`IAB: ${iab}`)
+    if (iab) tags.push(iab)
     const location = firstName(raw.locations)
-    if (location) tags.push(`Location: ${location}`)
+    if (location) tags.push(location)
     const sentiment = firstName(raw.sentiment_analysis)
-    if (sentiment) tags.push(`Sentiment: ${sentiment}`)
-    const music = firstName(raw.music_emotion)
-    if (music) tags.push(`Music: ${music}`)
+    if (sentiment) tags.push(sentiment)
   } else {
-    if (scene.emotion) tags.push(`Emotion: ${scene.emotion}`)
-    if (scene.musicEmotion) tags.push(`Music: ${scene.musicEmotion}`)
+    if (scene.emotion) tags.push(scene.emotion)
+    if (scene.musicEmotion) tags.push(scene.musicEmotion)
   }
   return tags
 }
@@ -230,8 +226,6 @@ export const buildSummaryJsonString = ({
   let totalSceneSeconds = 0
   let totalProductMatches = 0
   let totalObjectsDetected = 0
-  let totalConfidenceSum = 0
-  let totalConfidenceCount = 0
 
   for (const scene of meaningfulScenes) {
     const seconds = sceneSeconds(scene)
@@ -239,25 +233,16 @@ export const buildSummaryJsonString = ({
 
     const raw = rawJsonOf(scene)
     if (raw) {
-      // IAB rollup — weight by screen time, accumulate across the array
-      // so secondary tags are credited too (the panel only shows top 5
-      // but the rollup considers everything).
       for (const entry of raw.iab_taxonomy ?? []) {
         if (!entry?.name) continue
         const conf = typeof entry.confidence === 'number' ? entry.confidence : 1
         tallyAdd(iabTally, entry.name, seconds * conf)
-        totalConfidenceSum += conf
-        totalConfidenceCount += 1
       }
-      // Locations: scene-level only (the editorial-timeline retrofit is
-      // presentation logic, not source signal — the summary should
-      // reflect the model's actual output).
       for (const entry of raw.locations ?? []) {
         if (!entry?.name) continue
         const conf = typeof entry.confidence === 'number' ? entry.confidence : 1
         tallyAdd(locationTally, entry.name, seconds * conf)
       }
-      // Objects: every named object on screen, weighted by screen time.
       for (const obj of raw.objects ?? []) {
         if (!obj?.name) continue
         const conf = typeof obj.confidence === 'number' ? obj.confidence : 1
@@ -269,15 +254,13 @@ export const buildSummaryJsonString = ({
           totalProductMatches += 1
         }
       }
-      // Sentiment: single value per scene typically.
       const sentiment = firstName(raw.sentiment_analysis)
       if (sentiment) tallyAdd(sentimentTally, sentiment, seconds)
-      // Music emotion: single value per scene typically.
       const music = firstName(raw.music_emotion)
       if (music) tallyAdd(musicEmotionTally, music, seconds)
-      // GARM (brand-safety) — only counted when actually emitted.
-      // Hidden in the demo UI per ContentConfig.hiddenTaxonomies, but
-      // the summary surfaces it for downstream consumers.
+      // GARM is hidden in the DHYH UI per ContentConfig.hiddenTaxonomies,
+      // but the summary still surfaces it for downstream consumers when
+      // the source content emits it.
       for (const entry of raw.garm_category ?? []) {
         if (!entry?.name) continue
         tallyAdd(garmTally, entry.name, seconds)
@@ -287,123 +270,79 @@ export const buildSummaryJsonString = ({
       if (scene.emotion) tallyAdd(emotionTally, scene.emotion, seconds)
       if (scene.musicEmotion) tallyAdd(musicEmotionTally, scene.musicEmotion, seconds)
     }
-
-    // Products: always credit, regardless of source path.
     for (const product of scene.products) {
       tallyAdd(productTally, product.name, seconds)
     }
   }
 
-  // ---- Aggregated taxonomy ------------------------------------------------
-  const iabRollup = tallyTop(iabTally, 5, totalSceneSeconds)
-  const locationsRollup = tallyTop(locationTally, 5, totalSceneSeconds)
-  const objectsRollup = tallyTop(objectTally, 10, totalSceneSeconds)
-  const sentimentRollup = tallyTop(sentimentTally, 3, totalSceneSeconds)
-  const emotionRollup = tallyTop(emotionTally, 3, totalSceneSeconds)
-  const musicRollup = tallyTop(musicEmotionTally, 3, totalSceneSeconds)
-  const productsRollup = tallyTop(productTally, 12, totalSceneSeconds)
-  const garmRollup = tallyTop(garmTally, 3, totalSceneSeconds)
+  // ---- Beats (collapsed scene digest) ------------------------------------
+  // Same `groupJsonScenes` algorithm the JSON panel uses to merge
+  // adjacent same-beat scenes. For DHYH this typically collapses
+  // ~175 scenes to ~25–35 beats — the headline benefit of summary
+  // size reduction.
+  const beats = groupJsonScenes(playbackScenes, playbackScenes.length - 1).map((group) => ({
+    start: round(group.startSec, 2),
+    end: round(group.endSec, 2),
+    label: group.label,
+    headline: oneLineHeadline(group.leadScene),
+    tags: compactTagsForScene(group.leadScene),
+  }))
 
-  // ---- Brand-safety verdict ----------------------------------------------
-  // Coarse rollup from GARM emissions when present; otherwise mark as
-  // not_evaluated. Future content with explicit GARM signal can refine
-  // this into a proper floor/low/medium/high classification.
-  const brandSafety = (() => {
-    if (garmRollup.length === 0) {
-      return {
-        verdict: 'not_evaluated',
-        garm_top: [],
-        rationale:
-          'No GARM signal present in this content (or the per-content config hides it). Downstream consumers should fall back to their own classification.',
-      }
-    }
-    return {
-      verdict: 'see_top_factors',
-      garm_top: garmRollup,
-      rationale:
-        'Verdict is derived from the top GARM categories weighted by screen time. Negative-tone names (e.g. "Debated Sensitive Social Issue") indicate elevated risk; benign categories indicate low risk.',
-    }
-  })()
+  // ---- Compose summary (omit empty rollups) ------------------------------
+  const rollups: Record<string, RollupEntry[]> = {}
+  if (iabTally.size > 0) rollups.iab = tallyTop(iabTally, 5, totalSceneSeconds)
+  if (locationTally.size > 0) rollups.locations = tallyTop(locationTally, 5, totalSceneSeconds)
+  if (objectTally.size > 0) rollups.objects = tallyTop(objectTally, 10, totalSceneSeconds)
+  if (sentimentTally.size > 0)
+    rollups.sentiment = tallyTop(sentimentTally, 3, totalSceneSeconds)
+  if (emotionTally.size > 0) rollups.emotion = tallyTop(emotionTally, 3, totalSceneSeconds)
+  if (musicEmotionTally.size > 0)
+    rollups.music_emotion = tallyTop(musicEmotionTally, 3, totalSceneSeconds)
 
-  // ---- Scene digest -------------------------------------------------------
-  const sceneDigest = meaningfulScenes.map((scene) => {
-    const raw = rawJsonOf(scene)
-    return {
-      scene_id: scene.id,
-      label: scene.sceneLabel,
-      start_seconds: round(scene.start, 2),
-      end_seconds: round(scene.end, 2),
-      start_timestamp: formatTimestamp(scene.start),
-      end_timestamp: formatTimestamp(scene.end),
-      duration_seconds: round(sceneSeconds(scene), 2),
-      product_count: scene.products.length,
-      primary_iab: raw ? firstName(raw.iab_taxonomy) : null,
-      primary_location: raw ? firstName(raw.locations) : null,
-      primary_sentiment: raw ? firstName(raw.sentiment_analysis) : scene.emotion || null,
-      primary_music: raw ? firstName(raw.music_emotion) : scene.musicEmotion || null,
-      one_line_description: oneLineDescription(scene),
-      primary_tags: primaryTagsForScene(scene),
-    }
-  })
+  const brandSafety: { verdict: string; garm_top?: RollupEntry[] } =
+    garmTally.size === 0
+      ? { verdict: 'not_evaluated' }
+      : {
+          verdict: 'see_top_factors',
+          garm_top: tallyTop(garmTally, 3, totalSceneSeconds),
+        }
 
-  // ---- Statistical metadata ----------------------------------------------
-  const taxonomyCoverage = {
-    iab: round(iabTally.size > 0 ? 1 : 0, 2),
-    locations: round(meaningfulScenes.length > 0 ? locationTally.size > 0 ? 1 : 0 : 0, 2),
-    objects: round(objectTally.size > 0 ? 1 : 0, 2),
-    sentiment: round(sentimentTally.size > 0 ? 1 : 0, 2),
-    music_emotion: round(musicEmotionTally.size > 0 ? 1 : 0, 2),
-    products: round(productTally.size > 0 ? 1 : 0, 2),
-    garm: round(garmTally.size > 0 ? 1 : 0, 2),
+  const taxonomyCoverage: Record<string, 0 | 1> = {
+    iab: iabTally.size > 0 ? 1 : 0,
+    locations: locationTally.size > 0 ? 1 : 0,
+    objects: objectTally.size > 0 ? 1 : 0,
+    sentiment: sentimentTally.size > 0 ? 1 : 0,
+    music_emotion: musicEmotionTally.size > 0 ? 1 : 0,
+    products: productTally.size > 0 ? 1 : 0,
+    garm: garmTally.size > 0 ? 1 : 0,
   }
 
   const summary = {
-    summary_metadata: {
-      summary_type: 'kerv-content-summary',
-      summary_version: 1,
+    summary: {
+      type: 'kerv-content-summary',
+      version: 1,
       generated_at: new Date().toISOString(),
       source_content_id: contentId,
       source_tier: selectedTier,
       source_playback_mode: selectedAdPlayback,
     },
-    content_fingerprint: {
+    content: {
       title: contentTitle,
-      content_id: contentId,
+      id: contentId,
       duration_seconds: round(playbackDurationSeconds, 2),
-      duration_timestamp: formatTimestamp(playbackDurationSeconds),
       scene_count: playbackScenes.length,
-      meaningful_scene_count: meaningfulScenes.length,
+      beat_count: beats.length,
     },
-    aggregated_taxonomy: {
-      iab_categories: iabRollup,
-      locations: locationsRollup,
-      objects: objectsRollup,
-      sentiment: sentimentRollup,
-      emotion: emotionRollup,
-      music_emotion: musicRollup,
-    },
+    rollups,
     brand_safety: brandSafety,
-    commerce_summary: {
+    commerce: {
       total_product_matches: totalProductMatches,
       unique_products: productTally.size,
-      total_on_screen_product_seconds: round(
-        Array.from(productTally.values()).reduce((sum, agg) => sum + agg.weight, 0),
-        2
-      ),
-      top_products_by_screen_time: productsRollup,
+      top_products: tallyTop(productTally, 10, totalSceneSeconds),
     },
-    scene_digest: sceneDigest,
-    statistical_metadata: {
-      total_scene_seconds: round(totalSceneSeconds, 2),
-      average_scene_seconds:
-        meaningfulScenes.length > 0
-          ? round(totalSceneSeconds / meaningfulScenes.length, 2)
-          : 0,
+    beats,
+    stats: {
       total_objects_detected: totalObjectsDetected,
-      unique_locations: locationTally.size,
-      unique_emotions: emotionTally.size + sentimentTally.size,
-      average_iab_confidence:
-        totalConfidenceCount > 0 ? round(totalConfidenceSum / totalConfidenceCount, 3) : null,
       taxonomy_coverage: taxonomyCoverage,
     },
   }
