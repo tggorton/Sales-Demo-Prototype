@@ -112,10 +112,17 @@ src/
 
     content/                       # NEW — Phase 5 (deferred until 2nd content tile is real)
       dhyh/
-        config.ts                  # tile metadata
-        timeline.ts                # DHYH_LOCATION_TIMELINE, splice constants
+        config.ts                  # tile metadata (title, splash, hero, default tier, available ad modes)
+        timeline.ts                # DHYH_LOCATION_TIMELINE, splice constants (clip cut points, ad break)
         schema.ts                  # Zod schema for tier JSON
         tiers/                     # tier1.json, tier2.json, tier3.json (current dhyh/ folder relocates here)
+        ads/                       # creatives + manifests scoped to this content
+          sync-lbar/               # per-mode subdirs mirror ad-modes/modes/* shape
+          sync-impulse/
+        products/                  # any per-content product overrides / curated lists
+        compliance/                # per-content compliance JSON, IAB attestations, etc.
+        review/                    # one-off generated artifacts (e.g. dhyh-products.json) — kept
+                                   # out of project root so future content folders stay self-contained
 
     sources/                       # ✅ Done — Phase 3
       types.ts                     # ContentId, TierJsonPayload, ProductImageInput
@@ -201,14 +208,15 @@ Each phase lands as one or more commits on `feat/restructuring-pass`. The plan i
 | **2. Ad-mode registry** | `src/demo/ad-modes/`, registry pattern, migrate `useDemoPlayback` and `DemoView` consumers | Medium | ✅ Done — commit `67230b6` (3 active modes + 5 disabled stubs; cookbook in `src/demo/ad-modes/README.md`) |
 | **3. S3 source resolvers** | `src/demo/sources/`, abstract tier-JSON + product-image loading | Low | ✅ Done — commit `a2d488c` (env-flag swap via `VITE_CONTENT_SOURCE_BASE_URL`; foundation for the future content-upload feature) |
 | **4. Component decomposition** | Split DemoView + ExpandedPanelDialog, extract panels/, player/, primitives/ | Medium | 🟡 In progress — 4a done (`4fc701f`, file relocations); 4b/4c remaining. **Recalibrated estimate: 45–75 min total** (down from 1–2 hr based on observed actuals running ~30% under upper bound across phases 1–3) |
-| **5. Content tile pattern** | `src/demo/content/dhyh/`, Zod schemas for tier JSON | Low | ⏳ Deferred until 2nd tile is real |
+| **5. Content tile pattern** | `src/demo/content/<id>/` per-content bundle: `config.ts`, `timeline.ts`, `schema.ts`, `tiers/`, `ads/`, `products/`, `compliance/`, `review/`. Each piece of content owns its full set of artifacts (tier JSONs, ad creatives + manifests, compliance docs, generated review artifacts) so adding the 2nd tile is a single self-contained directory drop, not a treasure-hunt across the project root. Eliminates root-level files like `dhyh-products.json`. | Low–Medium | ⏳ Deferred until 2nd tile is real |
 | **6. Hook decomposition** | Split `useDemoPlayback` into 4–7 narrower hooks (scroll engine stays unified) | **High** | ⏳ Blocked on Phase 7 |
 | **7. Test net** | Playwright golden-path + Vitest unit tests for protected behaviors | Low | ⏳ Should land **before** Phase 6 |
 | **8. CI** | GitHub Actions: tsc, build, lint, test | Low | ⏳ Pending |
+| **9. Panel sync hardening** | Tighten the collapsed↔expanded "where the panel was" continuity for all three panels (Taxonomies, Products, JSON). Two known Products-panel bugs to fix: (a) on-open scroll target uses `videoCurrentSeconds` instead of `panelTimelineSeconds` — drifts by the full ad-break duration in DHYH Segment B; (b) anchors are stamped per-scene-first-product, so scenes with multiple products land on product #1 regardless of where the collapsed panel was. Fix shape: pass `activeProductIndex` from `useDemoPlayback` into `ExpandedPanelDialog`, stamp per-product anchors, single source of truth across both views. Verify Taxonomies and JSON are still on parity. Sync is the demo's primary story — content + taxonomies + products + JSON moving together — so this is a fine-tuning pass after the structural restructure has landed. | Low–Medium | ⏳ Pending — see [TIME_LOG.md](TIME_LOG.md) Session 4 diagnosis |
 
 ### Suggested execution order
 
-`0 → 1 → 2 → 3 → 4 → 7 → 6 → 8` — re-orders 6 and 7 because the test net should exist before the riskiest refactor. Phase 5 lands whenever a second content tile is genuinely on the roadmap (no point building the abstraction speculatively for one).
+`0 → 1 → 2 → 3 → 4 → 7 → 6 → 8 → 9` — re-orders 6 and 7 because the test net should exist before the riskiest refactor. Phase 5 lands whenever a second content tile is genuinely on the roadmap (no point building the abstraction speculatively for one). Phase 9 is post-structural fine-tuning — best done after the test net (Phase 7) so any sync regressions get caught.
 
 ### Phase entry criteria
 
