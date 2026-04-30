@@ -350,23 +350,9 @@ const buildTaxonomyData = (
   // (top high-confidence entries from `video_metadata.locations`) so prospects
   // always see the AI's runner-up guesses regardless of which path resolved
   // the headline.
-  const sceneLocation = scene.locations?.[0]
-  const sceneConfidenceOK =
-    sceneLocation?.name &&
-    (sceneLocation.confidence ?? 0) >= DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE
-
-  let resolvedName: string | null = null
-  let resolvedConfidence: number | undefined
-  if (sceneConfidenceOK && sceneLocation) {
-    resolvedName = sceneLocation.name
-    resolvedConfidence = sceneLocation.confidence
-  } else {
-    const timelineEntry = resolveTimelineLocation(clipStartSec)
-    if (timelineEntry) {
-      resolvedName = timelineEntry.location
-      resolvedConfidence = timelineEntry.confidence
-    }
-  }
+  const resolvedLocation = resolveSceneLocation(scene, clipStartSec)
+  const resolvedName = resolvedLocation?.name ?? null
+  const resolvedConfidence = resolvedLocation?.confidence
 
   if (resolvedName) {
     // Considered = show-wide alternative locations the model proposed,
@@ -445,7 +431,61 @@ const buildTaxonomyData = (
   return data
 }
 
-const buildRawJsonForScene = (scene: DhyhScene) => {
+// Resolved-location shape — what `resolveSceneLocation` returns. Threaded
+// from the bundle builder into both the Taxonomy panel's Location section
+// AND the displayed JSON, so the two views stay in sync (the editorial
+// timeline retrofit is reflected in both, with `source` marking which call
+// came from the upstream model vs. the timeline backbone).
+type LocationResolutionSource = 'model' | 'editorial_timeline'
+type ResolvedLocation = {
+  name: string
+  confidence: number
+  source: LocationResolutionSource
+}
+
+const resolveSceneLocation = (
+  scene: DhyhScene,
+  clipStartSec: number
+): ResolvedLocation | null => {
+  const sceneLocation = scene.locations?.[0]
+  if (
+    sceneLocation?.name &&
+    (sceneLocation.confidence ?? 0) >= DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE
+  ) {
+    return {
+      name: sceneLocation.name,
+      confidence: sceneLocation.confidence ?? 0,
+      source: 'model',
+    }
+  }
+  const timelineEntry = resolveTimelineLocation(clipStartSec)
+  if (timelineEntry) {
+    return {
+      name: timelineEntry.location,
+      confidence: timelineEntry.confidence,
+      source: 'editorial_timeline',
+    }
+  }
+  return null
+}
+
+const buildRawJsonForScene = (scene: DhyhScene, resolvedLocation: ResolvedLocation | null) => {
+  // When the model didn't emit a `locations` field but the editorial
+  // timeline resolved one, surface that in the displayed JSON so it matches
+  // what the Location taxonomy panel shows. Tagged with `source` to make
+  // the provenance unambiguous in the demo (model emission vs. timeline
+  // backbone).
+  const synthesizedLocations =
+    !scene.locations?.length && resolvedLocation
+      ? [
+          {
+            name: resolvedLocation.name,
+            confidence: resolvedLocation.confidence,
+            source: resolvedLocation.source,
+          },
+        ]
+      : undefined
+
   const raw: Record<string, unknown> = {
     scene: scene.scene,
     startTime: scene.startTime,
@@ -459,7 +499,7 @@ const buildRawJsonForScene = (scene: DhyhScene) => {
     labels: scene.labels?.length ? scene.labels : undefined,
     logos: scene.logos?.length ? scene.logos : undefined,
     faces: scene.faces?.length ? scene.faces : undefined,
-    locations: scene.locations?.length ? scene.locations : undefined,
+    locations: scene.locations?.length ? scene.locations : synthesizedLocations,
     objects: scene.objects?.length ? scene.objects : undefined,
     music_emotion: scene.music_emotion ?? undefined,
     shoppable_score: scene.shoppable_score,
@@ -553,7 +593,7 @@ const buildScene = (
     cta: 'In-Content-CTA',
     products: buildProducts(scene, TIER_HAS_PRODUCTS[tier] ?? false),
     taxonomyData,
-    rawJson: meaningful ? buildRawJsonForScene(scene) : undefined,
+    rawJson: meaningful ? buildRawJsonForScene(scene, resolveSceneLocation(scene, clipRange.start)) : undefined,
     isEmpty: !meaningful,
   }
 }
