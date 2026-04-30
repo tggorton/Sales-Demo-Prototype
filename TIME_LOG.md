@@ -70,10 +70,13 @@ future estimates. To date:
 | 1b. Inline literal migration | ~30 min | ~30m | On target |
 | 2. Ad-mode registry | ~60–90 min | ~50m | Below range — registry pattern was straightforward once designed |
 | 3. S3 source resolvers | ~30–60 min | ~35m | Low end — much abstraction already existed |
+| 4. Component decomposition | ~45–75 min (recalibrated) | ~92m | **Over upper bound by ~23%.** 4a relocations were trivial (~7m) but 4b player extraction ran long (~50m: parallel-playback machinery moved across files, plus a messy intermediate edit + a TS error from a duplicate `PlayerControlTokens` type that needed unwinding). 4c shared cards landed clean (~35m). The ~30%-under-upper-bound pattern from phases 1–3 doesn't extend to Phase 4 — DemoView's player section had more entangled state than the recalibration accounted for. |
 
 Phase 3 looking "fast" is an artifact of the lower bound being a
 realistic value when prerequisites are in place. The estimate range
-itself was reasonable.
+itself was reasonable. Phase 4's overrun, by contrast, came from
+genuine complexity that wasn't visible from the outside until the
+extraction was underway.
 
 ---
 
@@ -127,8 +130,13 @@ itself was reasonable.
 | Phase 3 — S3 source resolvers | 7m | 35m | `src/demo/sources/` module + content-id-aware resolvers + README. Came in at the low end of the original 30–60m estimate; most abstraction (env-flag video URLs, S3 product `image_url` fields) was already in place from earlier phases — only tier loading needed real new code. Commits `a2d488c`, `4c1db75` |
 | Location panel-JSON sync (concern #2) | 8m | 25m | Refactored location resolution into a shared `resolveSceneLocation` helper; injected timeline-resolved location into displayed JSON with `source` field marking provenance. Commit `3fbf6da` |
 | 'Considered:' cleanup (concern #1) | 6m | 15m | Removed misleading show-wide "Considered:" row from per-scene Location card; cleaned up dead `ShowLocations` plumbing. Commit `cc8ac8b` |
-| TIME_LOG update + next-phase coordination | 3m | 10m | This block. |
-| **Session subtotal so far** | **~24m** | **~85m** | |
+| TIME_LOG update + next-phase coordination | 3m | 10m | First TIME_LOG checkpoint of the session. |
+| Phase 4a — component relocations | 2m | 7m | Mechanical mv of components into `dialogs/`, `layout/`, `primitives/`, `player/` subdirectories + import-path fixups. Commit `4fc701f` |
+| Process commitments + companion docs | 14m | 30m | Intricate prompt: Phase 4 timing observation + conversation-download Q + auto-time-tracking + skill request. Wrote 268-line `SESSION_LOG.md` (narrative day-by-day history), created `.claude/skills/log-time/SKILL.md`, updated `.gitignore` to track project skills, added §5b process commitments + Phase 4 recalibration to `RESTRUCTURING_PLAN.md`. Commits `14ced8f`, `9f08c5a`, `c3e63d1` |
+| Phase 4b — VideoPlayer + PlayerControls extraction | 3m | 50m | Major extraction: `VideoPlayer.tsx` (377 LOC) + `PlayerControls.tsx` (182 LOC), with the parallel-playback `adVideoElementsRef` Map + 2 useEffects relocating from DemoView into VideoPlayer. Hit a messy intermediate edit (orphaned `</Box>`) requiring `sed` cleanup, and a TS error from defining `PlayerControlTokens` locally instead of importing the canonical one in `src/demo/types.ts`. Worked across a `/compact` boundary — full conversation context was summarized mid-extraction and resumed. DemoView 1161 → 793 LOC. Commit `db145da` |
+| Phase 4c — shared panel cards | 4m | 35m | Created `TaxonomySceneCard` / `ProductCard` / `JsonSceneCard` in `src/demo/components/cards/`; refactored both `DemoView` (collapsed) and `ExpandedPanelDialog` (expanded) to use them via `variant: 'collapsed' \| 'expanded'` props. ~250 LOC of card-shape duplication collapsed into ~257 LOC of canonical implementation. DemoView 793 → 694 LOC, ExpandedPanelDialog 525 → 462 LOC. Commit `5f0d843` |
+| TIME_LOG update + Phase 4 verification offer | 5m | 10m | This block — pre-break checkpoint. Provided a golden-path browser verification checklist for Phase 4 (deferred — user breaking before walking through). |
+| **Session subtotal so far** | **~52m** | **~217m** | |
 
 ## Running totals
 
@@ -137,8 +145,8 @@ itself was reasonable.
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 250m |
-| Session 4 (04-30) | 24m | 85m |
-| **Total** | **~2h 36m** | **~7h 30m** |
+| Session 4 (04-30) | 52m | 217m |
+| **Total** | **~3h 04m** | **~9h 42m** |
 
 ---
 
