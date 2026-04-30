@@ -112,6 +112,11 @@ export function useDemoPlayback({
 
   const orderedPanels: DemoPanel[] = ['taxonomy', 'product', 'json']
   const visiblePanels = orderedPanels.filter((panel) => activeDemoPanels.includes(panel))
+  // Stable string key for the visible-panels set — used as a useEffect
+  // dep below. Extracted to a variable so the deps array stays
+  // statically analyzable (otherwise eslint warns about the inline
+  // `.join(',')`).
+  const visiblePanelsKey = visiblePanels.join(',')
 
   const isDhyhContent = selectedContent?.id === DHYH_CONTENT_ID
 
@@ -697,7 +702,7 @@ export function useDemoPlayback({
         }
       }
     }
-  }, [currentView, visiblePanels.join(',')])
+  }, [currentView, visiblePanelsKey])
 
   // Scrub detection.
   //
