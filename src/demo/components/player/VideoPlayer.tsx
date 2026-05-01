@@ -252,7 +252,14 @@ export function VideoPlayer({
             key={mainVideoSrc}
             muted={isVideoMuted}
             playsInline
-            preload="metadata"
+            // `auto` (vs the default `metadata`) tells the browser to
+            // download bytes ahead of play, not just the moov atom.
+            // Reduces the cold-start scrub-and-play latency the user
+            // flagged on Vercel — with `metadata` the player has zero
+            // buffered video at the moment of first play, so seeks
+            // require a full re-buffer; with `auto` the buffer is
+            // already growing by the time the user clicks play.
+            preload="auto"
             onLoadedMetadata={(event) => {
               const duration = event.currentTarget.duration
               if (!Number.isNaN(duration)) {
