@@ -66,6 +66,14 @@ export function ProductCard({
           component="img"
           src={entry.image}
           alt={entry.name}
+          // `lazy` defers fetching until the image is near the viewport
+          // — without it, the panel races to load every product the
+          // moment it mounts (50+ parallel requests for DHYH Tier 3),
+          // which blocks the network for the more important assets.
+          // `async` lets the browser decode off the main thread so a
+          // batch of decodes doesn't stall scroll/render.
+          loading="lazy"
+          decoding="async"
           onError={(event) => {
             const img = event.currentTarget as HTMLImageElement
             if (img.src !== window.location.origin + PRODUCT_PLACEHOLDER_IMAGE) {
