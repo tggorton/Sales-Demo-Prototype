@@ -273,15 +273,17 @@ new sessions get appended here.
 | Housekeeping (this entry — end-of-day session log) | 1m | 12m | This block. Third checkpoint of the day, covering everything from `bb04c2f` (the second checkpoint at 17:06) through the deploy saga. |
 | **Session subtotal so far** | **~167m** | **~420m** | (Single longest day of the engagement. Wall-clock ~09:50 → ~20:10 (~10h elapsed). Initial logging credited ~587m AI Work but the user flagged that as inflated — actual was closer to **7 hours** since significant non-coding stretches happened: extended afternoon break, screenshot-driven debugging while the user composed reports, idle time waiting on Vercel rebuilds. Revised down end-of-engagement to ~420m. See calibration note below.) |
 
-### 2026-05-01 — Session 5: Asset delivery package (one-off, not restructure)
+### 2026-05-01 — Session 5: Asset delivery + TIME_LOG combine + Figma MCP panel capture
 
-**Wall-clock span:** ~09:08 – ~09:35 local. User stepped away after the initial delivery; later returned with an ad-break-section follow-up request. This entry counts only the time during my actual work — not the gap.
+**Wall-clock span:** ~09:08 – ~13:00 local (with multiple stepping-away gaps; entry counts only active work). User returned twice mid-day for follow-ups (ad-break section, then Figma MCP work).
 
 | Block | Prompting | AI Work | Notes |
 |---|---:|---:|---|
 | Asset extraction + handoff doc | 10m | 25m | Three ffmpeg extractions (Clip 1: ~31s re-encode; Clip 2: ~2:21 re-encode; spliced concat: instant stream-copy), `handoff/HANDOFF-clip-delivery.md` initial draft, `.gitignore` update. ffmpeg run-time counts as AI Work since the tool was active even though the human was idle. |
 | Ad-break section expansion | 2m | 7m | User: *"Can you update the handoff doc to also include information on the 'ad-break' time stamp?"* Promoted ad-break info to a dedicated top-level section with ASCII diagram, per-mode timestamps table, and an ffmpeg-concat recipe for partners who want to bake an ad creative into a single deliverable file. Removed the redundant subsection under the sync-model section. |
-| **Session subtotal** | **~12m** | **~32m** | Honest from the start — no inflated wall-clock to recalibrate later. |
+| TIME_LOG combine (001 → primary) + archive 001 | 5m | 18m | Folded the frozen Cursor-era log into primary `TIME_LOG.md` as a two-track structure (Cursor frozen / Handoff active) with a Combined section. Then moved `TIME_LOG-001.md` to gitignored `archive/` and updated the `.claude/skills/log-time/SKILL.md` path reference. Commits `292aeb3`, `8054459`. |
+| Figma MCP panel-capture (no commits, exploratory) | 20m | 32m | Authenticated Figma MCP via OAuth (`ggorton@kerv.ai`, KERV org), injected capture script into `index.html`, started dev server, generated server-side captureIds pre-targeted at the existing KERV Sales Demo file (`fileKey: FFJ7lmfsFVQFDyHnNyqIh2`, `nodeId: 3067:31415`). First toolbar-fired capture worked and landed in the file at sibling node `3069-2`. Subsequent toolbar captures landed nowhere visible — diagnosed that toolbar-generated captureIds discard the URL-hash `existingFile`+`fileKey` targeting and default to creating new files. Offered a console-based workaround (`window.figma.captureForDesign({...})`) so each capture preserves targeting. User reports they got what they needed + ~3–5min of additional work before stepping away. No commits this block; the capture script tag remains in `index.html` per the MCP server's standing guidance ("leave the capture script in the HTML unless the user explicitly asks you to remove it"). |
+| **Session subtotal** | **~37m** | **~82m** | Honest from the start — no inflated wall-clock to recalibrate later. |
 
 ## Running totals
 
@@ -305,16 +307,16 @@ new sessions get appended here.
 | Handoff Session 2 (04-28) | 8m | 5m |
 | Handoff Session 3 (04-29) | 74m | 180m |
 | Handoff Session 4 (04-30) | 167m | 420m |
-| Handoff Session 5 (05-01) | 12m | 32m |
-| **Handoff subtotal** | **~5h 11m** | **~12h 02m** |
+| Handoff Session 5 (05-01) | 37m | 82m |
+| **Handoff subtotal** | **~5h 36m** | **~12h 52m** |
 
 ### Combined (full project lifecycle)
 
 | | Prompting | AI Work |
 |---|---:|---:|
 | Cursor engagement | ~5h 45m | ~17h 35m |
-| Handoff engagement | ~5h 11m | ~12h 02m |
-| **Combined total** | **~10h 56m** | **~29h 37m** |
+| Handoff engagement | ~5h 36m | ~12h 52m |
+| **Combined total** | **~11h 21m** | **~30h 27m** |
 
 ---
 
