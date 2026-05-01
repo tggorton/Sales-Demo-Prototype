@@ -7,9 +7,10 @@ combined total:
 1. **Cursor engagement** — original prototype build inside Cursor
    (DHYH splice, panel sync, login, deploy paths, V2 work). Dates
    `2026-04-22` → `2026-04-27`. Frozen — these sessions are complete
-   and won't grow. Imported from the standalone `TIME_LOG-001.md`
-   (kept on disk as the original artifact; this section mirrors its
-   data).
+   and won't grow. Imported from the standalone Cursor-era log; the
+   original lives at `archive/TIME_LOG-001.md` (gitignored, kept on
+   disk as a frozen historical artifact). This section mirrors its
+   data.
 2. **Handoff engagement** — the engineering-grade restructuring pass
    + production-deploy + asset-delivery work from the handoff to
    present. Dates `2026-04-27` → ongoing. This is where new sessions
@@ -111,7 +112,8 @@ or (b) explicitly subtract conversation stretches before logging.
 ### Methodology used for the Cursor engagement (frozen track)
 
 The Cursor sessions below were logged with a slightly different
-methodology — copied verbatim from the original `TIME_LOG-001.md`:
+methodology — copied verbatim from the original Cursor log
+(now archived at `archive/TIME_LOG-001.md`):
 
 > **Prompting (estimated)** — Includes: reading agent output, deciding
 > next steps, typing prompts, clarifying constraints, local verification
@@ -176,7 +178,8 @@ overestimate late-phase pace, not the other way around.
 
 These six sessions cover the original Cursor build of the prototype
 prior to the handoff to me. Frozen — no new entries get appended here.
-Imported from `TIME_LOG-001.md` (kept as-is on disk for traceability).
+Imported from the original Cursor log (now archived at
+`archive/TIME_LOG-001.md`, gitignored, kept on disk for traceability).
 
 | Cursor Session | Date | Prompting | AI Work |
 |---|---|---:|---:|

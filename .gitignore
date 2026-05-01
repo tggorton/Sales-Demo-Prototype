@@ -65,6 +65,11 @@ _archive/
 # `handoff/HANDOFF-clip-delivery.md` if needed; never commit.
 /handoff/
 
+# Local-only archive of superseded artifacts (e.g. `TIME_LOG-001.md`
+# whose data was merged into `TIME_LOG.md`). Kept on disk for traceability
+# but not part of the repo — the canonical source already lives elsewhere.
+/archive/
+
 # Local Claude Code settings (user-specific, not project-wide).
 # (Ignore specific local-only files inside .claude/ but DO track .claude/skills/
 # so project-level skills like /log-time are shared across the team.)

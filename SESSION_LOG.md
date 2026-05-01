@@ -3,7 +3,7 @@
 **Coverage:** 2026-04-27 → present (this branch's lifetime).
 **Audience:** Anyone (you, an engineer, future-me after compaction) who needs the *narrative* context behind the commits — what was discussed, what trade-offs were weighed, what the user observed visually, what's still open.
 
-The git log is the authoritative technical record (every change has a detailed commit message). The seven docs at the project root (`HANDOFF.md`, `RESTRUCTURING_PLAN.md`, `EXTENSION_POINTS.md`, `DESIGN_SYSTEM.md`, `TIME_LOG.md`, plus this file and `TIME_LOG-001.md`) capture documented state. **This file fills the gap between "what changed" and "why we made that call"** — and surfaces user-facing observations and future considerations that don't fit naturally in any other doc.
+The git log is the authoritative technical record (every change has a detailed commit message). The six docs at the project root (`HANDOFF.md`, `RESTRUCTURING_PLAN.md`, `EXTENSION_POINTS.md`, `DESIGN_SYSTEM.md`, `TIME_LOG.md`, and this file) capture documented state. The pre-handoff Cursor log lives at `archive/TIME_LOG-001.md` (gitignored, frozen) — its data is mirrored into `TIME_LOG.md`'s "Cursor engagement" section so the canonical totals are in one place. **This file fills the gap between "what changed" and "why we made that call"** — and surfaces user-facing observations and future considerations that don't fit naturally in any other doc.
 
 ---
 
@@ -18,7 +18,7 @@ The git log is the authoritative technical record (every change has a detailed c
 
 ## Engagement framing
 
-The user (a UX/UI designer) inherited a working KERV Sales Demo prototype originally built with AI assistance in Cursor (per [`TIME_LOG-001.md`](TIME_LOG-001.md), ~5h45m / ~17h35m of pre-handoff work across 6 thematic sessions). On 2026-04-27 they handed it off here for an engineering-grade restructuring pass — making the codebase comfortable for engineers (and AI coding tools like Claude/GPT/Cursor) to extend with new ad modes, new content tiles, and eventually integrate AWS Cognito and S3.
+The user (a UX/UI designer) inherited a working KERV Sales Demo prototype originally built with AI assistance in Cursor (per [`archive/TIME_LOG-001.md`](archive/TIME_LOG-001.md), ~5h45m / ~17h35m of pre-handoff work across 6 thematic sessions). On 2026-04-27 they handed it off here for an engineering-grade restructuring pass — making the codebase comfortable for engineers (and AI coding tools like Claude/GPT/Cursor) to extend with new ad modes, new content tiles, and eventually integrate AWS Cognito and S3.
 
 **Two parallel deployments are live and intentionally divergent:**
 - `sales-demo-prototype` (production demo) — `origin` remote, hosted on Vercel
@@ -345,7 +345,7 @@ These are items I noticed and flagged but haven't acted on. Pick them up when th
 - **`.cursor/rules/no-backup-artifacts.mdc` has a stale path table.** Lists tier JSONs at `src/assets/data/...` instead of `src/demo/data/dhyh/...`. One-line fix when convenient. Noted in `RESTRUCTURING_PLAN.md` § 9.
 - **`SD-HD-Tools-L-bar.mp4` is 60 MB committed** — between GitHub's 50 MB warning and 100 MB hard limit. If a similar-sized creative gets added later, consider transcoding tighter or splitting upload via Git LFS.
 - **`HANDOFF.md` itself is now committed** in the repo (was untracked at branch creation). Future agents inherit it from git directly.
-- **`TIME_LOG-001.md` exists from the prior Cursor engagement.** Not part of this engagement's tracker; the user explicitly asked me to ignore it (only update the new `TIME_LOG.md`). It's at the project root for reference.
+- **`TIME_LOG-001.md` from the prior Cursor engagement.** Originally lived at the project root; archived to `archive/TIME_LOG-001.md` on 2026-05-01 once its data had been mirrored into `TIME_LOG.md`'s "Cursor engagement" section. The archive folder is gitignored — file is preserved locally for traceability but not part of the repo.
 
 ---
 

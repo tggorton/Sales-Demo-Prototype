@@ -44,7 +44,7 @@ Update [`TIME_LOG.md`](TIME_LOG.md) for this project with the latest session's w
 ## File paths
 
 - Time log: `TIME_LOG.md` (project root)
-- Pre-handoff Cursor log: `TIME_LOG-001.md` (project root) — **do not modify**, kept for historical reference per the user's instruction.
+- Pre-handoff Cursor log: `archive/TIME_LOG-001.md` — **do not modify**, kept for historical reference per the user's instruction. Its data has been mirrored into `TIME_LOG.md`'s "Cursor engagement (frozen)" section; the original is archived locally outside the repo (`archive/` is gitignored).
 - Plan with phase estimates: `RESTRUCTURING_PLAN.md` (project root) — phase estimate ranges live here; recalibrate when actuals consistently land on one side.
 
 ## Output expectations
