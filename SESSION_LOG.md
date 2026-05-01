@@ -237,6 +237,37 @@ Audited the full sync surface across all 6 panel-state combinations (3 panels ×
 
 User verified: *"This definitely seems better... we may have to make further adjustments later."* Tracking that further-adjustments may be needed is itself a Phase 9 outcome — the diagnostic + dedupe-tuning loop is now well-trodden, so future iteration should be cheap.
 
+**Player control streamline** (`36d52d4`). User: *"It's a little 'big' and I would like to make it a little more 'streamlined'... when all the panels are active the player is in small mode, the player control takes up too much vertical space"* + asked for YouTube-style hover-show/hide. Tightened all three sizing-token states (most aggressive on the 2+ panel "small" state — bar height 52→32, slider container 28→18, timeline 11→5) and added `isHovered || !isVideoPlaying` controls visibility with 220ms opacity transition + `pointer-events: none` when hidden. Bar always shows when paused so first-load users find the play button.
+
+**JSON download dialog restyle + Summary JSON v1 → v2** (`5b54b58`, `d9998d0`). User flagged the "Schedule Report" modal had a misaligned solid-white pill behind the "Download Type" label and asked to match the SelectorDialog look. Removed the `<InputLabel shrink sx={{backgroundColor: '#fff'}}>` hack that produced the pill; restyled with white glass border + centered Typography heading + DialogActions with a top-border separator. Renamed "Schedule Report" → "Download JSON". **The Summary JSON itself was a fabricated client-side artifact** (placeholder, with wrong `ad_breaks` using SYNC_IMPULSE_SEGMENTS instead of DHYH's segments). User provided a real spec — wrote v1 with the full schema (summary_metadata / content_fingerprint / aggregated_taxonomy rollups / brand_safety / commerce_summary / scene_digest / statistical_metadata). User: *"It should be significantly shorter than the original JSON. It should be a simplified high-level version."* Trimmed v1 → v2: collapsed scene_digest into beats via the existing `groupJsonScenes` algorithm (~175 scenes → ~25–35 beats), dropped per-rollup `weight` + `appearances` (kept just `name + share`), omitted empty rollups entirely, shortened top-level keys, dropped redundant fields. Estimated DHYH summary size ~7–8 KB (was ~50 KB in v1; original is ~1 MB+, so ~125–150× smaller).
+
+### 2026-04-30 evening — Vercel production push + deploy saga
+
+**Push to origin** (after user's PAT-mediated authorization). The branch was 63 commits ahead of `origin/main`, zero behind — clean fast-forward. Confirmed with the user that pushing to `origin` (production: `sales-demo-prototype.vercel.app`) doesn't affect v2 (separate repo + separate Vercel project).
+
+**First push rejected**: GitHub PAT lacked `workflow` scope, blocked by Phase 8's `.github/workflows/ci.yml`. User regenerated with `repo` + `workflow`; second push fast-forwarded.
+
+**First Vercel deploy crashed at runtime** (`TypeError: e.alpha is not a function` / `e.lighten is not a function`). Two compounding causes:
+
+1. **Vercel ran `npm install` without `--legacy-peer-deps`**. Fixed by `.npmrc` with `legacy-peer-deps=true` (commit `c58e7b4`) so every environment honors it.
+2. **Root cause**: `@kerv-one/theme` had `"@mui/material": "^6.4.0"` as a direct `dependencies` entry. npm hoisted MUI 6's `@mui/system` / `@mui/utils` / `@mui/styled-engine` / `@mui/private-theming` to top-level node_modules where MUI 7's runtime imports look. The `styled()` factory called `.alpha()` on a v6 module with a different shape, blowing up the entire render. **Three-layer fix** (commit `9a8cbac`):
+   - **Moved `@mui/material` from kerv-one-theme `dependencies` to `peerDependencies`** (canonical theme-package pattern: consume the host's MUI rather than bring your own). Relaxed React peer to `^18 || ^19`.
+   - Top-level `overrides` expanded to cover every `@mui/*` + React.
+   - Vite `resolve.dedupe` for the same set as a bundler-level safety net.
+
+After this, the Vercel deploy worked. User: *"That worked."*
+
+**Perf optimization attempt → silent regression → revert** (`e85df38` + `3fdca82`, then `44291e1` + `e37563b`). User reported lag + choppy first-playback. Tried three changes together: (a) `vercel.json` cache headers, (b) `preload="auto"` on content video, (c) `React.lazy` + `<Suspense>` code-splitting for `DemoView` and 5 dialogs. The combination broke the deploy in a particularly nasty way — panels were empty, no JS errors, no unhandled rejections caught, but `dhyhBundle` never reached the React tree. Diagnostic confirmed: tier3 chunk loads correctly (801 scenes available); the React state path between "data loaded" and "DemoView re-renders" silently failed. **Strongly suspect: `React.lazy` + `Suspense` interaction with `useDemoPlayback`'s state setter** — the cached Promise from `bundleCache[tier]` resolves once, but if Suspense re-mounts the parent, the resolved value never re-flows. After ~2 hours of remote debugging, **reverted both perf commits** to restore the working state.
+
+**Re-introduced the safe perf changes one commit at a time** (`4223156`, `99a5acc`, `01a0044`):
+- **`vercel.json` cache headers** — pure HTTP config, zero runtime risk. 1-year immutable cache on `/assets/video/`, `/assets/ads/`, `/assets/posters/`, `/assets/elements/`, and `/assets/products/`.
+- **`preload="auto"` on the content video** — single attribute. Browser buffers on player mount.
+- **Product image optimizations**: `loading="lazy"` + `decoding="async"` on every product `<img>`. Defers fetch until near viewport; decode off main thread. Eliminates the ~50-parallel-image race the panel triggered on mount.
+
+**The React.lazy code-splitting was deliberately NOT re-added.** The bundle-size win (~30KB on the login screen) wasn't worth a second silent-disconnect regression.
+
+User: *"Doesn't seem to have made a huge difference. I think there is work to be done here."* — Acknowledged. Scrub-to-seek lag is the remaining bottleneck; partially mitigated by `preload="auto"` for sequential play but range-fetching new positions inside the 58MB MP4 has unavoidable CDN round-trip cost. Re-encoding the video with **shorter keyframe intervals + lower bitrate** is the remaining content-team lever for further improvement (out of restructure scope).
+
 ---
 
 ## Future considerations
@@ -351,6 +382,19 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 55 | `c1c0a26` | 04-30 16:26 | Phase 9d: ad-break response future-proofing — per-mode label override |
 | 56 | `b2eb452` | 04-30 16:27 | `RESTRUCTURING_PLAN`: mark Phase 9 (a/b/c/d) done with commit hashes |
 | 57 | `0d35042` | 04-30 16:50 | Phase 9e: tighten cross-view product sync (gate expanded + reduce dedupe) |
+| 58 | `bb04c2f` | 04-30 17:06 | Housekeeping: SESSION_LOG + TIME_LOG checkpoint for Phases 6–9 |
+| 59 | `36d52d4` | 04-30 17:28 | Streamline player control bar: tighter sizing + hover-based show/hide |
+| 60 | `5b54b58` | 04-30 17:46 | JSON download dialog: restyle to match SelectorDialog + real Summary JSON |
+| 61 | `d9998d0` | 04-30 17:58 | Summary JSON: trim to a true high-level shape (beats, not per-scene) |
+| 62 | `c58e7b4` | 04-30 18:20 | Add `.npmrc` with `legacy-peer-deps=true` (Vercel install fix) |
+| 63 | `9a8cbac` | 04-30 18:34 | Fix Vercel runtime crash: deduplicate MUI installs (root cause) |
+| 64 | `e85df38` | 04-30 18:44 | Optimize Vercel load + first-playback latency *(later reverted)* |
+| 65 | `3fdca82` | 04-30 18:46 | Fix vercel.json: remove `_comment` field *(later reverted)* |
+| 66 | `44291e1` | 04-30 19:33 | Revert "Fix vercel.json: remove `_comment` field" |
+| 67 | `e37563b` | 04-30 19:33 | Revert "Optimize Vercel load + first-playback latency" |
+| 68 | `4223156` | 04-30 19:52 | Re-add `vercel.json` with cache headers (isolated from prior revert) |
+| 69 | `99a5acc` | 04-30 19:52 | Re-add `preload="auto"` on content video (isolated from prior revert) |
+| 70 | `01a0044` | 04-30 19:57 | Faster product images: lazy-load + cache headers |
 
 ---
 

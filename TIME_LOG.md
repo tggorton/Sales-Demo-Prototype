@@ -76,6 +76,7 @@ future estimates. To date:
 | 7. Test net (a + b) | ~75–90m projected | ~10m | **Way under.** Vitest scaffold + Playwright + 38 unit tests + 1 e2e in 10m wall-clock. Pure-function tests were trivial against the modules already extracted in Phases 4–5; the Vite/Vitest integration "just worked." Real lesson: late-stage tests on already-clean modules are *much* faster than mid-restructure tests would have been. |
 | 8. CI workflow | (no explicit estimate) | ~6m | Single YAML file + lint config tightening. Mechanical. |
 | 9. Panel sync hardening (a + b + c + d + e) | ~Low–Medium per plan | ~35m | 4 sub-phases of fixes + 1 verification-driven follow-up. The diagnostic-and-decide work took longer per LOC than the actual coding (Phase 9e changed 17 lines but the screenshot diagnosis took ~12m). Calibration: when the user provides screenshots, budget the prompting time accordingly — visual diagnosis is dense work. |
+| Production deploy + MUI dedup + perf saga (post-restructure, unplanned) | (no estimate) | ~135m | Single biggest unplanned block of the engagement. Push to origin → first runtime crash (kerv-one-theme's nested MUI 6 hoisting to top-level node_modules where MUI 7 expects v7 — three-layer fix) → second perf-optimization regression that broke data flow with no JS errors → ~50min of remote diagnosis without a reproduction → reverted, then re-introduced the safe pieces individually. **Calibration takeaway: production deploys are their own phase.** The restructure work assumed deploys were a flip-of-a-switch ("Phase 8 just creates the workflow file"), but real Vercel-vs-local environment differences (npm resolution, install flags, bundle quirks) ate ~2 hours of unplanned time. Future engagements should budget a "first-deploy reality" block separately. |
 
 Phase 3 looking "fast" is an artifact of the lower bound being a
 realistic value when prerequisites are in place. The estimate range
@@ -158,8 +159,14 @@ overestimate late-phase pace, not the other way around.
 | Phase 8 — CI workflow | 4m | 6m | GitHub Actions YAML at `.github/workflows/ci.yml` mirroring the local chain (tsc → lint → unit tests → build → Playwright e2e). User asked the clarifying question "is this just preparing the file?" — confirmed yes, no push. Lint config also tightened in the same commit (`kerv-one-theme/` ignored, `argsIgnorePattern: '^_'` added). Commit `5115a90` |
 | Phase 9 (a/b/c/d) — sync hardening | 15m | 25m | User's most detailed mandate of the engagement. Audited the full collapsed↔expanded sync surface across 6 panel-state combinations. Sub-phases: 9a (Products exact-anchor + segment-aligned data source), 9b (scrub-triggered re-sync via `scrubVersion` counter), 9c (8 cross-resolver invariant tests), 9d (per-mode `dhyhAdResponseLabel` override for future ad formats). Commits `f2a26de` → `c1c0a26`, `b2eb452` |
 | Phase 9e — cross-view sync refinement | 13m | 10m | User verification post-9d caught two new misalignments via screenshots: expanded view rendering future products + cross-panel scene drift in product-less stretches. Diagnostic took most of the time; the fix was small. Two changes: (A) apply `index > activeProductIndex` gate to expanded Products view (B) drop `PRODUCT_DEDUPE_WINDOW_SECONDS` from 180 → 90 so recurring products re-emerge per ~1.5min beat. User verified: *"definitely seems better... we may have to make further adjustments later."* Commit `0d35042` |
-| Housekeeping (TIME_LOG + SESSION_LOG checkpoint for Phases 6–9) | 1m | 12m | This block. Second mid-session checkpoint covering everything from `e674600` to `0d35042`. |
-| **Session subtotal so far** | **~121m** | **~413m** | (Wall-clock from morning start ~09:50 → ~17:00 includes meaningful idle gaps not counted here.) |
+| Housekeeping (TIME_LOG + SESSION_LOG checkpoint for Phases 6–9) | 1m | 12m | Second mid-session checkpoint covering `e674600` → `0d35042`. Commit `bb04c2f`. |
+| Player control streamline (sizing + hover show/hide) | 6m | 22m | Tightened all three sizing-token states; auto-hide controls on `!isHovered && isVideoPlaying` with 220ms opacity transition + `pointer-events: none`. Commit `36d52d4` |
+| JSON download dialog restyle + Summary JSON v1 + v2 | 14m | 30m | Removed the white-pill `<InputLabel>` hack; matched SelectorDialog look. Wrote a real Summary JSON schema per user spec (rollups, brand_safety, scene_digest, etc.), then trimmed v1 → v2 (~50KB → ~7KB) by collapsing scene_digest into beats via `groupJsonScenes`. Commits `5b54b58`, `d9998d0` |
+| Push to origin + Vercel deploy + MUI dedup root-cause | 9m | 35m | First push rejected (PAT lacked `workflow` scope). Second push fast-forwarded. First deploy crashed at runtime (`e.alpha is not a function`) — diagnosed as kerv-one-theme's MUI 6 dependency hoisting v6 packages to top-level node_modules where MUI 7 imports look. Three-layer fix: peer-dep refactor on kerv-one-theme, expanded top-level overrides, Vite `resolve.dedupe`. Plus `.npmrc` to force `legacy-peer-deps` on Vercel. Commits `c58e7b4`, `9a8cbac` |
+| Perf optimization attempt + silent regression + revert | 8m | 50m | Tried `vercel.json` cache + `preload="auto"` + React.lazy code-splitting in one commit. Deploy succeeded but panels stayed empty — no JS errors, no unhandled rejections, but `dhyhBundle` never reached the React tree. Strongly suspect `React.lazy` + `<Suspense>` interaction with `useDemoPlayback`'s state setter (cached promise resolves once, parent re-mount loses the resolved value). After ~50min of remote diagnosis (curl tests, console pastes, listener install), reverted both perf commits to restore the working state. Commits `e85df38`, `3fdca82`, `44291e1`, `e37563b` |
+| Re-introduce safe perf bits one at a time + product image polish | 8m | 25m | Decomposed the broken commit into individual changes. Re-added `vercel.json` cache headers (HTTP-only, no runtime risk) and `preload="auto"` (single attribute, no state risk) as separate commits. **Deliberately NOT** re-added the React.lazy code-splitting. Then product image lazy-load + decoding-async + cache rule for `/assets/products/`. Commits `4223156`, `99a5acc`, `01a0044` |
+| Housekeeping (this entry — end-of-day session log) | 1m | 12m | This block. Third checkpoint of the day, covering everything from `bb04c2f` (the second checkpoint at 17:06) through the deploy saga. |
+| **Session subtotal so far** | **~167m** | **~587m** | (Single longest day of the engagement. Wall-clock ~09:50 → ~20:10 — about 10 hours of elapsed time with the user actively engaged for most of it. Significant idle gaps are excluded from both columns.) |
 
 ## Running totals
 
@@ -168,8 +175,8 @@ overestimate late-phase pace, not the other way around.
 | Session 1 (04-27) | 50m | 110m |
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 250m |
-| Session 4 (04-30) | 121m | 413m |
-| **Total** | **~4h 13m** | **~13h 18m** |
+| Session 4 (04-30) | 167m | 587m |
+| **Total** | **~4h 59m** | **~16h 12m** |
 
 ---
 
