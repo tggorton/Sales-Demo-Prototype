@@ -1,7 +1,27 @@
-# Time Log — KERV Sales Demo Restructuring
+# Time Log — KERV Sales Demo (combined)
 
-Tracks approximate effort across the restructuring engagement, separated
-into the time **you** spent prompting vs. the time **I** spent working.
+Tracks approximate effort across the project's full lifecycle in **two
+tracks**, kept separate for traceability but rolled up into a single
+combined total:
+
+1. **Cursor engagement** — original prototype build inside Cursor
+   (DHYH splice, panel sync, login, deploy paths, V2 work). Dates
+   `2026-04-22` → `2026-04-27`. Frozen — these sessions are complete
+   and won't grow. Imported from the standalone `TIME_LOG-001.md`
+   (kept on disk as the original artifact; this section mirrors its
+   data).
+2. **Handoff engagement** — the engineering-grade restructuring pass
+   + production-deploy + asset-delivery work from the handoff to
+   present. Dates `2026-04-27` → ongoing. This is where new sessions
+   get appended.
+
+Methodologies differed slightly between the two tracks (Cursor used
+session-thematic estimates with ±20–25% uncertainty; the handoff
+engagement anchors on commit timestamps + per-message archetypes).
+Both are documented under [Methodology](#methodology) below. Treat
+the combined totals as a fair rough number; if you need precision
+within either track, dig into the per-block notes in that track's
+section.
 
 ## Methodology
 
@@ -88,6 +108,31 @@ the elapsed time is the human side. Future engagements should either
 (a) commit more frequently to give the timestamps better resolution,
 or (b) explicitly subtract conversation stretches before logging.
 
+### Methodology used for the Cursor engagement (frozen track)
+
+The Cursor sessions below were logged with a slightly different
+methodology — copied verbatim from the original `TIME_LOG-001.md`:
+
+> **Prompting (estimated)** — Includes: reading agent output, deciding
+> next steps, typing prompts, clarifying constraints, local verification
+> when asked (e.g. `localhost:5173` smoke tests, scrubbing the clip,
+> confirming Location labels), and quick back-and-forth on deploy
+> targets. Typing time inferred from typical message length (~100–140
+> chars/min effective when editing technical text). Not counted: idle
+> time while the agent ran in parallel unless the human was actively
+> reviewing diffs during that window.
+>
+> **AI Work (estimated)** — Wall-clock style aggregate: code search,
+> multi-file edits, terminal runs (`npm run build`, `ffmpeg`, audits),
+> Vercel CLI deploys, and long-form doc generation. Uncertainty is
+> higher on multi-day threads; treat totals as ±20–25%.
+>
+> Session boundaries are thematic (major feature arcs), not exact
+> calendar blocks.
+
+The Cursor session numbers (1–6) are independent of the Handoff
+session numbers (1–5). Together they cover the full project arc.
+
 ### Phase-estimate tracking
 
 Each entry in `RESTRUCTURING_PLAN.md` carries a phase-time estimate
@@ -127,7 +172,31 @@ overestimate late-phase pace, not the other way around.
 
 ---
 
-## Backlog (sessions to date)
+## Cursor engagement — pre-handoff (frozen)
+
+These six sessions cover the original Cursor build of the prototype
+prior to the handoff to me. Frozen — no new entries get appended here.
+Imported from `TIME_LOG-001.md` (kept as-is on disk for traceability).
+
+| Cursor Session | Date | Prompting | AI Work |
+|---|---|---:|---:|
+| 1 — DHYH two-segment splice, clip vs source time, ad break at 1:47, scrubber / playback contract | 04-22 | 1h 30m | 4h 00m |
+| 2 — Panel sync architecture: Taxonomy / Product / JSON; scroll snap + manual override; product segment gates & dedupe | 04-24 | 1h 15m | 3h 30m |
+| 3 — Login (hero asset, credentials), content posters, taxonomy dropdown rules (hide Brand Safety, dynamic options, expanded multi-select) | 04-25 | 50m | 2h 15m |
+| 4 — Location taxonomy: min overlap filter, curated `DHYH_LOCATION_TIMELINE`, scene override confidence, kitchen band fix | 04-27 | 1h 20m | 4h 15m |
+| 5 — V2 path: `.vercelignore`, CLI deploy sizing, image compression + preload, `vite` vendor chunks, two-repo / two-Vercel workflow | 04-27 | 55m | 2h 45m |
+| 6 — `HANDOFF.md`, localhost convention, original time log | 04-27 | 25m | 50m |
+| **Cursor engagement subtotal** | | **~5h 45m** | **~17h 35m** |
+
+---
+
+## Handoff engagement — restructure + deploy + asset delivery
+
+Five sessions to date covering the engineering-grade restructure pass,
+the production-deploy work, and the asset-delivery package. Active —
+new sessions get appended here.
+
+### Backlog (sessions to date)
 
 ### 2026-04-27 — Session 1: Handoff onboarding + restructuring kickoff
 
@@ -213,26 +282,46 @@ overestimate late-phase pace, not the other way around.
 
 ## Running totals
 
+### Cursor engagement (frozen)
+
 | | Prompting | AI Work |
 |---|---:|---:|
-| Session 1 (04-27) | 50m | 85m |
-| Session 2 (04-28) | 8m | 5m |
-| Session 3 (04-29) | 74m | 180m |
-| Session 4 (04-30) | 167m | 420m |
-| Session 5 (05-01) | 12m | 32m |
-| **Total** | **~5h 11m** | **~12h 02m** |
+| Cursor Session 1 (04-22) | 1h 30m | 4h 00m |
+| Cursor Session 2 (04-24) | 1h 15m | 3h 30m |
+| Cursor Session 3 (04-25) | 50m | 2h 15m |
+| Cursor Session 4 (04-27) | 1h 20m | 4h 15m |
+| Cursor Session 5 (04-27) | 55m | 2h 45m |
+| Cursor Session 6 (04-27) | 25m | 50m |
+| **Cursor subtotal** | **~5h 45m** | **~17h 35m** |
 
-**Combined with `TIME_LOG-001.md`** (pre-handoff Cursor work, ~5h 45m
-prompting / ~17h 35m AI Work): **~10h 56m prompting / ~29h 37m AI Work**
-across the full project lifecycle.
+### Handoff engagement (active)
+
+| | Prompting | AI Work |
+|---|---:|---:|
+| Handoff Session 1 (04-27) | 50m | 85m |
+| Handoff Session 2 (04-28) | 8m | 5m |
+| Handoff Session 3 (04-29) | 74m | 180m |
+| Handoff Session 4 (04-30) | 167m | 420m |
+| Handoff Session 5 (05-01) | 12m | 32m |
+| **Handoff subtotal** | **~5h 11m** | **~12h 02m** |
+
+### Combined (full project lifecycle)
+
+| | Prompting | AI Work |
+|---|---:|---:|
+| Cursor engagement | ~5h 45m | ~17h 35m |
+| Handoff engagement | ~5h 11m | ~12h 02m |
+| **Combined total** | **~10h 56m** | **~29h 37m** |
 
 ---
 
 ## How this gets updated
 
 After each phase commit lands (or whenever you ask for a checkpoint), I
-append a row to the current session's table. AI Work is anchored in
-commit timestamps; Prompting follows the methodology above.
+append a row to the current session's table in the **Handoff engagement**
+section. AI Work is anchored in commit timestamps; Prompting follows the
+methodology above. The Cursor engagement section is frozen — no new
+entries get appended there.
 
 You can adjust any Prompting estimate that feels off — when you do,
 mention it and I'll also recalibrate the per-archetype defaults so
