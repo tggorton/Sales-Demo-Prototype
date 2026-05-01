@@ -201,6 +201,16 @@ overestimate late-phase pace, not the other way around.
 | Housekeeping (this entry — end-of-day session log) | 1m | 12m | This block. Third checkpoint of the day, covering everything from `bb04c2f` (the second checkpoint at 17:06) through the deploy saga. |
 | **Session subtotal so far** | **~167m** | **~420m** | (Single longest day of the engagement. Wall-clock ~09:50 → ~20:10 (~10h elapsed). Initial logging credited ~587m AI Work but the user flagged that as inflated — actual was closer to **7 hours** since significant non-coding stretches happened: extended afternoon break, screenshot-driven debugging while the user composed reports, idle time waiting on Vercel rebuilds. Revised down end-of-engagement to ~420m. See calibration note below.) |
 
+### 2026-05-01 — Session 5: Asset delivery package (one-off, not restructure)
+
+**Wall-clock span:** ~09:08 – ~09:35 local. User stepped away after the initial delivery; later returned with an ad-break-section follow-up request. This entry counts only the time during my actual work — not the gap.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Asset extraction + handoff doc | 10m | 25m | Three ffmpeg extractions (Clip 1: ~31s re-encode; Clip 2: ~2:21 re-encode; spliced concat: instant stream-copy), `handoff/HANDOFF-clip-delivery.md` initial draft, `.gitignore` update. ffmpeg run-time counts as AI Work since the tool was active even though the human was idle. |
+| Ad-break section expansion | 2m | 7m | User: *"Can you update the handoff doc to also include information on the 'ad-break' time stamp?"* Promoted ad-break info to a dedicated top-level section with ASCII diagram, per-mode timestamps table, and an ffmpeg-concat recipe for partners who want to bake an ad creative into a single deliverable file. Removed the redundant subsection under the sync-model section. |
+| **Session subtotal** | **~12m** | **~32m** | Honest from the start — no inflated wall-clock to recalibrate later. |
+
 ## Running totals
 
 | | Prompting | AI Work |
@@ -209,10 +219,11 @@ overestimate late-phase pace, not the other way around.
 | Session 2 (04-28) | 8m | 5m |
 | Session 3 (04-29) | 74m | 180m |
 | Session 4 (04-30) | 167m | 420m |
-| **Total** | **~4h 59m** | **~11h 30m** |
+| Session 5 (05-01) | 12m | 32m |
+| **Total** | **~5h 11m** | **~12h 02m** |
 
 **Combined with `TIME_LOG-001.md`** (pre-handoff Cursor work, ~5h 45m
-prompting / ~17h 35m AI Work): **~10h 44m prompting / ~29h 5m AI Work**
+prompting / ~17h 35m AI Work): **~10h 56m prompting / ~29h 37m AI Work**
 across the full project lifecycle.
 
 ---

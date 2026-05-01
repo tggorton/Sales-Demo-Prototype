@@ -268,6 +268,45 @@ After this, the Vercel deploy worked. User: *"That worked."*
 
 User: *"Doesn't seem to have made a huge difference. I think there is work to be done here."* — Acknowledged. Scrub-to-seek lag is the remaining bottleneck; partially mitigated by `preload="auto"` for sequential play but range-fetching new positions inside the 58MB MP4 has unavoidable CDN round-trip cost. Re-encoding the video with **shorter keyframe intervals + lower bitrate** is the remaining content-team lever for further improvement (out of restructure scope).
 
+### 2026-05-01 — Session 5: Asset delivery package for partner handoff (one-off task)
+
+Not a restructuring task — a side request from the user for an asset
+delivery package to send to a partner. Scope: full-resolution clips of
+the two DHYH segments the demo uses + a spliced version + a handoff
+document explaining timestamps and how the demo syncs to them.
+
+**Asset extraction** (frame-accurate re-encode at CRF 18 from the
+local-only `dhyh-cmp-full.mp4` 44:15 master):
+- `handoff/dhyh-clip1-pre-ad-break.mp4` — Segment A, source `19:45–21:32`, **01:47** runtime, 67 MB.
+- `handoff/dhyh-clip2-post-ad-break.mp4` — Segment B, source `35:45–44:00`, **08:15** runtime, 267 MB.
+- `handoff/dhyh-spliced-clip.mp4` — concat of the two (no re-encode), **10:02** runtime, 334 MB.
+
+All H.264 1920×1080, AAC 192 kbps, `+faststart` for streaming. Cuts are
+frame-accurate (re-encoded with `-ss` after `-i`, not stream-copied).
+
+**Handoff document** (`handoff/HANDOFF-clip-delivery.md`) walks through:
+- Asset list with source ranges
+- ASCII timeline showing both segments inside the 44:15 source episode
+- Three-timeline model the demo uses (source / clip / player time) and how scenes re-anchor across them
+- **Dedicated `Ad-break placement` section** with per-mode timestamps:
+  the synthetic ad block lives at clip-time `01:47.000` regardless of mode,
+  duration is 30s (Sync: Impulse / Sync: L-Bar) or 45s (Sync), and the
+  total scrubber length grows accordingly. The break does NOT correspond
+  to any source-episode time range — it's UI-injected at the splice point.
+- ffmpeg recipes for re-extracting from a different master
+- Code-path references for cross-checking (`timeline.ts`, `scenes.ts`, `adBreakMath.ts`)
+
+User followed up asking to expand the doc with more prominent ad-break
+information after the first version had it buried in the sync-model
+section. Promoted it to a top-level section with its own per-mode
+timestamps table + ASCII diagram + a concat recipe partners can use to
+bake an ad creative directly into a single playable file.
+
+`/handoff/` is gitignored (large videos, partner-only deliverables) but
+the doc itself is the durable artifact — anyone re-running the ffmpeg
+extraction commands inside it will reproduce the package byte-for-byte
+from the same master.
+
 ---
 
 ## Future considerations
