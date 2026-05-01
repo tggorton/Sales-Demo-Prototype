@@ -55,6 +55,39 @@ revision below uses the new methodology and lands closer to 50m for
 that session. If a future session's estimate feels off, tell me and
 I'll recalibrate the typing speed or thinking-time defaults.
 
+**End-of-engagement recalibration (Session 4 follow-up).** After the
+final TIME_LOG checkpoint of Session 4, the user pushed back on the
+AI Work column — pointing out that the wall-clock-between-commits
+methodology over-credits AI Work for stretches where the human is
+reading my output, taking screenshots, composing a debug report,
+verifying in the browser, or away from the desk. The AI is *not*
+running tools during those stretches even though the commit timestamp
+clock keeps ticking.
+
+Reality check from the user: the longest day (Session 4) was actually
+~7 hours of focused engagement, not the ~10 hours wall-clock would
+suggest. Applied that ratio retroactively across all sessions:
+
+| Session | Logged AI Work | Recalibrated | Reduction |
+|---|---:|---:|---:|
+| Session 1 (04-27) | 110m | 85m | 23% |
+| Session 2 (04-28) | 5m | 5m | 0% (trivial) |
+| Session 3 (04-29) | 250m | 180m | 28% |
+| Session 4 (04-30) | 587m | 420m | 28% |
+| **Sessions 1–4** | **~16h 12m** | **~11h 30m** | **~29%** |
+
+Prompting figures stayed unchanged — those are anchored on
+per-message archetype × character count and the human is the
+authority on their own time anyway.
+
+**Methodology limitation.** The commit-timestamp anchor works well
+when the AI is producing commits at a steady cadence (clearly active).
+It breaks down during long conversation stretches (debugging, screenshot
+analysis, design discussions) where commits are sparse and most of
+the elapsed time is the human side. Future engagements should either
+(a) commit more frequently to give the timestamps better resolution,
+or (b) explicitly subtract conversation stretches before logging.
+
 ### Phase-estimate tracking
 
 Each entry in `RESTRUCTURING_PLAN.md` carries a phase-time estimate
@@ -107,7 +140,7 @@ overestimate late-phase pace, not the other way around.
 | Phase 0 (auth abstraction) + 3 docs + gitignore | 15m | 40m | Commits `f383b98` → `5fbf8dc` — mostly approvals while AI worked |
 | *— ~3h gap, you were away —* | — | — | |
 | KERV theme kit drop + Phase 1a (install + wire) + plan update | 10m | 25m | Commits `a1e4f10` → `a4ba75e` |
-| **Session subtotal** | **~50m** | **~110m** | (revised down from initial 75m estimate per new methodology) |
+| **Session subtotal** | **~50m** | **~85m** | (revised down end-of-engagement to ~85m AI Work after the user pointed out commit-timestamp arithmetic was over-crediting AI Work for stretches where the human was reading / verifying. See calibration note below.) |
 
 ### 2026-04-28 — Session 2: Brief check-in only
 
@@ -131,7 +164,7 @@ overestimate late-phase pace, not the other way around.
 | 001 reconciliation + ad-mode-switch polish (3 iterations) + Considered cleanup | 25m | 50m | Combined-total reconciliation against existing `TIME_LOG-001.md`. Three-iteration fix for residual ad-mode-switch jank: drop video remount key + hidden preloads, then render-all + opacity flip, then parallel playback with warm decoders. Plus IAB/Location "Considered:" duplication fix. Commits `54d3fef` → `f45777b` (15:39–17:40) |
 | JSON panel scene grouping (3 iterations) | 14m | 70m | Initial fingerprint approach, then transcript-keyed + ungroup expanded dialog, then iterative sticky-inheritance algorithm. ~61% reduction in JSON cards across the full clip. Commits `87aa5bd` → `89435f1` (18:13–18:42) |
 | TIME_LOG update + day wrap | 2m | 10m | This block. Resume note for tomorrow. |
-| **Session subtotal** | **~74m** | **~250m** | |
+| **Session subtotal** | **~74m** | **~180m** | (revised down end-of-engagement; original 250m was wall-clock-based and over-credited AI Work during long conversation stretches without commits. See calibration note below.) |
 
 ---
 
@@ -166,17 +199,21 @@ overestimate late-phase pace, not the other way around.
 | Perf optimization attempt + silent regression + revert | 8m | 50m | Tried `vercel.json` cache + `preload="auto"` + React.lazy code-splitting in one commit. Deploy succeeded but panels stayed empty — no JS errors, no unhandled rejections, but `dhyhBundle` never reached the React tree. Strongly suspect `React.lazy` + `<Suspense>` interaction with `useDemoPlayback`'s state setter (cached promise resolves once, parent re-mount loses the resolved value). After ~50min of remote diagnosis (curl tests, console pastes, listener install), reverted both perf commits to restore the working state. Commits `e85df38`, `3fdca82`, `44291e1`, `e37563b` |
 | Re-introduce safe perf bits one at a time + product image polish | 8m | 25m | Decomposed the broken commit into individual changes. Re-added `vercel.json` cache headers (HTTP-only, no runtime risk) and `preload="auto"` (single attribute, no state risk) as separate commits. **Deliberately NOT** re-added the React.lazy code-splitting. Then product image lazy-load + decoding-async + cache rule for `/assets/products/`. Commits `4223156`, `99a5acc`, `01a0044` |
 | Housekeeping (this entry — end-of-day session log) | 1m | 12m | This block. Third checkpoint of the day, covering everything from `bb04c2f` (the second checkpoint at 17:06) through the deploy saga. |
-| **Session subtotal so far** | **~167m** | **~587m** | (Single longest day of the engagement. Wall-clock ~09:50 → ~20:10 — about 10 hours of elapsed time with the user actively engaged for most of it. Significant idle gaps are excluded from both columns.) |
+| **Session subtotal so far** | **~167m** | **~420m** | (Single longest day of the engagement. Wall-clock ~09:50 → ~20:10 (~10h elapsed). Initial logging credited ~587m AI Work but the user flagged that as inflated — actual was closer to **7 hours** since significant non-coding stretches happened: extended afternoon break, screenshot-driven debugging while the user composed reports, idle time waiting on Vercel rebuilds. Revised down end-of-engagement to ~420m. See calibration note below.) |
 
 ## Running totals
 
 | | Prompting | AI Work |
 |---|---:|---:|
-| Session 1 (04-27) | 50m | 110m |
+| Session 1 (04-27) | 50m | 85m |
 | Session 2 (04-28) | 8m | 5m |
-| Session 3 (04-29) | 74m | 250m |
-| Session 4 (04-30) | 167m | 587m |
-| **Total** | **~4h 59m** | **~16h 12m** |
+| Session 3 (04-29) | 74m | 180m |
+| Session 4 (04-30) | 167m | 420m |
+| **Total** | **~4h 59m** | **~11h 30m** |
+
+**Combined with `TIME_LOG-001.md`** (pre-handoff Cursor work, ~5h 45m
+prompting / ~17h 35m AI Work): **~10h 44m prompting / ~29h 5m AI Work**
+across the full project lifecycle.
 
 ---
 
