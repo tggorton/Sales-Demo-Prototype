@@ -285,6 +285,20 @@ new sessions get appended here.
 | Figma MCP panel-capture (no commits, exploratory) | 20m | 32m | Authenticated Figma MCP via OAuth (`ggorton@kerv.ai`, KERV org), injected capture script into `index.html`, started dev server, generated server-side captureIds pre-targeted at the existing KERV Sales Demo file (`fileKey: FFJ7lmfsFVQFDyHnNyqIh2`, `nodeId: 3067:31415`). First toolbar-fired capture worked and landed in the file at sibling node `3069-2`. Subsequent toolbar captures landed nowhere visible — diagnosed that toolbar-generated captureIds discard the URL-hash `existingFile`+`fileKey` targeting and default to creating new files. Offered a console-based workaround (`window.figma.captureForDesign({...})`) so each capture preserves targeting. User reports they got what they needed + ~3–5min of additional work before stepping away. No commits this block; the capture script tag remains in `index.html` per the MCP server's standing guidance ("leave the capture script in the HTML unless the user explicitly asks you to remove it"). |
 | **Session subtotal** | **~37m** | **~82m** | Honest from the start — no inflated wall-clock to recalibrate later. |
 
+### 2026-05-05 — Session 6: New ad mode scaffolding (CTA Pause + Organic Pause)
+
+**Wall-clock span:** ~late-morning – ~evening local (with multiple verification gaps as the user tested each iteration in the browser; entry counts only active work). Single-feature day: scaffold the two new pause-triggered ad modes from `0 → working tier-gating + carousel/detail surface ready for next-day refinement`.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Discovery + plan + tier-gating + lock | 12m | 50m | Read user brief + sample files in `_Temp-Files/`, ran an Explore-agent codebase mapping for the ad-mode registry seams (`src/demo/ad-modes/`, `getAvailableAdModes`, `useDemoPlayback`'s `shouldShowInContentCta`, the legacy in-content CTA chip in `VideoPlayer.tsx`). Confirmed both modes already existed as disabled stubs. Proposed and got sign-off on plan. Implemented: enabled both modes; added `adModesByTier['Exact Product Match']` to `dhyhContentConfig`; switched `SelectorDialog` from `ENABLED_AD_MODE_IDS` (global) to `availableAdModes` (per-content × tier resolver) so Tier 1/2 stop seeing CTA/Organic; added `App.tsx` effect to auto-reset `selectedAdPlayback` when a tier change makes the current mode invalid; froze the in-playback Tier dropdown with explanatory tooltip while CTA/Organic Pause is active; updated the `getAvailableAdModes` test to pin the new gating contract. Verified by user: gating works as expected. Part of commit `79b85ba`. |
+| Pause-overlay scaffolding (initial build) | 10m | 50m | Created `src/demo/components/player/pause-overlay/` with: `pauseOverlay.types.ts` (PauseProductTile / Detail / Payload), `pauseOverlay.placeholder.ts` (5 placeholder tiles + matching detail records), `PauseProductTile.tsx`, `PauseProductCarousel.tsx`, `PauseProductDetail.tsx`, `PauseOverlay.tsx` (routes carousel ↔ detail), and an `index.ts` barrel. Renamed `shouldShowInContentCta` → `isPauseOverlayActive` across `useDemoPlayback`, `App.tsx`, `DemoView.tsx`, `VideoPlayer.tsx` and added `!isVideoPlaying` to the computation so the overlay only mounts on actual pause. Replaced the legacy in-content CTA chip with a mounted `<PauseOverlay>` and removed its `inContentCtaText` plumbing. Type-check + 125 tests green. Part of commit `79b85ba`. |
+| Detail card iteration: opaque inner + black backdrop | 9m | 30m | User feedback: detail card was too transparent — content showed through the inner area, breaking readability. Restructured to a two-layer surface: semi-transparent black backdrop fills the player (matching the wash used by expanded panels) and an opaque white inner card hovers on top. Inset proportions ported from Figma's 1540×900 inside 1920×1080 (~10% horizontal / 5% top / 15% bottom — leaving room for Browse + Exit on the backdrop below the card). Pulled exact copy/QR/sponsor measurements via `mcp__figma__get_design_context` against nodes `3083:42282` + `3083:42283`. Image | Copy | QR row, Browse swapped to `ViewCarouselOutlined` icon. Part of commit `79b85ba`. |
+| Tile + carousel iteration: slot-anchored, no overlap on focus | 7m | 30m | User feedback: tiles overlapping when focused, scaling needed for any player size. Fetched the carousel Figma reference (node `3083:42129`) to confirm the design intent — slots stay at fixed centres ~500 px apart and tiles grow *within* their slot rather than scaling outward. Rewrote `PauseProductTile` with state-driven width/aspect (89.6% / 99.2% of slot) and rewrote `PauseProductCarousel` with `flex 0 0 calc(100% / 3)` slots + `container-type: inline-size` per slot so tile typography uses `cqw` against the slot width rather than the viewport. All sizing expressed as percentages of the player area. Part of commit `79b85ba`. |
+| Tile / sponsor / peek polish | 8m | 30m | User feedback (with screenshot): tile image area too small, sponsor block too prominent, no 4th-tile peek to signal scrollability. Three fixes: (1) image inset bug — `left: '3.5%'` was resolving against tile *width* (~16 px) while the Figma calls for 5 px = ~1.1% of tile width; switched to `top: 3.3% / left: 1.1% / height: 93.4% / aspect-ratio: 1/1` to match Figma's 31% image footprint. (2) Sponsor reverted to the earlier inline label + small chip (`vw`-clamped sizes) — reads as quiet attribution rather than competing with the tiles. (3) Slot width 1/3 → 30% of carousel area + right margin 11% → 4%, so the 4th tile peeks ~33% of its width on the right edge of a 5-tile carousel. Title + CTA inside tiles repositioned to absolute Figma coordinates (35.5% left, 8.6% top / 11.9% bottom). Part of commit `79b85ba`. |
+| Commit + TIME_LOG | 1m | 10m | Single commit (`79b85ba`) bundles all of the above: feature work, test update, hook rename, legacy chip removal, scaffolded overlay components. Index.html still has the leftover Figma capture script tag from Session 5 — left uncommitted. This block. |
+| **Session subtotal** | **~47m** | **~200m** | Single feature, three rounds of in-browser iteration. User stepping away for the night before final UI verification — overlay refinements likely continue tomorrow. |
+
 ## Running totals
 
 ### Cursor engagement (frozen)
@@ -308,15 +322,16 @@ new sessions get appended here.
 | Handoff Session 3 (04-29) | 74m | 180m |
 | Handoff Session 4 (04-30) | 167m | 420m |
 | Handoff Session 5 (05-01) | 37m | 82m |
-| **Handoff subtotal** | **~5h 36m** | **~12h 52m** |
+| Handoff Session 6 (05-05) | 47m | 200m |
+| **Handoff subtotal** | **~6h 23m** | **~16h 12m** |
 
 ### Combined (full project lifecycle)
 
 | | Prompting | AI Work |
 |---|---:|---:|
 | Cursor engagement | ~5h 45m | ~17h 35m |
-| Handoff engagement | ~5h 36m | ~12h 52m |
-| **Combined total** | **~11h 21m** | **~30h 27m** |
+| Handoff engagement | ~6h 23m | ~16h 12m |
+| **Combined total** | **~12h 08m** | **~33h 47m** |
 
 ---
 
