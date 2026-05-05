@@ -10,21 +10,31 @@ import { DHYH_CONTENT_ID } from '../../src/demo/content/dhyh/timeline'
 // (e.g. carousel-shop) can be added confidently as a config edit.
 describe('getAvailableAdModes (content × tier resolver)', () => {
   describe('with the registered DHYH content', () => {
-    it('returns DHYH defaultAdModes for every enabled tier', () => {
-      // DHYH currently declares only `defaultAdModes` (3 Sync modes), no
-      // per-tier overrides — so every tier resolves to the same list.
-      const tiersToCheck = [
-        'Basic Scene',
-        'Advanced Scene',
-        'Exact Product Match',
-      ] as const
-      for (const tier of tiersToCheck) {
+    it('returns the three Sync modes for Basic / Advanced tiers', () => {
+      // Basic Scene + Advanced Scene fall through to `defaultAdModes` —
+      // pause-overlay modes (`CTA Pause` / `Organic Pause`) are intentionally
+      // omitted because they require Tier-3-exclusive product detail data.
+      for (const tier of ['Basic Scene', 'Advanced Scene'] as const) {
         expect(getAvailableAdModes(DHYH_CONTENT_ID, tier)).toEqual([
           'Sync',
           'Sync: L-Bar',
           'Sync: Impulse',
         ])
       }
+    })
+
+    it('exposes pause-overlay modes only on Exact Product Match (Tier 3)', () => {
+      // Tier 3 has an `adModesByTier` override that adds `CTA Pause` +
+      // `Organic Pause` on top of the Sync trio. This pins the gating so a
+      // future regression that drops the override can't silently leak the
+      // pause modes into Basic / Advanced (they have no detail payload).
+      expect(getAvailableAdModes(DHYH_CONTENT_ID, 'Exact Product Match')).toEqual([
+        'Sync',
+        'Sync: L-Bar',
+        'Sync: Impulse',
+        'CTA Pause',
+        'Organic Pause',
+      ])
     })
 
     it('only surfaces modes that are also globally enabled', () => {

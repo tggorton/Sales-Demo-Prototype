@@ -166,6 +166,19 @@ function App() {
     })
   }, [demoPlayback.availableTaxonomies, selectedTaxonomy])
 
+  // Keep the ad-mode selection valid against the currently-available set.
+  // Tier-exclusive modes (e.g. `CTA Pause` / `Organic Pause` on Tier 3 only)
+  // need to drop off the dropdown — and reset the active value — when the
+  // user switches to a tier that doesn't expose them. Otherwise the <Select>
+  // would keep an invalid value and MUI would warn about a value not in the
+  // options list.
+  useEffect(() => {
+    if (demoPlayback.availableAdModes.length === 0) return
+    if (!demoPlayback.availableAdModes.includes(selectedAdPlayback)) {
+      setSelectedAdPlayback(demoPlayback.availableAdModes[0])
+    }
+  }, [demoPlayback.availableAdModes, selectedAdPlayback])
+
   useEffect(() => {
     const wasExpanded = previousTitlePanelExpandedRef.current
     previousTitlePanelExpandedRef.current = isTitlePanelExpanded
@@ -423,7 +436,7 @@ function App() {
                   availableAdModes={demoPlayback.availableAdModes}
                   activeSceneIndex={demoPlayback.activeSceneIndex}
                   activeProductIndex={demoPlayback.activeProductIndex}
-                  shouldShowInContentCta={demoPlayback.shouldShowInContentCta}
+                  isPauseOverlayActive={demoPlayback.isPauseOverlayActive}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
                   adDecisionPayload={demoPlayback.adDecisionPayload}
                   adDecisioningTail={demoPlayback.adDecisioningTail}
@@ -517,6 +530,7 @@ function App() {
         open={isSelectorModalOpen}
         selectedTier={selectedTier}
         selectedAdPlayback={selectedAdPlayback}
+        availableAdModes={demoPlayback.availableAdModes}
         onClose={() => setIsSelectorModalOpen(false)}
         onStart={handleStartDemo}
         onTierChange={setSelectedTier}

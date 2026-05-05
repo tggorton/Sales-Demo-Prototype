@@ -86,7 +86,7 @@ type DemoViewProps = {
   availableAdModes: AdPlaybackOption[]
   activeSceneIndex: number
   activeProductIndex: number
-  shouldShowInContentCta: boolean
+  isPauseOverlayActive: boolean
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
@@ -147,7 +147,7 @@ export function DemoView({
   availableAdModes,
   activeSceneIndex,
   activeProductIndex,
-  shouldShowInContentCta,
+  isPauseOverlayActive,
   activeAdBreakLabel,
   adDecisionPayload,
   adDecisioningTail,
@@ -203,6 +203,14 @@ export function DemoView({
     return map
   }, [jsonGroups])
 
+  // CTA Pause / Organic Pause are Tier-3-exclusive on DHYH. While one of them
+  // is the active ad mode, freeze the Tier dropdown so the user can't pick
+  // Basic / Advanced (which would silently drop the ad mode out from under
+  // them via the auto-reset in App.tsx). The Ad Playback Mode dropdown stays
+  // free — switching away from these modes naturally unlocks the Tier.
+  const isTierLockedByAdMode =
+    selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause'
+
   return (
     <Stack spacing={2}>
       <Paper
@@ -237,21 +245,41 @@ export function DemoView({
 
           {isTitlePanelExpanded && (
             <Stack direction="row" spacing={2} sx={{ maxWidth: 636 }}>
-              <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
-                <InputLabel id="tier-page-select-label">Tier Selection</InputLabel>
-                <Select
-                  labelId="tier-page-select-label"
-                  value={selectedTier}
-                  label="Tier Selection"
-                  onChange={(event) => onTierChange(event.target.value as TierOption)}
+              {/* Tier is locked while a Tier-3-exclusive pause-overlay mode is
+                  active — switching to Basic / Advanced would invalidate the
+                  ad mode. The user has to change the Ad Playback Mode away
+                  from CTA / Organic Pause first. */}
+              <Tooltip
+                arrow
+                disableInteractive
+                title={
+                  isTierLockedByAdMode
+                    ? 'CTA Pause / Organic Pause require Tier 3 (Exact Product Match). Change the Ad Playback Mode first to unlock Tier selection.'
+                    : ''
+                }
+                componentsProps={{ tooltip: { sx: tooltipStyles } }}
+              >
+                <FormControl
+                  fullWidth
+                  size="small"
+                  disabled={isTierLockedByAdMode}
+                  sx={dropdownMagentaStyles}
                 >
-                  {tierOptions.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  <InputLabel id="tier-page-select-label">Tier Selection</InputLabel>
+                  <Select
+                    labelId="tier-page-select-label"
+                    value={selectedTier}
+                    label="Tier Selection"
+                    onChange={(event) => onTierChange(event.target.value as TierOption)}
+                  >
+                    {tierOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Tooltip>
 
               <FormControl fullWidth size="small" sx={dropdownMagentaStyles}>
                 <InputLabel id="ad-page-select-label">Ad Playback Mode</InputLabel>
@@ -309,8 +337,7 @@ export function DemoView({
               isVideoMuted={isVideoMuted}
               isAdBreakPlayback={isAdBreakPlayback}
               isSyncImpulseMode={isSyncImpulseMode}
-              shouldShowInContentCta={shouldShowInContentCta}
-              inContentCtaText={activeScene.cta}
+              isPauseOverlayActive={isPauseOverlayActive}
               videoCurrentSeconds={videoCurrentSeconds}
               playbackDurationSeconds={playbackDurationSeconds}
               displayedCurrentSeconds={displayedCurrentSeconds}

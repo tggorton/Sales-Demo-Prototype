@@ -1,11 +1,12 @@
 import type { AdModeDefinition } from '../../types'
 
-// CTA Pause — disabled stub. The legacy non-DHYH "in-content CTA" path in
-// useDemoPlayback still references this id (`shouldShowInContentCta`); enabling
-// it again will require either restoring the placeholder content's CTA flow or
-// reimagining it for DHYH.
+// CTA Pause — pause-triggered overlay ad mode. Tier-3 only on DHYH (gated
+// via `dhyhContentConfig.adModesByTier`). The pause-overlay UI itself is
+// being scaffolded incrementally; the legacy `shouldShowInContentCta` chip
+// in `VideoPlayer.tsx` still fires for now and will be replaced when the
+// overlay component lands.
 export const ctaPauseMode: AdModeDefinition = {
   id: 'CTA Pause',
   label: 'CTA Pause',
-  enabled: false,
+  enabled: true,
 }

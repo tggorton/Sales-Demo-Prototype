@@ -153,8 +153,15 @@ export function useDemoPlayback({
     : isExactProductMatch && isSyncImpulseModeSelected
 
   const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
-  const shouldShowInContentCta =
-    selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause'
+
+  // Pause-overlay visibility. Surfaces only when the active mode is one of
+  // the two pause-triggered ad modes AND the user has actually paused —
+  // initial-load paused state still counts (the overlay is the demo's
+  // showcase for these modes, so making the user click play→pause first
+  // would just hide what they came to see).
+  const isPauseOverlayActive =
+    !isVideoPlaying &&
+    (selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause')
 
   // Per-mode DHYH ad-break duration sourced from the registry (30s for Impulse/L-Bar,
   // 45s for Sync). Placeholder content always falls back to Impulse's duration.
@@ -1033,7 +1040,7 @@ export function useDemoPlayback({
     playerControlTokens,
     isSyncImpulseMode,
     titlePanelSummary,
-    shouldShowInContentCta,
+    isPauseOverlayActive,
     playbackDurationSeconds,
     playbackScenes,
     activeImpulseSegment,

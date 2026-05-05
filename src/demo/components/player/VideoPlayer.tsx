@@ -1,7 +1,8 @@
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
+import { PauseOverlay, PAUSE_OVERLAY_PLACEHOLDER } from './pause-overlay'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
 type VideoPlayerProps = {
@@ -22,9 +23,9 @@ type VideoPlayerProps = {
   isVideoMuted: boolean
   isAdBreakPlayback: boolean
   isSyncImpulseMode: boolean
-  shouldShowInContentCta: boolean
-  /** CTA copy (`activeScene.cta`) shown bottom-right during in-content CTA modes. */
-  inContentCtaText: string
+  /** True when the player is paused AND the active ad mode is `CTA Pause`
+   *  or `Organic Pause`. Drives the pause-overlay carousel/detail surface. */
+  isPauseOverlayActive: boolean
 
   // Times
   videoCurrentSeconds: number
@@ -49,7 +50,8 @@ type VideoPlayerProps = {
  * creatives mounted concurrently and switched via opacity — keeps decoders
  * warm so mid-break mode switches are instant), main content video,
  * Sync: Impulse visual treatments (radial gradients, QR code, full-area
- * companion click target), in-content CTA chip, and the bottom control bar.
+ * companion click target), pause-overlay (carousel + detail card for
+ * `CTA Pause` / `Organic Pause` modes), and the bottom control bar.
  *
  * The ad-creative parallel-playback logic lives entirely inside this
  * component:
@@ -77,8 +79,7 @@ export function VideoPlayer({
   isVideoMuted,
   isAdBreakPlayback,
   isSyncImpulseMode,
-  shouldShowInContentCta,
-  inContentCtaText,
+  isPauseOverlayActive,
   videoCurrentSeconds,
   playbackDurationSeconds,
   displayedCurrentSeconds,
@@ -356,22 +357,25 @@ export function VideoPlayer({
           />
         )}
 
-        {/* In-content CTA chip — shown for `CTA Pause` / `Organic Pause` modes. */}
-        {shouldShowInContentCta && (
+        {/* Pause overlay — pause-triggered product carousel + detail, only
+            mounted while the user is paused in `CTA Pause` / `Organic Pause`
+            modes (Tier 3). Sits above the click-to-play layer (z-index 5)
+            but inside the bottom-control padding so the user can still hit
+            Play to dismiss. */}
+        {isPauseOverlayActive && (
           <Box
             sx={{
               position: 'absolute',
-              right: '35px',
-              bottom: `${playerControlTokens.controlBarHeight + 10}px`,
-              px: 2.25,
-              py: 1.1,
-              borderRadius: 0.75,
-              bgcolor: 'rgba(255,255,255,0.92)',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: `${playerControlTokens.controlBarHeight}px`,
             }}
           >
-            <Typography sx={{ fontSize: 15, fontWeight: 500, color: '#1d1d1d' }}>
-              {inContentCtaText}
-            </Typography>
+            <PauseOverlay
+              payload={PAUSE_OVERLAY_PLACEHOLDER}
+              onExitOverlay={onToggleVideoPlaying}
+            />
           </Box>
         )}
 

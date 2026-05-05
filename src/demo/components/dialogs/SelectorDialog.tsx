@@ -1,7 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material'
 import { tierOptions } from '../../constants'
-import { ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { dropdownMagentaStyles } from '../../styles'
 import type { AdPlaybackOption, TierOption } from '../../types'
 
@@ -9,6 +8,11 @@ type SelectorDialogProps = {
   open: boolean
   selectedTier: TierOption
   selectedAdPlayback: AdPlaybackOption
+  // Per-content × per-tier filtered list resolved upstream by
+  // `getAvailableAdModes`. Drives the dropdown options so tier-exclusive
+  // modes (e.g. `CTA Pause` / `Organic Pause` on Tier 3) only surface for
+  // the right tier.
+  availableAdModes: readonly AdPlaybackOption[]
   onClose: () => void
   onStart: () => void
   onTierChange: (value: TierOption) => void
@@ -19,6 +23,7 @@ export function SelectorDialog({
   open,
   selectedTier,
   selectedAdPlayback,
+  availableAdModes,
   onClose,
   onStart,
   onTierChange,
@@ -84,7 +89,7 @@ export function SelectorDialog({
                 label="Ad Playback Mode"
                 onChange={(event) => onAdPlaybackChange(event.target.value as AdPlaybackOption)}
               >
-                {ENABLED_AD_MODE_IDS.map((option) => (
+                {availableAdModes.map((option) => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
