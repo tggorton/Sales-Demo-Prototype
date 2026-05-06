@@ -30,7 +30,7 @@ export function ContentSelectionView({
         }}
       >
         <Stack spacing={2}>
-          <Typography variant="h4" color="text.primary" sx={{ fontSize: 44 }}>
+          <Typography variant="h4" color="text.primary">
             Content Selection
           </Typography>
 
