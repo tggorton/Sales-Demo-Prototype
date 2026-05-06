@@ -299,6 +299,19 @@ new sessions get appended here.
 | Commit + TIME_LOG | 1m | 10m | Single commit (`79b85ba`) bundles all of the above: feature work, test update, hook rename, legacy chip removal, scaffolded overlay components. Index.html still has the leftover Figma capture script tag from Session 5 — left uncommitted. This block. |
 | **Session subtotal** | **~47m** | **~200m** | Single feature, three rounds of in-browser iteration. User stepping away for the night before final UI verification — overlay refinements likely continue tomorrow. |
 
+### 2026-05-06 — Session 7: Pause-overlay refinement + first-play gating + JSON exploration
+
+**Wall-clock span:** ~09:30 – ~11:30 local (with multiple stepping-away gaps as the user verified each iteration in the browser; entry counts only active work). Continuation of the pause-mode work scaffolded yesterday — UI polish, then editorial behaviour spec, then two cycles of exploring partner-supplied test JSON for product data.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Pause-overlay polish (4th tile peek + Exit→carousel) | 5m | 25m | User feedback on yesterday's scaffold: 4th tile was clipped inside an inner margin instead of bleeding at the player's right edge, and Exit was resuming playback when it should have gone back to the carousel. Carousel right margin trimmed (4% → 0); slot width changed from 30% to `calc(100%/3.5)` so three full tiles + ~50%-visible 4th tile fit cleanly. Both Exit and Browse now route through `onBackToCarousel`; the dead `onExitOverlay` plumbing through `PauseOverlay` → `VideoPlayer` removed. Part of commit `c65beea`. |
+| CTA Pause / Organic Pause behaviour + PauseToShopCta | 14m | 50m | User specced the editorial differentiation: Organic Pause = CTA visible 0–15s, overlay surfaces on any pause after first play; CTA Pause = CTA + overlay both gated to `1:17–1:47` and `2:33–8:52`. Plus a hard rule that nothing pause-related can render before the user has clicked Play once. New `DHYH_ORGANIC_PAUSE_CTA_END_SECONDS` + `DHYH_CTA_PAUSE_WINDOWS` constants in `timeline.ts`; new pure helper `isInPauseWindow` in `src/demo/utils/pauseWindows.ts` with 7 unit tests; new `hasStartedPlayback` state + reset/detect effects in `useDemoPlayback`; `isPauseOverlayActive` updated and new `isPauseToShopCtaVisible` flag added; new `PauseToShopCta` component (magenta-themed `primary.main` pill, scales via `vw` clamps, click pauses the video). Plumbed through `App` → `DemoView` → `VideoPlayer`. Part of commit `c65beea`. |
+| Content Selection title fix | 4m | 5m | User flagged the title rendering visibly larger than Figma's h4 spec. `ContentSelectionView.tsx` had a `fontSize: 44` override on the `Typography variant="h4"` — drop the override, MUI's h4 default already matches the design token (34 px, line-height 1.235, letter-spacing 0.25). One-line fix. Commit `91e78ee`. |
+| Test JSON exploration (cycled, no commits) | 9m | 63m | Two rounds of partner-supplied test JSON. **Round 1** (`test-moments-json`): full assessment write-up flagging shape vs. content gaps (theme override semantics, source-time vs clip-time stamps, QR URLs not images, top-N capping behaviour, tracker handling). User answered the open questions (use the demo's own magenta/white/grey theme, QR placeholder for now, no padding to 5, replace timestamps with the CTA Pause windows verbatim, ignore trackers). I wired it: local rebased copy at `src/demo/content/dhyh/pause-moments.json`, types + `getActivePauseMomentScene` + `buildPauseOverlayPayload` adapter at `pauseMoments.ts`, 12 resolver tests, plumbed `activePauseOverlayPayload` through `useDemoPlayback` → `App` → `DemoView` → `VideoPlayer`. 144 tests green. **Then user revoked it** ("very unfinished, working on a cleaner solution"). Reverted entirely (deleted JSON + adapter + tests, unwound the prop plumbing) — back to 132 tests. Magenta CTA pill kept (theme decision, not JSON-specific). **Round 2** (`test-moments-json-b`): user expected 2 moments × 5 products with rich detail; actual file had 1 scene × 1 product, still empty `selected_product_background_image` + `background_image`, still QR-as-URL not image, still source-time stamps for non-DHYH (Big Brother) content. Wrote up the discrepancy + three options (wire what's there / synthesize 2×5 from the one product as a template / wait for fuller JSON). User chose **hold** — taking a break, will fix the upstream issue and resume later. No commits this block. |
+| Commits + TIME_LOG | 1m | 10m | Split today's work into two commits to keep history readable: `c65beea` for the pause-overlay polish + behaviour, `91e78ee` for the standalone Content Selection title fix. This block. |
+| **Session subtotal** | **~33m** | **~2h 33m** | One feature day plus two false-start cycles on partner-supplied test data. The exploratory work (~63m) didn't ship code but did pin the JSON-shape contract and surface the data-completeness issues the user is now resolving upstream. |
+
 ## Running totals
 
 ### Cursor engagement (frozen)
@@ -323,15 +336,16 @@ new sessions get appended here.
 | Handoff Session 4 (04-30) | 167m | 420m |
 | Handoff Session 5 (05-01) | 37m | 82m |
 | Handoff Session 6 (05-05) | 47m | 200m |
-| **Handoff subtotal** | **~6h 23m** | **~16h 12m** |
+| Handoff Session 7 (05-06) | 33m | 153m |
+| **Handoff subtotal** | **~6h 56m** | **~18h 45m** |
 
 ### Combined (full project lifecycle)
 
 | | Prompting | AI Work |
 |---|---:|---:|
 | Cursor engagement | ~5h 45m | ~17h 35m |
-| Handoff engagement | ~6h 23m | ~16h 12m |
-| **Combined total** | **~12h 08m** | **~33h 47m** |
+| Handoff engagement | ~6h 56m | ~18h 45m |
+| **Combined total** | **~12h 41m** | **~36h 20m** |
 
 ---
 
