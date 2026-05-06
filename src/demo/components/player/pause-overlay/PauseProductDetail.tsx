@@ -7,12 +7,12 @@ type PauseProductDetailProps = {
   detail: PauseProductDetailData
   sponsorLabel: string
   sponsorLogoSrc: string | null
-  // Browse = back to the carousel (still paused). Exit = close the
-  // overlay entirely and resume playback. The split lets the sales rep
-  // narrate "show another product" vs "close the shop and keep watching"
-  // without leaving the demo.
+  // Both Exit and Browse return the user to the carousel (still
+  // paused). The user dismisses the overlay entirely by clicking the
+  // Play control in the bottom bar — keeping detail-mode buttons
+  // scoped to detail-state navigation avoids a "did Exit just resume
+  // playback?" foot-gun.
   onBackToCarousel: () => void
-  onExitOverlay: () => void
 }
 
 // Two-layer surface: a semi-transparent black backdrop fills the player area
@@ -31,7 +31,6 @@ export function PauseProductDetail({
   sponsorLabel,
   sponsorLogoSrc,
   onBackToCarousel,
-  onExitOverlay,
 }: PauseProductDetailProps) {
   return (
     <Box
@@ -266,7 +265,7 @@ export function PauseProductDetail({
           size="small"
           variant="outlined"
           startIcon={<ArrowBackIcon sx={{ fontSize: 18 }} />}
-          onClick={onExitOverlay}
+          onClick={onBackToCarousel}
           sx={{
             color: '#FFFFFF',
             borderColor: 'rgba(255,255,255,0.7)',

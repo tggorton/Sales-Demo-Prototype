@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
-import { PauseOverlay, PAUSE_OVERLAY_PLACEHOLDER } from './pause-overlay'
+import { PauseOverlay, PauseToShopCta, PAUSE_OVERLAY_PLACEHOLDER } from './pause-overlay'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
 type VideoPlayerProps = {
@@ -26,6 +26,9 @@ type VideoPlayerProps = {
   /** True when the player is paused AND the active ad mode is `CTA Pause`
    *  or `Organic Pause`. Drives the pause-overlay carousel/detail surface. */
   isPauseOverlayActive: boolean
+  /** True when the "PAUSE TO SHOP" hint should be shown during playback
+   *  (per-mode time windows + first-play gate; see `useDemoPlayback`). */
+  isPauseToShopCtaVisible: boolean
 
   // Times
   videoCurrentSeconds: number
@@ -50,8 +53,9 @@ type VideoPlayerProps = {
  * creatives mounted concurrently and switched via opacity — keeps decoders
  * warm so mid-break mode switches are instant), main content video,
  * Sync: Impulse visual treatments (radial gradients, QR code, full-area
- * companion click target), pause-overlay (carousel + detail card for
- * `CTA Pause` / `Organic Pause` modes), and the bottom control bar.
+ * companion click target), the pause-mode pair (in-playback "Pause to
+ * Shop" CTA + paused-state carousel/detail overlay for `CTA Pause` /
+ * `Organic Pause` modes), and the bottom control bar.
  *
  * The ad-creative parallel-playback logic lives entirely inside this
  * component:
@@ -80,6 +84,7 @@ export function VideoPlayer({
   isAdBreakPlayback,
   isSyncImpulseMode,
   isPauseOverlayActive,
+  isPauseToShopCtaVisible,
   videoCurrentSeconds,
   playbackDurationSeconds,
   displayedCurrentSeconds,
@@ -357,11 +362,23 @@ export function VideoPlayer({
           />
         )}
 
+        {/* "PAUSE TO SHOP" hint — visible only during playback, only
+            during the pause-mode-specific time windows, only after the
+            user has started playback at least once. Always mounted so
+            the fade animates cleanly in both directions; visibility
+            governs opacity + pointer-events. Clicking pauses the
+            video, which surfaces the carousel via the overlay below. */}
+        <PauseToShopCta
+          visible={isPauseToShopCtaVisible}
+          onPause={onToggleVideoPlaying}
+        />
+
         {/* Pause overlay — pause-triggered product carousel + detail, only
             mounted while the user is paused in `CTA Pause` / `Organic Pause`
-            modes (Tier 3). Sits above the click-to-play layer (z-index 5)
-            but inside the bottom-control padding so the user can still hit
-            Play to dismiss. */}
+            modes (Tier 3) AND has started playback at least once (so the
+            initial pre-roll frame stays clean). Sits above the click-to-
+            play layer (z-index 5) but inside the bottom-control padding
+            so the user can still hit Play to dismiss. */}
         {isPauseOverlayActive && (
           <Box
             sx={{
@@ -372,10 +389,7 @@ export function VideoPlayer({
               bottom: `${playerControlTokens.controlBarHeight}px`,
             }}
           >
-            <PauseOverlay
-              payload={PAUSE_OVERLAY_PLACEHOLDER}
-              onExitOverlay={onToggleVideoPlaying}
-            />
+            <PauseOverlay payload={PAUSE_OVERLAY_PLACEHOLDER} />
           </Box>
         )}
 

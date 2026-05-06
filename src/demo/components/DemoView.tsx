@@ -87,6 +87,7 @@ type DemoViewProps = {
   activeSceneIndex: number
   activeProductIndex: number
   isPauseOverlayActive: boolean
+  isPauseToShopCtaVisible: boolean
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
@@ -148,6 +149,7 @@ export function DemoView({
   activeSceneIndex,
   activeProductIndex,
   isPauseOverlayActive,
+  isPauseToShopCtaVisible,
   activeAdBreakLabel,
   adDecisionPayload,
   adDecisioningTail,
@@ -338,6 +340,7 @@ export function DemoView({
               isAdBreakPlayback={isAdBreakPlayback}
               isSyncImpulseMode={isSyncImpulseMode}
               isPauseOverlayActive={isPauseOverlayActive}
+              isPauseToShopCtaVisible={isPauseToShopCtaVisible}
               videoCurrentSeconds={videoCurrentSeconds}
               playbackDurationSeconds={playbackDurationSeconds}
               displayedCurrentSeconds={displayedCurrentSeconds}

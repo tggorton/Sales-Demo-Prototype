@@ -17,12 +17,16 @@ type PauseProductCarouselProps = {
 // All sizing is expressed as percentages of the player area (or, for
 // per-tile typography, `cqw` against the tile's slot). Concretely:
 //
-//   carousel margin   left 11% (Figma anchor), right 4% (gives the 4th
-//                     tile room to peek without falling off-screen)
-//   tile slot         30% of carousel area — three slots fit fully and
-//                     leave ~10% on the right for tile #4 to peek about
-//                     a third of its width. Drives the "more tiles
-//                     available" affordance the user asked for.
+//   carousel margin   left 11% (Figma anchor), right 0 — the carousel
+//                     extends all the way to the player's right edge
+//                     so the 4th tile bleeds off at the content edge
+//                     rather than being clipped inside a margin.
+//   tile slot         (100% - 11%) / 3.5 ≈ 25.4% of player width —
+//                     three full slots fit, the fourth slot is half
+//                     visible, and the 5th onward overflow into scroll.
+//                     The "/3.5" is the user-tuned amount of 4th-tile
+//                     peek; bump that denominator for less peek, lower
+//                     for more.
 //   tile (default)    448 wide ≈ 89.6% of slot
 //   tile (focused)    496 wide ≈ 99.2% of slot
 //
@@ -54,7 +58,7 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
         sx={{
           position: 'absolute',
           left: '11%',
-          right: '4%',
+          right: 0,
           bottom: '8%',
         }}
       >
@@ -112,11 +116,11 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
           </Box>
         </Stack>
 
-        {/* Tile track. Slots are 30% of carousel area each — three fit
-            with room left for the 4th tile to peek about a third of its
-            width, signalling that more tiles are available. The
-            container-query scope on each slot lets tile typography
-            resolve against slot width. */}
+        {/* Tile track. Slot width = `100% / 3.5` of carousel — three
+            slots fit fully and the 4th slot is half-visible, bleeding
+            off at the player's right edge. The 5th tile (and beyond)
+            overflow into the scroll axis. Container-query scope on
+            each slot lets tile typography resolve against slot width. */}
         <Box
           sx={{
             display: 'flex',
@@ -136,7 +140,7 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
             <Box
               key={tile.id}
               sx={{
-                flex: '0 0 30%',
+                flex: '0 0 calc(100% / 3.5)',
                 scrollSnapAlign: 'start',
                 display: 'flex',
                 alignItems: 'center',

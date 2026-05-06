@@ -135,3 +135,37 @@ export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = envNumber(
   'VITE_DHYH_VIDEO_SOURCE_OFFSET_SECONDS',
   0
 )
+
+// ---------- Pause-overlay CTA windows (clip-time seconds) ----------------
+//
+// "PAUSE TO SHOP" is a hint surfaced during playback to invite the viewer
+// to pause and reveal the product carousel. The two pause-triggered ad
+// modes share the same overlay component but differ on when the CTA
+// shows and (for CTA Pause) when the overlay is allowed to surface at
+// all.
+//
+// Organic Pause:
+//   - CTA: shown only during the first `DHYH_ORGANIC_PAUSE_CTA_END_SECONDS`
+//     of playback. Acts as an early hint; once it fades the user is
+//     expected to know the affordance exists.
+//   - Pause overlay: surfaces on *any* pause once the user has begun
+//     playback, regardless of whether the CTA was visible.
+//
+// CTA Pause:
+//   - CTA: shown only inside one of `DHYH_CTA_PAUSE_WINDOWS`.
+//   - Pause overlay: only surfaces if the pause happened inside one of
+//     those same windows. Pausing outside leaves the player in normal
+//     (carousel-less) paused state.
+//
+// Windows are inclusive on both ends. Bump or split the array when the
+// editorial team finalises the moments where pause-to-shop should be
+// available. Times are clip-time seconds (`panelTimelineSeconds` axis),
+// not source-time on the original 44-min episode.
+export const DHYH_ORGANIC_PAUSE_CTA_END_SECONDS = 15
+
+export type DhyhPauseWindow = { readonly start: number; readonly end: number }
+
+export const DHYH_CTA_PAUSE_WINDOWS: ReadonlyArray<DhyhPauseWindow> = [
+  { start: 77, end: 107 }, //  1:17 →  1:47
+  { start: 153, end: 532 }, //  2:33 →  8:52
+] as const

@@ -6,9 +6,12 @@ import {
   DHYH_AD_BREAK_CLIP_SECONDS,
   DHYH_CLIP_DURATION_SECONDS,
   DHYH_CONTENT_ID,
+  DHYH_CTA_PAUSE_WINDOWS,
   DHYH_IMPULSE_AD_COMPANION_URL,
+  DHYH_ORGANIC_PAUSE_CTA_END_SECONDS,
   DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
 } from '../content/dhyh/timeline'
+import { isInPauseWindow } from '../utils/pauseWindows'
 import {
   AD_BREAK_1_IMAGE,
   AD_BREAK_2_IMAGE,
@@ -121,6 +124,21 @@ export function useDemoPlayback({
 
   const [dhyhBundle, setDhyhBundle] = useState<DhyhSceneBundle | null>(null)
 
+  // Tracks whether the user has clicked Play at least once during the
+  // current demo session. The pause-overlay surfaces and the
+  // "Pause to Shop" CTA both gate on this — before first play, the
+  // demo's initial paused frame should look like a clean pre-roll
+  // state, not as if the carousel were already active. Resets when the
+  // user navigates away from the demo view or swaps content; flips
+  // true the first time `isVideoPlaying` becomes true.
+  const [hasStartedPlayback, setHasStartedPlayback] = useState(false)
+  useEffect(() => {
+    setHasStartedPlayback(false)
+  }, [currentView, selectedContent?.id])
+  useEffect(() => {
+    if (isVideoPlaying && !hasStartedPlayback) setHasStartedPlayback(true)
+  }, [isVideoPlaying, hasStartedPlayback])
+
   useEffect(() => {
     let cancelled = false
     if (!isDhyhContent) {
@@ -153,15 +171,6 @@ export function useDemoPlayback({
     : isExactProductMatch && isSyncImpulseModeSelected
 
   const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
-
-  // Pause-overlay visibility. Surfaces only when the active mode is one of
-  // the two pause-triggered ad modes AND the user has actually paused —
-  // initial-load paused state still counts (the overlay is the demo's
-  // showcase for these modes, so making the user click play→pause first
-  // would just hide what they came to see).
-  const isPauseOverlayActive =
-    !isVideoPlaying &&
-    (selectedAdPlayback === 'CTA Pause' || selectedAdPlayback === 'Organic Pause')
 
   // Per-mode DHYH ad-break duration sourced from the registry (30s for Impulse/L-Bar,
   // 45s for Sync). Placeholder content always falls back to Impulse's duration.
@@ -237,6 +246,42 @@ export function useDemoPlayback({
     : usesNativeTimeline || isSyncImpulseMode
       ? videoCurrentSeconds
       : nonImpulsePanelProgress * TOTAL_DURATION_SECONDS
+
+  // ---------- Pause-mode visibility (CTA + overlay) ----------------------
+  //
+  // Two booleans that drive the two pause-triggered ad surfaces:
+  //   - `isPauseToShopCtaVisible`: the blue "PAUSE TO SHOP" hint shown
+  //     during playback to invite the viewer to pause.
+  //   - `isPauseOverlayActive`: the carousel + detail surface shown
+  //     while paused.
+  //
+  // Both gate on `hasStartedPlayback` so neither surfaces in the demo's
+  // pre-roll state (user just selected tier/mode and hasn't played yet).
+  // CTA only shows during playback; overlay only shows during pause —
+  // they're mutually exclusive and one transitions to the other.
+  //
+  // CTA Pause windows are also enforced on the *overlay* side: pausing
+  // outside one of `DHYH_CTA_PAUSE_WINDOWS` leaves the player in normal
+  // (carousel-less) paused state, matching the editorial intent that
+  // pause-to-shop is only available during specific moments.
+  const isInDhyhCtaPauseWindow = isDhyhContent
+    ? isInPauseWindow(panelTimelineSeconds, DHYH_CTA_PAUSE_WINDOWS)
+    : false
+  const isInDhyhOrganicCtaWindow = isDhyhContent
+    ? panelTimelineSeconds < DHYH_ORGANIC_PAUSE_CTA_END_SECONDS
+    : false
+
+  const isPauseToShopCtaVisible =
+    hasStartedPlayback &&
+    isVideoPlaying &&
+    ((selectedAdPlayback === 'Organic Pause' && isInDhyhOrganicCtaWindow) ||
+      (selectedAdPlayback === 'CTA Pause' && isInDhyhCtaPauseWindow))
+
+  const isPauseOverlayActive =
+    hasStartedPlayback &&
+    !isVideoPlaying &&
+    (selectedAdPlayback === 'Organic Pause' ||
+      (selectedAdPlayback === 'CTA Pause' && isInDhyhCtaPauseWindow))
 
   const playbackScenes = useMemo(() => {
     if (isDhyhContent && dhyhBundle) {
@@ -1041,6 +1086,7 @@ export function useDemoPlayback({
     isSyncImpulseMode,
     titlePanelSummary,
     isPauseOverlayActive,
+    isPauseToShopCtaVisible,
     playbackDurationSeconds,
     playbackScenes,
     activeImpulseSegment,

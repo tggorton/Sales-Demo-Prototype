@@ -1,4 +1,5 @@
 export { PauseOverlay } from './PauseOverlay'
+export { PauseToShopCta } from './PauseToShopCta'
 export { PAUSE_OVERLAY_PLACEHOLDER } from './pauseOverlay.placeholder'
 export type {
   PauseOverlayPayload,

@@ -437,6 +437,7 @@ function App() {
                   activeSceneIndex={demoPlayback.activeSceneIndex}
                   activeProductIndex={demoPlayback.activeProductIndex}
                   isPauseOverlayActive={demoPlayback.isPauseOverlayActive}
+                  isPauseToShopCtaVisible={demoPlayback.isPauseToShopCtaVisible}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
                   adDecisionPayload={demoPlayback.adDecisionPayload}
                   adDecisioningTail={demoPlayback.adDecisioningTail}

@@ -6,11 +6,6 @@ import type { PauseOverlayPayload } from './pauseOverlay.types'
 
 type PauseOverlayProps = {
   payload: PauseOverlayPayload
-  // Called when the user clicks "Exit" in the detail view — the demo
-  // dismisses the overlay by resuming playback. Mounting/unmounting the
-  // overlay itself is driven by the parent's `isVisible` decision (paused
-  // + pause-mode active), this is just the hand-back hook.
-  onExitOverlay: () => void
 }
 
 // Top-level pause-overlay container. Routes between the carousel state
@@ -21,7 +16,13 @@ type PauseOverlayProps = {
 //
 // Layout: position-absolute fill of the parent player container. The
 // parent has its own positioning context inside VideoPlayer.
-export function PauseOverlay({ payload, onExitOverlay }: PauseOverlayProps) {
+//
+// Dismissal: there is no "close the overlay" button here. The overlay
+// is unmounted when `isPauseOverlayActive` flips to false in
+// `useDemoPlayback` — which happens the moment the user clicks Play
+// in the bottom control bar. Detail-mode buttons (Exit, Browse) only
+// navigate within the overlay (back to the carousel).
+export function PauseOverlay({ payload }: PauseOverlayProps) {
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
 
   // If the payload changes underneath us (e.g. content swap), reset the
@@ -39,9 +40,10 @@ export function PauseOverlay({ payload, onExitOverlay }: PauseOverlayProps) {
   return (
     <Box
       // Stop pointer events from leaking through to the click-to-play
-      // capture layer in VideoPlayer underneath. The user dismisses by
-      // clicking Exit (or by pressing the play control), not by clicking
-      // the dimmed video frame.
+      // capture layer in VideoPlayer underneath. The overlay handles
+      // its own state changes; clicks on the dimmed video frame are
+      // ignored so the user can't accidentally resume playback when
+      // aiming for a tile.
       onClick={(event) => event.stopPropagation()}
       sx={{
         position: 'absolute',
@@ -58,10 +60,6 @@ export function PauseOverlay({ payload, onExitOverlay }: PauseOverlayProps) {
           sponsorLabel={payload.sponsorLabel}
           sponsorLogoSrc={payload.sponsorLogoSrc}
           onBackToCarousel={() => setSelectedTileId(null)}
-          onExitOverlay={() => {
-            setSelectedTileId(null)
-            onExitOverlay()
-          }}
         />
       ) : (
         <PauseProductCarousel payload={payload} onSelectTile={setSelectedTileId} />
