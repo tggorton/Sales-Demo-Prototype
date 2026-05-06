@@ -7,6 +7,11 @@ type PauseProductTileProps = {
   // Drives the size + colour-swap state defined in Figma — never the
   // tile's grid position, which is owned by the carousel slot.
   isFocused: boolean
+  // Optional campaign-supplied background painted over the focused
+  // tile (lets a campaign brand the highlighted state without losing
+  // the white solid fallback for tiles without a bg image). Falls
+  // through to the white-solid Figma look when null.
+  focusedBackgroundImageSrc: string | null
   onSelect: () => void
   onFocus: () => void
   onBlur: () => void
@@ -34,6 +39,7 @@ type PauseProductTileProps = {
 export function PauseProductTile({
   tile,
   isFocused,
+  focusedBackgroundImageSrc,
   onSelect,
   onFocus,
   onBlur,
@@ -64,6 +70,16 @@ export function PauseProductTile({
         userSelect: 'none',
         outline: 'none',
         backgroundColor: isFocused ? '#FFFFFF' : '#202020',
+        // Campaign-supplied focused-state background image painted
+        // over the white solid. Sized to cover so it reads regardless
+        // of tile aspect, anchored centre. Hidden when not focused or
+        // when the campaign supplies no asset.
+        backgroundImage:
+          isFocused && focusedBackgroundImageSrc
+            ? `url(${focusedBackgroundImageSrc})`
+            : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         color: isFocused ? '#000000' : '#FFFFFF',
         borderRadius: '5px',
         boxShadow: isFocused ? '0 0 10px 1px rgba(255,255,255,0.35)' : 'none',

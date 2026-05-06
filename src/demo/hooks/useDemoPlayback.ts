@@ -13,6 +13,12 @@ import {
 } from '../content/dhyh/timeline'
 import { isInPauseWindow } from '../utils/pauseWindows'
 import {
+  getActivePauseMomentScene,
+  getActivePauseOverlayPayload,
+  type PauseMomentScene,
+} from '../content/dhyh/pauseMoments'
+import { PAUSE_OVERLAY_PLACEHOLDER } from '../components/player/pause-overlay'
+import {
   AD_BREAK_1_IMAGE,
   AD_BREAK_2_IMAGE,
   AD_QR_DESTINATION_1,
@@ -193,6 +199,18 @@ export function useDemoPlayback({
     [dhyhAdBreakDurationSeconds]
   )
 
+  // Pause-window markers shown on the scrubber while CTA Pause is the
+  // active mode. Empty in any other mode (or non-DHYH content) so the
+  // scrubber stays clean for the Sync ad-break modes that already
+  // render their own coloured segments. Coordinates live on the same
+  // clip-time axis as the impulse segments (no ad-break splicing
+  // applies to CTA Pause).
+  const dhyhCtaPauseSegments = useMemo(() => {
+    if (!isDhyhContent) return []
+    if (selectedAdPlayback !== 'CTA Pause') return []
+    return DHYH_CTA_PAUSE_WINDOWS
+  }, [isDhyhContent, selectedAdPlayback])
+
   // `playbackDurationSeconds` is the *internal* scrubber length used by the MUI slider.
   // For DHYH sync-ad-break modes this includes the per-mode ad block (30-45s) so the
   // slider has a visible cyan segment in the middle that the user can drag across. The
@@ -282,6 +300,35 @@ export function useDemoPlayback({
     !isVideoPlaying &&
     (selectedAdPlayback === 'Organic Pause' ||
       (selectedAdPlayback === 'CTA Pause' && isInDhyhCtaPauseWindow))
+
+  // Live payload that drives the carousel + detail when the overlay is
+  // mounted. CTA Pause reads scene-keyed data from the
+  // `pause-moments.json` fixture (resolves to null between scenes —
+  // shouldn't matter because `isPauseOverlayActive` already gates on
+  // window membership). Organic Pause keeps the static placeholder
+  // for now; per-scene Organic Pause data is a separate upstream feed
+  // we don't have yet.
+  const dhyhCtaPausePayload = useMemo(() => {
+    if (!isDhyhContent) return null
+    if (selectedAdPlayback !== 'CTA Pause') return null
+    return getActivePauseOverlayPayload(panelTimelineSeconds)
+  }, [isDhyhContent, selectedAdPlayback, panelTimelineSeconds])
+
+  const activePauseOverlayPayload = dhyhCtaPausePayload ?? PAUSE_OVERLAY_PLACEHOLDER
+
+  // Active pause-moment scene displayed in the JSON panel while the
+  // user is paused inside a CTA Pause window. Distinct from the
+  // overlay payload above because the JSON panel wants the raw
+  // upstream shape (scene metadata + nested objects/products) rather
+  // than the demo's adapter-flattened payload. Resolves to null when
+  // the overlay isn't active so the panel auto-falls-back to the
+  // normal per-scene JSON cards on resume / outside windows.
+  const activePauseMomentScene = useMemo<PauseMomentScene | null>(() => {
+    if (!isDhyhContent) return null
+    if (selectedAdPlayback !== 'CTA Pause') return null
+    if (!isPauseOverlayActive) return null
+    return getActivePauseMomentScene(panelTimelineSeconds)?.scene ?? null
+  }, [isDhyhContent, selectedAdPlayback, isPauseOverlayActive, panelTimelineSeconds])
 
   const playbackScenes = useMemo(() => {
     if (isDhyhContent && dhyhBundle) {
@@ -1087,6 +1134,8 @@ export function useDemoPlayback({
     titlePanelSummary,
     isPauseOverlayActive,
     isPauseToShopCtaVisible,
+    activePauseOverlayPayload,
+    activePauseMomentScene,
     playbackDurationSeconds,
     playbackScenes,
     activeImpulseSegment,
@@ -1118,5 +1167,6 @@ export function useDemoPlayback({
     displayedCurrentSeconds,
     displayedDurationSeconds,
     impulseSegments: isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,
+    ctaPauseSegments: dhyhCtaPauseSegments,
   }
 }

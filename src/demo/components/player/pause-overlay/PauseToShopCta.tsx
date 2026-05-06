@@ -1,8 +1,12 @@
-import PauseIcon from '@mui/icons-material/Pause'
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 
 type PauseToShopCtaProps = {
   visible: boolean
+  // Image URL extracted from the upstream `cta_url`'s `img=` query
+  // parameter. The whole CTA component renders nothing when this is
+  // null — there is intentionally no built-in styled fallback so the
+  // visual stays driven by the partner JSON.
+  imageSrc: string | null
   // Click handler — wired upstream to `onToggleVideoPlaying` so the
   // CTA acts as a literal pause button: clicking it pauses the video,
   // which surfaces the carousel via the existing `isPauseOverlayActive`
@@ -15,15 +19,22 @@ type PauseToShopCtaProps = {
 // bar, so it doesn't compete with the play / mute / scrubber chrome.
 //
 // Visibility is owned upstream (mode + clip-time window + hasStarted-
-// Playback gate), this component only renders the visual + handles the
-// fade. We render the element unconditionally and toggle opacity rather
-// than mounting/unmounting so the fade animates cleanly in both
-// directions.
-export function PauseToShopCta({ visible, onPause }: PauseToShopCtaProps) {
+// Playback gate); this component only renders the visual + handles the
+// fade. We render the element unconditionally (when an image URL is
+// supplied) and toggle opacity rather than mounting/unmounting so the
+// fade animates cleanly in both directions.
+//
+// When no image URL is supplied (placeholder content, organic-pause-
+// without-data, etc.) the component renders nothing — the partner JSON
+// is the source of truth for the visual.
+export function PauseToShopCta({ visible, imageSrc, onPause }: PauseToShopCtaProps) {
+  if (!imageSrc) return null
+
   return (
     <Box
       role="button"
       aria-hidden={!visible}
+      aria-label="Pause to shop"
       tabIndex={visible ? 0 : -1}
       onClick={visible ? onPause : undefined}
       onKeyDown={
@@ -42,50 +53,35 @@ export function PauseToShopCta({ visible, onPause }: PauseToShopCtaProps) {
         // the control bar so the controls stay clickable.
         bottom: '14%',
         left: '4%',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0.75,
-        // Pill shape with white pause icon + white caps text on the
-        // KERV magenta brand ground (theme `primary.main`). Hover
-        // bumps to `primary.dark` to match the rest of the demo's
-        // magenta-on-white-and-grey aesthetic.
-        backgroundColor: 'primary.main',
-        color: '#FFFFFF',
-        borderRadius: '999px',
-        px: 'clamp(10px, 1.4vw, 22px)',
-        py: 'clamp(6px, 0.6vw, 10px)',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-        userSelect: 'none',
-        // Visual fade. Pointer events follow opacity so the invisible
-        // element doesn't intercept clicks on the underlying click-to-
-        // play layer.
+        // Sized via a viewport clamp so the CTA scales with the
+        // player without making the image artwork too tall on big
+        // displays. Image's intrinsic aspect ratio is preserved by
+        // `height: auto`.
+        width: 'clamp(140px, 14vw, 260px)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 320ms ease, transform 320ms ease',
         pointerEvents: visible ? 'auto' : 'none',
         cursor: visible ? 'pointer' : 'default',
         zIndex: 5,
-        '&:hover': {
-          backgroundColor: 'primary.dark',
-        },
+        userSelect: 'none',
+        filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.25))',
         '&:focus-visible': {
           outline: '2px solid #FFFFFF',
-          outlineOffset: 2,
+          outlineOffset: 4,
         },
       }}
     >
-      <PauseIcon sx={{ fontSize: 'clamp(14px, 1.4vw, 22px)' }} />
-      <Typography
+      <Box
+        component="img"
+        src={imageSrc}
+        alt=""
         sx={{
-          fontSize: 'clamp(11px, 1vw, 16px)',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-          lineHeight: 1,
+          display: 'block',
+          width: '100%',
+          height: 'auto',
         }}
-      >
-        Pause to Shop
-      </Typography>
+      />
     </Box>
   )
 }

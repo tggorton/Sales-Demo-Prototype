@@ -2,7 +2,8 @@ import { Box } from '@mui/material'
 import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
-import { PauseOverlay, PauseToShopCta, PAUSE_OVERLAY_PLACEHOLDER } from './pause-overlay'
+import { PauseOverlay, PauseToShopCta } from './pause-overlay'
+import type { PauseOverlayPayload } from './pause-overlay'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
 type VideoPlayerProps = {
@@ -29,6 +30,10 @@ type VideoPlayerProps = {
   /** True when the "PAUSE TO SHOP" hint should be shown during playback
    *  (per-mode time windows + first-play gate; see `useDemoPlayback`). */
   isPauseToShopCtaVisible: boolean
+  /** Live payload that fills the carousel + detail when the overlay is
+   *  mounted. Resolved upstream against the active scene's products
+   *  (CTA Pause) or the static placeholder (Organic Pause for now). */
+  activePauseOverlayPayload: PauseOverlayPayload
 
   // Times
   videoCurrentSeconds: number
@@ -38,6 +43,7 @@ type VideoPlayerProps = {
 
   // Sizing tokens
   impulseSegments: readonly SyncImpulseSegment[]
+  ctaPauseSegments: readonly { start: number; end: number }[]
   playerControlTokens: PlayerControlTokens
 
   // Callbacks
@@ -46,6 +52,12 @@ type VideoPlayerProps = {
   onVideoTimeChange: (value: number) => void
   onVideoMetadataLoaded: (durationSeconds: number) => void
   onOpenCompanionModal: () => void
+  /** Pause-overlay-only — opens the desktop-aspect product
+   *  destination dialog pointed at the active product's QR URL.
+   *  Distinct from `onOpenCompanionModal` (which is the Sync
+   *  mobile-companion modal) so the two playback experiences stay
+   *  fully isolated. */
+  onOpenProductDestination: (url: string) => void
 }
 
 /**
@@ -85,17 +97,20 @@ export function VideoPlayer({
   isSyncImpulseMode,
   isPauseOverlayActive,
   isPauseToShopCtaVisible,
+  activePauseOverlayPayload,
   videoCurrentSeconds,
   playbackDurationSeconds,
   displayedCurrentSeconds,
   displayedDurationSeconds,
   impulseSegments,
+  ctaPauseSegments,
   playerControlTokens,
   onToggleVideoPlaying,
   onToggleVideoMuted,
   onVideoTimeChange,
   onVideoMetadataLoaded,
   onOpenCompanionModal,
+  onOpenProductDestination,
 }: VideoPlayerProps) {
   // Map of mounted ad-video elements keyed by src URL. All enabled DHYH ad
   // creatives mount concurrently below and play in parallel while the ad
@@ -370,6 +385,7 @@ export function VideoPlayer({
             video, which surfaces the carousel via the overlay below. */}
         <PauseToShopCta
           visible={isPauseToShopCtaVisible}
+          imageSrc={activePauseOverlayPayload.pauseToShopCtaImageSrc}
           onPause={onToggleVideoPlaying}
         />
 
@@ -389,7 +405,10 @@ export function VideoPlayer({
               bottom: `${playerControlTokens.controlBarHeight}px`,
             }}
           >
-            <PauseOverlay payload={PAUSE_OVERLAY_PLACEHOLDER} />
+            <PauseOverlay
+              payload={activePauseOverlayPayload}
+              onOpenProductDestination={onOpenProductDestination}
+            />
           </Box>
         )}
 
@@ -403,6 +422,7 @@ export function VideoPlayer({
           displayedCurrentSeconds={displayedCurrentSeconds}
           displayedDurationSeconds={displayedDurationSeconds}
           impulseSegments={impulseSegments}
+          ctaPauseSegments={ctaPauseSegments}
           playerControlTokens={playerControlTokens}
           controlsVisible={controlsVisible}
           onToggleVideoPlaying={onToggleVideoPlaying}

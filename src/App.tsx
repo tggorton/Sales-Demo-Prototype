@@ -3,6 +3,7 @@ import { AppShell } from '@kerv-one/theme'
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { AuthenticatedHeader } from './demo/components/layout/AuthenticatedHeader'
 import { CompanionDialog } from './demo/components/dialogs/CompanionDialog'
+import { ProductDestinationDialog } from './demo/components/dialogs/ProductDestinationDialog'
 import { ContentSelectionView } from './demo/components/ContentSelectionView'
 import { DemoView } from './demo/components/DemoView'
 import { ExpandedPanelDialog } from './demo/components/dialogs/ExpandedPanelDialog'
@@ -366,9 +367,29 @@ function App() {
     setIsJsonDownloadModalOpen(false)
   }
 
+  // Sync / Sync: L-Bar / Sync: Impulse companion modal — opens the
+  // mobile-aspect KERV companion experience. Scoped exclusively to
+  // the Sync ad-break flow; the pause-overlay flow uses its own
+  // `openProductDestinationModal` so the two playback experiences
+  // stay isolated even though both surface a "click to shop" idea.
   const openCompanionModal = () => {
     setSelectedCompanionUrl(demoPlayback.activeAdQrDestination)
     setIsCompanionModalOpen(true)
+  }
+
+  // CTA Pause / Organic Pause product-destination modal — opens the
+  // desktop-aspect dialog pointed at the active product's QR
+  // destination URL. Separate from the companion modal because the
+  // two playback experiences use different visual treatments and
+  // different URL sources.
+  const [selectedProductDestinationUrl, setSelectedProductDestinationUrl] =
+    useState('')
+  const [isProductDestinationModalOpen, setIsProductDestinationModalOpen] =
+    useState(false)
+  const openProductDestinationModal = (url: string) => {
+    if (!url) return
+    setSelectedProductDestinationUrl(url)
+    setIsProductDestinationModalOpen(true)
   }
 
   return (
@@ -422,6 +443,7 @@ function App() {
                   displayedCurrentSeconds={demoPlayback.displayedCurrentSeconds}
                   displayedDurationSeconds={demoPlayback.displayedDurationSeconds}
                   impulseSegments={demoPlayback.impulseSegments}
+                  ctaPauseSegments={demoPlayback.ctaPauseSegments}
                   playerControlTokens={demoPlayback.playerControlTokens}
                   isSyncImpulseMode={demoPlayback.isSyncImpulseMode}
                   isAdBreakPlayback={demoPlayback.isAdBreakPlayback}
@@ -438,6 +460,8 @@ function App() {
                   activeProductIndex={demoPlayback.activeProductIndex}
                   isPauseOverlayActive={demoPlayback.isPauseOverlayActive}
                   isPauseToShopCtaVisible={demoPlayback.isPauseToShopCtaVisible}
+                  activePauseOverlayPayload={demoPlayback.activePauseOverlayPayload}
+                  activePauseMomentScene={demoPlayback.activePauseMomentScene}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
                   adDecisionPayload={demoPlayback.adDecisionPayload}
                   adDecisioningTail={demoPlayback.adDecisioningTail}
@@ -474,6 +498,7 @@ function App() {
                   onOpenExpandedPanel={openExpandedPanel}
                   onOpenJsonDownload={() => setIsJsonDownloadModalOpen(true)}
                   onOpenCompanionModal={openCompanionModal}
+                  onOpenProductDestination={openProductDestinationModal}
                 />
               )}
             </>
@@ -550,6 +575,12 @@ function App() {
         open={isCompanionModalOpen}
         selectedCompanionUrl={selectedCompanionUrl}
         onClose={() => setIsCompanionModalOpen(false)}
+      />
+
+      <ProductDestinationDialog
+        open={isProductDestinationModalOpen}
+        selectedUrl={selectedProductDestinationUrl}
+        onClose={() => setIsProductDestinationModalOpen(false)}
       />
     </AppShell>
   )

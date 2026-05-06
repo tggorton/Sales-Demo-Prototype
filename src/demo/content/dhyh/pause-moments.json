@@ -1,0 +1,188 @@
+{
+  "video_id": "DHYH",
+  "_note": "Local copy of the partner-supplied pause-moments shape (see _Temp-Files/test-moments-json-c). video_id rewritten from 'test1' to 'DHYH'. Trackers stripped (we don't fire analytics in the demo). Scene timestamps are already on the spliced clip-time axis (77/107 = 1:17/1:47, 153/532 = 2:33/8:52) so they line up with the editorial CTA Pause windows verbatim — no rebasing needed.",
+  "campaign": [
+    {
+      "campaign_id": "69fb7f33c670ce8ddf3d07f6",
+      "pause_to_shop_screen": {
+        "cta_url": "https://3grmivdua3.ap-southeast-2.awsapprunner.com/track?tag_id=ctv-pts&ord1=5&ord2=&a=478&b=69fb7f33c670ce8ddf3d07f6&c=test1&d=&e=&img=https%3A%2F%2Frcdn.kervinteractive.com%2Fpts%2Fcampaigns%2F69fb7f33c670ce8ddf3d07f6%2F2cdcd1c1-3033-4079-8d27-28a9aa18da62.png",
+        "sponsored_by_logo_url": "https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/91786de4-f708-4229-8c9a-e27adda47dee.png",
+        "selected_product_background_image": "https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/085df96f-88c0-4590-9180-435deca17cd9.png",
+        "selected_product_background_border_color": "#FFFFFF",
+        "selected_product_background_color": "#FFFFFF",
+        "unselected_product_background_color": "#151515",
+        "selected_product_font_color": "#ffffff",
+        "unselected_product_font_color": "#ffffff",
+        "selected_shopnow_font_color": "#ffffff",
+        "unselected_shopnow_font_color": "#ffffff",
+        "product_image_placeholder_url": "https://rcdn.kervinteractive.com/pts/default-product.png"
+      },
+      "product_detail_screen": {
+        "shop_logo_url": "https://rcdn.kervinteractive.com/pts/shop-logo.png",
+        "background_image": "https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/1b8cfb41-d42a-4586-a889-15ce59d60f8a.png",
+        "product_image_placeholder_url": "https://rcdn.kervinteractive.com/pts/default-product.png",
+        "product_name_font_color": "#ffffff",
+        "product_details_font_color": "#ffffff",
+        "product_price_font_color": "#ffffff"
+      },
+      "scenes": [
+        {
+          "scene": 254,
+          "startTime": 77,
+          "endTime": 107,
+          "lengthInSeconds": 30,
+          "objects": [
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-254-1",
+                  "name": "Product-1",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. I promise you'll love this product. It's worth it. Don't question it. Just do it. Like Nike.",
+                  "cta": "Shop Now",
+                  "price": "130",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/bda24f2a-c922-4477-b91e-54e16e49eb2c.jpg",
+                  "qr": "https://paramountplus-tv.com/8790"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-254-2",
+                  "name": "Product-2",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. They're wrenches. Use them.",
+                  "cta": "Shop Now",
+                  "price": "75",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/9d01eaff-e779-418d-af2f-2b96b2d7d87b.jpg",
+                  "qr": "https://paramountplus-tv.com/8792"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-254-3",
+                  "name": "Product-3",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. Grind some stuff. It's a grinder.",
+                  "cta": "Shop Now",
+                  "price": "230",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/207c5e51-070d-4416-a498-fa9b34641d7d.jpg",
+                  "qr": "https://paramountplus-tv.com/8794"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-254-4",
+                  "name": "Product-4",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. I promise you'll love this product. It's worth it. Don't question it. Just do it. Like Nike. Drill like you've never drilled before.",
+                  "cta": "Shop Now",
+                  "price": "138.99",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/cdf48cb1-1056-4ce7-ac5f-d57ba3540f9b.jpg",
+                  "qr": "https://paramountplus-tv.com/8796"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-254-5",
+                  "name": "Product-5",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. Hold your tool better.",
+                  "cta": "Shop Now",
+                  "price": "78",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/990fd7be-2d36-4af6-9ea7-094c656978d4.jpg",
+                  "qr": "https://paramountplus-tv.com/8798"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "scene": 258,
+          "startTime": 153,
+          "endTime": 532,
+          "lengthInSeconds": 379,
+          "objects": [
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-258-1",
+                  "name": "Product-5",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. Hold your tool better.",
+                  "cta": "Shop Now",
+                  "price": "78",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/990fd7be-2d36-4af6-9ea7-094c656978d4.jpg",
+                  "qr": "https://paramountplus-tv.com/8800"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-258-2",
+                  "name": "Product-4",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. I promise you'll love this product. It's worth it. Don't question it. Just do it. Like Nike. Drill like you've never drilled before.",
+                  "cta": "Shop Now",
+                  "price": "138.99",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/cdf48cb1-1056-4ce7-ac5f-d57ba3540f9b.jpg",
+                  "qr": "https://paramountplus-tv.com/8802"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-258-3",
+                  "name": "Product-3",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. Grind some stuff. It's a grinder.",
+                  "cta": "Shop Now",
+                  "price": "230",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/207c5e51-070d-4416-a498-fa9b34641d7d.jpg",
+                  "qr": "https://paramountplus-tv.com/8804"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-258-4",
+                  "name": "Product-2",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. They're wrenches. Use them.",
+                  "cta": "Shop Now",
+                  "price": "75",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/9d01eaff-e779-418d-af2f-2b96b2d7d87b.jpg",
+                  "qr": "https://paramountplus-tv.com/8806"
+                }
+              ]
+            },
+            {
+              "name": "Object",
+              "product_match": [
+                {
+                  "product_id": "69fb7f33c670ce8ddf3d07f6-258-5",
+                  "name": "Product-1",
+                  "description": "This is a really great description of a product with all kinds of details that are really important to help sell the product. We need everything, including price, and color, etc. It's an awesome product. You won't be disappointed. I promise you'll love this product. It's worth it. Don't question it. Just do it. Like Nike.",
+                  "cta": "Shop Now",
+                  "price": "130",
+                  "image": "https://rcdn.kervinteractive.com/pts/catalog/bda24f2a-c922-4477-b91e-54e16e49eb2c.jpg",
+                  "qr": "https://paramountplus-tv.com/8808"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

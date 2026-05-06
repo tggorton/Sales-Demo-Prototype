@@ -24,6 +24,8 @@ import { VideoPlayer } from './player/VideoPlayer'
 import { TaxonomySceneCard } from './cards/TaxonomySceneCard'
 import { ProductCard } from './cards/ProductCard'
 import { JsonSceneCard } from './cards/JsonSceneCard'
+import type { PauseOverlayPayload } from './player/pause-overlay'
+import type { PauseMomentScene } from '../content/dhyh/pauseMoments'
 import {
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
   tierOptions,
@@ -72,6 +74,7 @@ type DemoViewProps = {
   displayedCurrentSeconds: number
   displayedDurationSeconds: number
   impulseSegments: readonly SyncImpulseSegment[]
+  ctaPauseSegments: readonly { start: number; end: number }[]
   playerControlTokens: PlayerControlTokens
   isSyncImpulseMode: boolean
   isAdBreakPlayback: boolean
@@ -88,6 +91,12 @@ type DemoViewProps = {
   activeProductIndex: number
   isPauseOverlayActive: boolean
   isPauseToShopCtaVisible: boolean
+  activePauseOverlayPayload: PauseOverlayPayload
+  /** Live scene from `pause-moments.json` while the CTA Pause
+   *  overlay is active. Null on resume or outside any window. The
+   *  JSON panel renders this in its own branch so the existing
+   *  Sync ad-break JSON path stays untouched. */
+  activePauseMomentScene: PauseMomentScene | null
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
@@ -113,6 +122,7 @@ type DemoViewProps = {
   onOpenExpandedPanel: (panel: DemoPanel) => void
   onOpenJsonDownload: () => void
   onOpenCompanionModal: () => void
+  onOpenProductDestination: (url: string) => void
 }
 
 export function DemoView({
@@ -134,6 +144,7 @@ export function DemoView({
   displayedCurrentSeconds,
   displayedDurationSeconds,
   impulseSegments,
+  ctaPauseSegments,
   playerControlTokens,
   isSyncImpulseMode,
   isAdBreakPlayback,
@@ -150,6 +161,8 @@ export function DemoView({
   activeProductIndex,
   isPauseOverlayActive,
   isPauseToShopCtaVisible,
+  activePauseOverlayPayload,
+  activePauseMomentScene,
   activeAdBreakLabel,
   adDecisionPayload,
   adDecisioningTail,
@@ -175,6 +188,7 @@ export function DemoView({
   onOpenExpandedPanel,
   onOpenJsonDownload,
   onOpenCompanionModal,
+  onOpenProductDestination,
 }: DemoViewProps) {
   // (Ad-creative parallel-playback logic moved into player/VideoPlayer.tsx
   // as part of Phase 4b. The Map of mounted ad-video elements + the two
@@ -341,17 +355,20 @@ export function DemoView({
               isSyncImpulseMode={isSyncImpulseMode}
               isPauseOverlayActive={isPauseOverlayActive}
               isPauseToShopCtaVisible={isPauseToShopCtaVisible}
+              activePauseOverlayPayload={activePauseOverlayPayload}
               videoCurrentSeconds={videoCurrentSeconds}
               playbackDurationSeconds={playbackDurationSeconds}
               displayedCurrentSeconds={displayedCurrentSeconds}
               displayedDurationSeconds={displayedDurationSeconds}
               impulseSegments={impulseSegments}
+              ctaPauseSegments={ctaPauseSegments}
               playerControlTokens={playerControlTokens}
               onToggleVideoPlaying={onToggleVideoPlaying}
               onToggleVideoMuted={onToggleVideoMuted}
               onVideoTimeChange={onVideoTimeChange}
               onVideoMetadataLoaded={onVideoMetadataLoaded}
               onOpenCompanionModal={onOpenCompanionModal}
+              onOpenProductDestination={onOpenProductDestination}
             />
 
             {visiblePanels.includes('taxonomy') && (
@@ -608,6 +625,37 @@ export function DemoView({
                         }}
                       >
                         {buildAdBreakJsonString(activeAdBreakLabel, adDecisionPayload, adDecisioningTail)}
+                      </Typography>
+                    </Box>
+                  ) : selectedAdPlayback === 'CTA Pause' &&
+                    isPauseOverlayActive &&
+                    activePauseMomentScene ? (
+                    /* CTA Pause panel branch — only fires while the
+                       overlay is active (mode = CTA Pause + paused
+                       inside a window). Renders the live scene from
+                       `pause-moments.json`, mirroring the Sync ad-
+                       break visual treatment so the JSON panel
+                       reads as "this is the payload behind the
+                       moment you're looking at". On resume / outside
+                       any window the condition flips false and the
+                       per-scene cards branch below takes over. */
+                    <Box sx={{ p: 0.85 }}>
+                      <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
+                        Pause Moment · scene {activePauseMomentScene.scene} @{' '}
+                        {formatTime(videoCurrentSeconds)}
+                      </Typography>
+                      <Typography
+                        component="pre"
+                        sx={{
+                          m: 0,
+                          whiteSpace: 'pre-wrap',
+                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                          fontSize: 10.4,
+                          lineHeight: 1.45,
+                          color: '#F05BB8',
+                        }}
+                      >
+                        {JSON.stringify(activePauseMomentScene, null, 2)}
                       </Typography>
                     </Box>
                   ) : (

@@ -6,6 +6,13 @@ import type { PauseOverlayPayload } from './pauseOverlay.types'
 
 type PauseOverlayProps = {
   payload: PauseOverlayPayload
+  // Forwarded down to the detail card. When the user clicks the
+  // active product's detail surface, the demo opens its own
+  // desktop-aspect `ProductDestinationDialog` pointed at the
+  // per-product `qrDestinationUrl`. Deliberately separate from the
+  // Sync ad-break `CompanionDialog` (mobile-aspect) so the two
+  // playback experiences stay fully isolated.
+  onOpenProductDestination: (url: string) => void
 }
 
 // Top-level pause-overlay container. Routes between the carousel state
@@ -22,7 +29,7 @@ type PauseOverlayProps = {
 // `useDemoPlayback` — which happens the moment the user clicks Play
 // in the bottom control bar. Detail-mode buttons (Exit, Browse) only
 // navigate within the overlay (back to the carousel).
-export function PauseOverlay({ payload }: PauseOverlayProps) {
+export function PauseOverlay({ payload, onOpenProductDestination }: PauseOverlayProps) {
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
 
   // If the payload changes underneath us (e.g. content swap), reset the
@@ -58,7 +65,12 @@ export function PauseOverlay({ payload }: PauseOverlayProps) {
         <PauseProductDetail
           detail={detail}
           sponsorLabel={payload.sponsorLabel}
-          sponsorLogoSrc={payload.sponsorLogoSrc}
+          // Detail card prefers the campaign's detail-specific
+          // sponsor logo; falls back to the carousel sponsor if the
+          // campaign only supplies one.
+          sponsorLogoSrc={payload.detailSponsorLogoSrc ?? payload.sponsorLogoSrc}
+          cardBackgroundImageSrc={payload.detailBackgroundImageSrc}
+          onOpenProductDestination={onOpenProductDestination}
           onBackToCarousel={() => setSelectedTileId(null)}
         />
       ) : (

@@ -6,6 +6,8 @@ import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded'
 import { formatTime } from '../../utils/formatTime'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
+type PauseWindowSegment = { readonly start: number; readonly end: number }
+
 type PlayerControlsProps = {
   isVideoPlaying: boolean
   isVideoMuted: boolean
@@ -15,6 +17,11 @@ type PlayerControlsProps = {
   displayedCurrentSeconds: number
   displayedDurationSeconds: number
   impulseSegments: readonly SyncImpulseSegment[]
+  /** Inclusive `[start, end]` clip-time ranges where pause-to-shop is
+   *  active — rendered as semi-transparent magenta overlays on the
+   *  scrubber so the user can see where they're allowed to pause.
+   *  Empty for any mode that doesn't expose pause-window markers. */
+  ctaPauseSegments: readonly PauseWindowSegment[]
   playerControlTokens: PlayerControlTokens
   /** When false, the control bar fades out and stops accepting clicks
    *  (typical YouTube/Netflix-style hover behavior). Computed by the
@@ -45,6 +52,7 @@ export function PlayerControls({
   displayedCurrentSeconds,
   displayedDurationSeconds,
   impulseSegments,
+  ctaPauseSegments,
   playerControlTokens,
   controlsVisible,
   onToggleVideoPlaying,
@@ -120,6 +128,40 @@ export function PlayerControls({
                     width: `${((segment.end - segment.start) / playbackDurationSeconds) * 100}%`,
                     height: playerControlTokens.timelineHeight,
                     bgcolor: segment.kind === 'content' ? '#D7283B' : '#18D1E5',
+                    pointerEvents: 'none',
+                  }}
+                />
+              ))}
+            </>
+          ) : ctaPauseSegments.length > 0 ? (
+            <>
+              {/* CTA Pause scrubber visualisation — red content bar
+                  with cyan rectangles for each pause-to-shop window.
+                  Mirrors the Sync: Impulse colour treatment so the
+                  two modes feel of-a-piece on the scrubber even
+                  though the underlying playback contracts are
+                  different. No moving progress fill; the slider
+                  thumb position is the user's progress indicator. */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: playerControlTokens.timelineTop,
+                  left: 0,
+                  right: 0,
+                  height: playerControlTokens.timelineHeight,
+                  bgcolor: '#D7283B',
+                }}
+              />
+              {ctaPauseSegments.map((seg, idx) => (
+                <Box
+                  key={`cta-pause-${idx}`}
+                  sx={{
+                    position: 'absolute',
+                    top: playerControlTokens.timelineTop,
+                    left: `${(seg.start / playbackDurationSeconds) * 100}%`,
+                    width: `${((seg.end - seg.start) / playbackDurationSeconds) * 100}%`,
+                    height: playerControlTokens.timelineHeight,
+                    bgcolor: '#18D1E5',
                     pointerEvents: 'none',
                   }}
                 />
