@@ -54,9 +54,6 @@ export function PauseProductDetail({
   const hasCardBgImage = Boolean(cardBackgroundImageSrc)
   const titleColor = hasCardBgImage ? '#FFFFFF' : '#1d1d1d'
   const bodyColor = hasCardBgImage ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
-  const captionColor = hasCardBgImage
-    ? 'rgba(255,255,255,0.85)'
-    : 'rgba(0,0,0,0.72)'
 
   return (
     <Box
