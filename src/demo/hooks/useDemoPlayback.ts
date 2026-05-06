@@ -13,6 +13,8 @@ import {
 } from '../content/dhyh/timeline'
 import { isInPauseWindow } from '../utils/pauseWindows'
 import {
+  getActiveOrganicMomentScene,
+  getActiveOrganicOverlayPayload,
   getActivePauseMomentScene,
   getActivePauseOverlayPayload,
   type PauseMomentScene,
@@ -301,33 +303,52 @@ export function useDemoPlayback({
     (selectedAdPlayback === 'Organic Pause' ||
       (selectedAdPlayback === 'CTA Pause' && isInDhyhCtaPauseWindow))
 
-  // Live payload that drives the carousel + detail when the overlay is
-  // mounted. CTA Pause reads scene-keyed data from the
-  // `pause-moments.json` fixture (resolves to null between scenes —
-  // shouldn't matter because `isPauseOverlayActive` already gates on
-  // window membership). Organic Pause keeps the static placeholder
-  // for now; per-scene Organic Pause data is a separate upstream feed
-  // we don't have yet.
+  // Live payload that drives the carousel + detail when the overlay
+  // is mounted. Each pause mode reads from its own JSON source per
+  // the playback-mode-isolation rule:
+  //   - CTA Pause → `pause-moments.json` (partner-curated editorial
+  //     moments at fixed windows).
+  //   - Organic Pause → `organic-pause-moments.json` (auto-derived
+  //     from Tier 3 scenes; covers the entire clip so any pause
+  //     resolves to an active moment).
+  // The two `useMemo` blocks return null when their mode isn't
+  // active so the chained `??` below picks the right one without
+  // either path running unnecessarily. Falls through to
+  // `PAUSE_OVERLAY_PLACEHOLDER` only as a last-resort safeguard
+  // (e.g. mode-flag mismatch — shouldn't happen in practice).
   const dhyhCtaPausePayload = useMemo(() => {
     if (!isDhyhContent) return null
     if (selectedAdPlayback !== 'CTA Pause') return null
     return getActivePauseOverlayPayload(panelTimelineSeconds)
   }, [isDhyhContent, selectedAdPlayback, panelTimelineSeconds])
 
-  const activePauseOverlayPayload = dhyhCtaPausePayload ?? PAUSE_OVERLAY_PLACEHOLDER
+  const dhyhOrganicPausePayload = useMemo(() => {
+    if (!isDhyhContent) return null
+    if (selectedAdPlayback !== 'Organic Pause') return null
+    return getActiveOrganicOverlayPayload(panelTimelineSeconds)
+  }, [isDhyhContent, selectedAdPlayback, panelTimelineSeconds])
+
+  const activePauseOverlayPayload =
+    dhyhCtaPausePayload ?? dhyhOrganicPausePayload ?? PAUSE_OVERLAY_PLACEHOLDER
 
   // Active pause-moment scene displayed in the JSON panel while the
-  // user is paused inside a CTA Pause window. Distinct from the
-  // overlay payload above because the JSON panel wants the raw
-  // upstream shape (scene metadata + nested objects/products) rather
-  // than the demo's adapter-flattened payload. Resolves to null when
-  // the overlay isn't active so the panel auto-falls-back to the
-  // normal per-scene JSON cards on resume / outside windows.
+  // user is paused. Distinct from the overlay payload above because
+  // the JSON panel wants the raw upstream scene shape (nested
+  // objects/products) rather than the adapter-flattened payload.
+  // Routed per mode: CTA Pause → editorial moments fixture; Organic
+  // Pause → tier3-derived moments. Resolves to null on resume or
+  // outside any moment so the panel auto-falls-back to the normal
+  // per-scene JSON cards.
   const activePauseMomentScene = useMemo<PauseMomentScene | null>(() => {
     if (!isDhyhContent) return null
-    if (selectedAdPlayback !== 'CTA Pause') return null
     if (!isPauseOverlayActive) return null
-    return getActivePauseMomentScene(panelTimelineSeconds)?.scene ?? null
+    if (selectedAdPlayback === 'CTA Pause') {
+      return getActivePauseMomentScene(panelTimelineSeconds)?.scene ?? null
+    }
+    if (selectedAdPlayback === 'Organic Pause') {
+      return getActiveOrganicMomentScene(panelTimelineSeconds)?.scene ?? null
+    }
+    return null
   }, [isDhyhContent, selectedAdPlayback, isPauseOverlayActive, panelTimelineSeconds])
 
   const playbackScenes = useMemo(() => {

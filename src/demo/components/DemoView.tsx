@@ -627,21 +627,25 @@ export function DemoView({
                         {buildAdBreakJsonString(activeAdBreakLabel, adDecisionPayload, adDecisioningTail)}
                       </Typography>
                     </Box>
-                  ) : selectedAdPlayback === 'CTA Pause' &&
-                    isPauseOverlayActive &&
-                    activePauseMomentScene ? (
-                    /* CTA Pause panel branch — only fires while the
-                       overlay is active (mode = CTA Pause + paused
-                       inside a window). Renders the live scene from
-                       `pause-moments.json`, mirroring the Sync ad-
-                       break visual treatment so the JSON panel
-                       reads as "this is the payload behind the
-                       moment you're looking at". On resume / outside
-                       any window the condition flips false and the
-                       per-scene cards branch below takes over. */
+                  ) : isPauseOverlayActive && activePauseMomentScene ? (
+                    /* Pause-mode panel branch — fires for CTA Pause
+                       (editorial moments from `pause-moments.json`)
+                       OR Organic Pause (auto-generated moments from
+                       `organic-pause-moments.json`). Both modes route
+                       through the same `activePauseMomentScene` value
+                       upstream — the hook picks the right document
+                       per mode. The label below distinguishes them so
+                       the panel reads as "you're paused in the
+                       <mode> moment for scene N". On resume / outside
+                       any moment the condition flips false and the
+                       per-scene cards branch below takes over. Sync
+                       branch above is byte-identical to before. */
                     <Box sx={{ p: 0.85 }}>
                       <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
-                        Pause Moment · scene {activePauseMomentScene.scene} @{' '}
+                        {selectedAdPlayback === 'Organic Pause'
+                          ? 'Organic Pause Moment'
+                          : 'Pause Moment'}{' '}
+                        · scene {activePauseMomentScene.scene} @{' '}
                         {formatTime(videoCurrentSeconds)}
                       </Typography>
                       <Typography

@@ -4,6 +4,7 @@ import type {
   PauseProductTile,
 } from '../../components/player/pause-overlay'
 import pauseMomentsJson from './pause-moments.json'
+import organicPauseMomentsJson from './organic-pause-moments.json'
 
 // JSON document shape. Mirrors the partner-supplied test fixture
 // (`_Temp-Files/test-moments-json-c`), trimmed to only what the
@@ -66,7 +67,9 @@ export type PauseMomentsDocument = {
 // (`_note`, theme color overrides we ignore, etc.) that aren't on the
 // type. Treating the import as the typed document is a deliberate
 // trim: the adapter reads only the fields above.
-const document = pauseMomentsJson as unknown as PauseMomentsDocument
+const ctaPauseDocument = pauseMomentsJson as unknown as PauseMomentsDocument
+const organicPauseDocument =
+  organicPauseMomentsJson as unknown as PauseMomentsDocument
 
 // Up to N tiles per moment — beyond five the carousel scrolls, but
 // editorial direction is "show the number associated with the moment",
@@ -128,12 +131,16 @@ function resolveQrDestination(product: PauseMomentProduct): string | null {
 
 /** Returns the scene whose `[startTime, endTime]` (inclusive) contains
  *  the supplied clip-time, or null if no scene covers that point.
- *  Linear scan — fixture has at most a handful of scenes; if this
- *  grows we can switch to a sorted-array binary search. */
-export function getActivePauseMomentScene(
+ *  Linear scan — both fixtures fit comfortably; if scene count
+ *  approaches the hundreds we can switch to sorted-array binary
+ *  search. The two pause-mode resolvers below wrap this with their
+ *  own JSON document, keeping their data sources isolated even
+ *  though the lookup logic is shared. */
+function findActiveSceneInDocument(
+  doc: PauseMomentsDocument,
   clipSeconds: number
 ): { scene: PauseMomentScene; campaign: PauseMomentCampaign } | null {
-  for (const campaign of document.campaign) {
+  for (const campaign of doc.campaign) {
     for (const scene of campaign.scenes) {
       if (clipSeconds >= scene.startTime && clipSeconds <= scene.endTime) {
         return { scene, campaign }
@@ -141,6 +148,24 @@ export function getActivePauseMomentScene(
     }
   }
   return null
+}
+
+/** CTA Pause active-scene resolver — looks up against
+ *  `pause-moments.json` (partner-supplied editorial windows). */
+export function getActivePauseMomentScene(
+  clipSeconds: number
+): { scene: PauseMomentScene; campaign: PauseMomentCampaign } | null {
+  return findActiveSceneInDocument(ctaPauseDocument, clipSeconds)
+}
+
+/** Organic Pause active-scene resolver — looks up against
+ *  `organic-pause-moments.json` (auto-generated from `tier3.json`).
+ *  Distinct from the CTA Pause resolver per the playback-mode
+ *  isolation rule, but shares the same underlying lookup. */
+export function getActiveOrganicMomentScene(
+  clipSeconds: number
+): { scene: PauseMomentScene; campaign: PauseMomentCampaign } | null {
+  return findActiveSceneInDocument(organicPauseDocument, clipSeconds)
 }
 
 /** Adapts a single scene + its owning campaign into the
@@ -207,13 +232,25 @@ export function buildPauseOverlayPayload(
   }
 }
 
-/** Convenience wrapper: clip-time → payload (or null if no moment is
- *  active). Used by `useDemoPlayback` to drive the live overlay
- *  contents from the timeline. */
+/** Convenience wrapper: clip-time → CTA Pause payload (or null if
+ *  no moment is active). Used by `useDemoPlayback` to drive the
+ *  CTA Pause overlay contents from the timeline. */
 export function getActivePauseOverlayPayload(
   clipSeconds: number
 ): PauseOverlayPayload | null {
   const match = getActivePauseMomentScene(clipSeconds)
+  if (!match) return null
+  return buildPauseOverlayPayload(match.scene, match.campaign)
+}
+
+/** Organic Pause counterpart — clip-time → Organic Pause payload
+ *  (or null if no moment is active). Reuses the same adapter as
+ *  CTA Pause but routes through the Organic Pause document so the
+ *  data source stays isolated. */
+export function getActiveOrganicOverlayPayload(
+  clipSeconds: number
+): PauseOverlayPayload | null {
+  const match = getActiveOrganicMomentScene(clipSeconds)
   if (!match) return null
   return buildPauseOverlayPayload(match.scene, match.campaign)
 }

@@ -57,18 +57,20 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
       <Box
         sx={{
           position: 'absolute',
-          left: '11%',
+          left: 0,
           right: 0,
           bottom: '8%',
         }}
       >
         {/* Sponsor row — small inline label + logo chip. Anchored above
-            the tile track, left-aligned with the leftmost tile slot. */}
+            the tile track, left-aligned with the leftmost tile slot.
+            The 11% inset matches the tile track's `paddingLeft` so the
+            sponsor logo lines up with the first tile's left edge. */}
         <Stack
           direction="row"
           alignItems="center"
           spacing={1}
-          sx={{ mb: 1, pl: 0.5 }}
+          sx={{ mb: 1, pl: 'calc(11% + 4px)' }}
         >
           <Typography
             sx={{
@@ -116,11 +118,19 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
           </Box>
         </Stack>
 
-        {/* Tile track. Slot width = `100% / 3.5` of carousel — three
-            slots fit fully and the 4th slot is half-visible, bleeding
-            off at the player's right edge. The 5th tile (and beyond)
-            overflow into the scroll axis. Container-query scope on
-            each slot lets tile typography resolve against slot width. */}
+        {/* Tile track. The track itself spans the full player width
+            (left: 0, right: 0 on the parent) so tiles can bleed past
+            the player's left edge when the user scrolls — mirroring the
+            way the 4th tile bleeds off the right edge by default.
+            `paddingLeft: '11%'` puts the first tile at the same visual
+            offset as before; because the padding is inside the scroll
+            container, it scrolls with the content, letting tiles 1-3
+            slide off the left as the user reveals tile 5. Slot width
+            stays `100% / 3.5` of the carousel area (player width minus
+            the 11% padding does NOT factor in because flex sizes against
+            the padding box, not the content box — see `containerType`
+            comment below). Container-query scope on each slot lets tile
+            typography resolve against slot width. */}
         <Box
           sx={{
             display: 'flex',
@@ -134,12 +144,21 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
             // Vertical breathing room so the focused tile's drop shadow
             // isn't clipped against the track edges.
             py: 0.75,
+            // First tile starts at the same 11% visual offset as before;
+            // because this padding lives inside the scroll container,
+            // tiles slide past the player's left edge naturally on
+            // scroll instead of being clipped at an inner margin.
+            pl: '11%',
           }}
         >
           {payload.tiles.map((tile) => (
             <Box
               key={tile.id}
               sx={{
+                // Flex-basis `100%` references the flex container's
+                // content-box width (player width minus the 11% padding-
+                // left), so `100% / 3.5` evaluates to the same per-slot
+                // size as the prior `left: 11%, right: 0` parent.
                 flex: '0 0 calc(100% / 3.5)',
                 scrollSnapAlign: 'start',
                 display: 'flex',

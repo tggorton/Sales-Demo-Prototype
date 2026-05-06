@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# Pre-push hook: runs the production build (`npm run build`) before
+# allowing a push to any remote. Blocks the push if the build fails.
+#
+# Why this exists
+# ───────────────
+# Vercel runs `npm run build` (which is `tsc -b && vite build`) on every
+# pushed commit. The repo's `tsc -b` is stricter than `tsc --noEmit`
+# (unused-locals, unused-parameters, project-references graph, etc.), so
+# a commit that compiles fine in the editor / `tsc --noEmit` can still
+# fail Vercel's build. We got bitten once (TS6133 unused `captionColor`
+# in `PauseProductDetail.tsx`); this hook makes that class of failure
+# impossible to ship without a deliberate `--no-verify`.
+#
+# Activation (one-time per clone)
+# ───────────────────────────────
+#   git config core.hooksPath .githooks
+#
+# Verify with: `git config --get core.hooksPath` → should print
+# `.githooks`. Without that config, git falls back to `.git/hooks/`
+# and this file is ignored.
+#
+# Skipping (use sparingly)
+# ────────────────────────
+# `git push --no-verify` bypasses this hook. Per project policy, do not
+# skip without an explicit reason — the whole point is that the build
+# either passes here or fails on Vercel five minutes later.
+
+set -euo pipefail
+
+# Run from the repo root regardless of where `git push` was invoked.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo ""
+echo "🛠  pre-push: running \`npm run build\` to mirror Vercel's compile step…"
+echo "    (skip with --no-verify only if you know the build is clean)"
+echo ""
+
+if ! npm run build; then
+  echo ""
+  echo "❌ pre-push: build failed. Push aborted."
+  echo "   Fix the errors above, re-stage, and try again. If you must"
+  echo "   push despite a known failure, use \`git push --no-verify\`."
+  echo ""
+  exit 1
+fi
+
+echo ""
+echo "✅ pre-push: build passed. Proceeding with push."
+echo ""
+exit 0

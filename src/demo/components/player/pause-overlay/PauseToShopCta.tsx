@@ -15,7 +15,7 @@ type PauseToShopCtaProps = {
 }
 
 // "PAUSE TO SHOP" hint shown during playback for the two pause-triggered
-// ad modes. Sits in the bottom-left of the player, above the control
+// ad modes. Sits in the bottom-right of the player, above the control
 // bar, so it doesn't compete with the play / mute / scrubber chrome.
 //
 // Visibility is owned upstream (mode + clip-time window + hasStarted-
@@ -49,10 +49,10 @@ export function PauseToShopCta({ visible, imageSrc, onPause }: PauseToShopCtaPro
       }
       sx={{
         position: 'absolute',
-        // Anchored to the bottom-left of the player, sitting above
+        // Anchored to the bottom-right of the player, sitting above
         // the control bar so the controls stay clickable.
         bottom: '14%',
-        left: '4%',
+        right: '4%',
         // Sized via a viewport clamp so the CTA scales with the
         // player without making the image artwork too tall on big
         // displays. Image's intrinsic aspect ratio is preserved by

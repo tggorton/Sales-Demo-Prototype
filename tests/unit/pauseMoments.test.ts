@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildPauseOverlayPayload,
+  getActiveOrganicMomentScene,
+  getActiveOrganicOverlayPayload,
   getActivePauseMomentScene,
   getActivePauseOverlayPayload,
 } from '../../src/demo/content/dhyh/pauseMoments'
@@ -154,5 +156,86 @@ describe('getActivePauseOverlayPayload', () => {
   it('returns null outside any window', () => {
     expect(getActivePauseOverlayPayload(50)).toBeNull()
     expect(getActivePauseOverlayPayload(120)).toBeNull()
+  })
+})
+
+// ─── Organic Pause resolver — tier3-derived moments ────────────
+//
+// `organic-pause-moments.json` is auto-generated from `tier3.json`
+// by `scripts/generate-organic-pause-moments.mjs`; its scenes cover
+// the entire 0–602s clip-time range so any pause-time resolves to an
+// active moment (unlike the editorial CTA Pause moments which only
+// cover two windows). Concrete numbers below are tied to the
+// generator's current output — re-run the script when Tier 3 changes
+// and update if the asserted scene count drifts.
+
+describe('Organic Pause resolver', () => {
+  it('resolves a moment at the very start of the clip', () => {
+    // Clip-time 1 second is inside the first scene-with-products
+    // band the generator emits.
+    const match = getActiveOrganicMomentScene(1)
+    expect(match).not.toBeNull()
+    expect(match?.scene.objects.length).toBeGreaterThan(0)
+  })
+
+  it('resolves a moment in the middle of the clip', () => {
+    const match = getActiveOrganicMomentScene(300)
+    expect(match).not.toBeNull()
+    expect(match?.scene.objects.length).toBeGreaterThan(0)
+  })
+
+  it('resolves a moment near the end of the clip', () => {
+    const match = getActiveOrganicMomentScene(595)
+    expect(match).not.toBeNull()
+    expect(match?.scene.objects.length).toBeGreaterThan(0)
+  })
+
+  it('caps each moment at 5 products (carousel cap)', () => {
+    // Walk a few clip-times and confirm none of the windows exceed
+    // the carousel's visual cap.
+    for (const t of [1, 60, 120, 180, 240, 300, 360, 420, 480, 540, 595]) {
+      const match = getActiveOrganicMomentScene(t)
+      if (!match) continue
+      expect(match.scene.objects.length).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('builds an overlay payload with the placeholder description', () => {
+    const payload = getActiveOrganicOverlayPayload(60)
+    expect(payload).not.toBeNull()
+    expect(payload?.tiles.length).toBeGreaterThan(0)
+    const firstId = payload!.tiles[0].id
+    const detail = payload!.detailsById[firstId]
+    expect(detail.description).toMatch(/placeholder description/i)
+  })
+
+  it("uses the Tier-3 product's link URL as the QR destination", () => {
+    // Tier 3 doesn't carry sponsor-style QR images, so the generator
+    // populates `qr` with the product `link` URL — the click-out
+    // works in the demo even though the rendered QR is essentially
+    // a placeholder for the production QR pipeline.
+    const payload = getActiveOrganicOverlayPayload(1)!
+    const firstId = payload.tiles[0].id
+    expect(payload.detailsById[firstId].qrDestinationUrl).toMatch(
+      /^https:\/\/www\.homedepot\.com\//
+    )
+  })
+
+  it('shares campaign theme assets with the CTA Pause document', () => {
+    // The generator copies the `pause_to_shop_screen` and
+    // `product_detail_screen` blocks from `pause-moments.json` so
+    // both modes use the same sponsor logos / bg artwork while the
+    // scenes diverge.
+    const ctaPayload = getActivePauseOverlayPayload(90)!
+    const organicPayload = getActiveOrganicOverlayPayload(60)!
+    expect(organicPayload.detailSponsorLogoSrc).toBe(
+      ctaPayload.detailSponsorLogoSrc
+    )
+    expect(organicPayload.tileBackgroundImageSrc).toBe(
+      ctaPayload.tileBackgroundImageSrc
+    )
+    expect(organicPayload.detailBackgroundImageSrc).toBe(
+      ctaPayload.detailBackgroundImageSrc
+    )
   })
 })
