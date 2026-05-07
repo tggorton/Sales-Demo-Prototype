@@ -351,6 +351,41 @@ export function useDemoPlayback({
     return null
   }, [isDhyhContent, selectedAdPlayback, isPauseOverlayActive, panelTimelineSeconds])
 
+  // ─── Pause Ad mode ────────────────────────────────────────────────
+  //
+  // Distinct from CTA Pause / Organic Pause: a single static creative
+  // (today an image, eventually possibly a video CTV ad) shown every
+  // time the user pauses content under the `Pause Ad` mode. No
+  // scene-keying, no editorial windows — pause anywhere → ad shows.
+  //
+  // Dismissal: clicking either the dim backdrop or the X button on
+  // the overlay calls `onToggleVideoPlaying` to resume playback. The
+  // overlay then auto-hides because `isPauseAdActive` includes
+  // `!isVideoPlaying`. No separate dismiss state is needed — pausing
+  // again at any later point re-shows the ad naturally.
+  const isPauseAdMode = selectedAdPlayback === 'Pause Ad'
+  const isPauseAdActive = hasStartedPlayback && !isVideoPlaying && isPauseAdMode
+
+  // Image URL for the current Pause Ad creative. Sourced from the
+  // active mode's registry entry — content-agnostic indirection so a
+  // future Content #2 just supplies its own URL via its own
+  // `pause-ad/config.ts` import.
+  const pauseAdImageSrc = isPauseAdMode
+    ? activeMode.dhyhPauseAdImageUrl ?? null
+    : null
+
+  // Compliance JSON injected into the JSON panel while the Pause Ad
+  // overlay is up. Mirrors how the Sync ad-break injects its own
+  // compliance payload — the panel branch in DemoView checks
+  // `isPauseAdActive` first and falls through to the existing
+  // CTA/Organic Pause moment branch if not in Pause Ad mode.
+  const pauseAdCompliancePayload = isPauseAdMode
+    ? activeMode.dhyhCompliancePayload ?? null
+    : null
+  const pauseAdResponseLabel = isPauseAdMode
+    ? activeMode.dhyhAdResponseLabel ?? '_PauseAd Response'
+    : '_PauseAd Response'
+
   const playbackScenes = useMemo(() => {
     if (isDhyhContent && dhyhBundle) {
       // Real DHYH scenes are used across all modes, including Sync: Impulse.
@@ -1189,5 +1224,9 @@ export function useDemoPlayback({
     displayedDurationSeconds,
     impulseSegments: isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,
     ctaPauseSegments: dhyhCtaPauseSegments,
+    isPauseAdActive,
+    pauseAdImageSrc,
+    pauseAdCompliancePayload,
+    pauseAdResponseLabel,
   }
 }

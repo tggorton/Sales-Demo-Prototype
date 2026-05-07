@@ -4,6 +4,7 @@ import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
 import { PauseOverlay, PauseToShopCta } from './pause-overlay'
 import type { PauseOverlayPayload } from './pause-overlay'
+import { PauseAdOverlay } from './PauseAdOverlay'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
 type VideoPlayerProps = {
@@ -34,6 +35,13 @@ type VideoPlayerProps = {
    *  mounted. Resolved upstream against the active scene's products
    *  (CTA Pause) or the static placeholder (Organic Pause for now). */
   activePauseOverlayPayload: PauseOverlayPayload
+  /** Pause Ad mode: surfaces a centred ad creative every time the user
+   *  pauses (under `Pause Ad`). Distinct from the carousel/detail
+   *  pause overlay above — single static creative, no scene-keying.
+   *  Dismissal happens by clicking the dim backdrop or the X button;
+   *  both paths call `onToggleVideoPlaying` to resume playback. */
+  isPauseAdActive: boolean
+  pauseAdImageSrc: string | null
 
   // Times
   videoCurrentSeconds: number
@@ -98,6 +106,8 @@ export function VideoPlayer({
   isPauseOverlayActive,
   isPauseToShopCtaVisible,
   activePauseOverlayPayload,
+  isPauseAdActive,
+  pauseAdImageSrc,
   videoCurrentSeconds,
   playbackDurationSeconds,
   displayedCurrentSeconds,
@@ -408,6 +418,31 @@ export function VideoPlayer({
             <PauseOverlay
               payload={activePauseOverlayPayload}
               onOpenProductDestination={onOpenProductDestination}
+            />
+          </Box>
+        )}
+
+        {/* Pause Ad overlay — distinct from the carousel-style pause
+            overlay above. Surfaces every time the user pauses while
+            `Pause Ad` is the active mode. Single static creative + a
+            close (X) that dismisses for the current pause session
+            only; resuming play resets the dismiss flag upstream so
+            the next pause re-shows. Sits inside the same control-bar
+            inset so play / scrubber stay clickable. */}
+        {pauseAdImageSrc && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: `${playerControlTokens.controlBarHeight}px`,
+            }}
+          >
+            <PauseAdOverlay
+              visible={isPauseAdActive}
+              imageSrc={pauseAdImageSrc}
+              onResume={onToggleVideoPlaying}
             />
           </Box>
         )}

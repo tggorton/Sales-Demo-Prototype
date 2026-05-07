@@ -462,6 +462,10 @@ function App() {
                   isPauseToShopCtaVisible={demoPlayback.isPauseToShopCtaVisible}
                   activePauseOverlayPayload={demoPlayback.activePauseOverlayPayload}
                   activePauseMomentScene={demoPlayback.activePauseMomentScene}
+                  isPauseAdActive={demoPlayback.isPauseAdActive}
+                  pauseAdImageSrc={demoPlayback.pauseAdImageSrc}
+                  pauseAdCompliancePayload={demoPlayback.pauseAdCompliancePayload}
+                  pauseAdResponseLabel={demoPlayback.pauseAdResponseLabel}
                   activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
                   adDecisionPayload={demoPlayback.adDecisionPayload}
                   adDecisioningTail={demoPlayback.adDecisioningTail}

@@ -51,6 +51,19 @@ export type AdModeDefinition = {
    *  reads differently (e.g. `'_PauseAd Response'`,
    *  `'_CarouselShop Response'`) supply their own label here. */
   dhyhAdResponseLabel?: string
+
+  // ---- Pause-Ad properties -------------------------------------------
+  // These are populated only by the `Pause Ad` mode. The mode renders a
+  // static (or, future, video) creative as a centred overlay every time
+  // the user pauses the content — no scene-keyed moments, no editorial
+  // windows. When Content #2 ships, swap the import in `pause-ad/config.ts`
+  // for the per-content image / payload.
+
+  /** DHYH Pause-Ad image URL. Static banner creative shown when the
+   *  user pauses content under the `Pause Ad` mode. Future variants
+   *  (video CTV ad, animated banner, etc.) would add sibling fields
+   *  here without breaking existing consumers. */
+  dhyhPauseAdImageUrl?: string
 }
 
 export type AdModeRegistry = Record<AdPlaybackOption, AdModeDefinition>

@@ -97,6 +97,16 @@ type DemoViewProps = {
    *  JSON panel renders this in its own branch so the existing
    *  Sync ad-break JSON path stays untouched. */
   activePauseMomentScene: PauseMomentScene | null
+  /** Pause Ad mode — flips on every pause once playback has started
+   *  and the active mode is `Pause Ad`. Drives the centred ad overlay
+   *  and the JSON panel's compliance-payload branch. The overlay
+   *  itself dismisses by resuming playback (click anywhere outside
+   *  the ad image, or the X button), so no separate dismiss callback
+   *  is needed — `onToggleVideoPlaying` is reused. */
+  isPauseAdActive: boolean
+  pauseAdImageSrc: string | null
+  pauseAdCompliancePayload: Record<string, unknown> | null
+  pauseAdResponseLabel: string
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
@@ -163,6 +173,10 @@ export function DemoView({
   isPauseToShopCtaVisible,
   activePauseOverlayPayload,
   activePauseMomentScene,
+  isPauseAdActive,
+  pauseAdImageSrc,
+  pauseAdCompliancePayload,
+  pauseAdResponseLabel,
   activeAdBreakLabel,
   adDecisionPayload,
   adDecisioningTail,
@@ -356,6 +370,8 @@ export function DemoView({
               isPauseOverlayActive={isPauseOverlayActive}
               isPauseToShopCtaVisible={isPauseToShopCtaVisible}
               activePauseOverlayPayload={activePauseOverlayPayload}
+              isPauseAdActive={isPauseAdActive}
+              pauseAdImageSrc={pauseAdImageSrc}
               videoCurrentSeconds={videoCurrentSeconds}
               playbackDurationSeconds={playbackDurationSeconds}
               displayedCurrentSeconds={displayedCurrentSeconds}
@@ -625,6 +641,51 @@ export function DemoView({
                         }}
                       >
                         {buildAdBreakJsonString(activeAdBreakLabel, adDecisionPayload, adDecisioningTail)}
+                      </Typography>
+                    </Box>
+                  ) : isPauseAdActive && pauseAdCompliancePayload ? (
+                    /* Pause Ad panel branch — fires while the Pause
+                       Ad overlay is up. Renders the ad's compliance
+                       payload (today a copy of L-Bar's; the partner
+                       will supply a Pause-Ad-specific payload later)
+                       in the same magenta-on-dark monospace style as
+                       the Sync ad-break compliance JSON. The condition
+                       flips false on dismiss / resume and the per-
+                       scene cards branch below takes over. */
+                    <Box sx={{ p: 0.85 }}>
+                      <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
+                        Pause Ad · {pauseAdResponseLabel} @{' '}
+                        {formatTime(videoCurrentSeconds)}
+                      </Typography>
+                      <Typography
+                        component="pre"
+                        sx={{
+                          m: 0,
+                          mb: 0.4,
+                          whiteSpace: 'pre-wrap',
+                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                          fontSize: 10.4,
+                          lineHeight: 1.45,
+                          color: '#f3f7fd',
+                        }}
+                      >
+                        {`{
+  "${pauseAdResponseLabel}"
+}
+:`}
+                      </Typography>
+                      <Typography
+                        component="pre"
+                        sx={{
+                          m: 0,
+                          whiteSpace: 'pre-wrap',
+                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                          fontSize: 10.4,
+                          lineHeight: 1.45,
+                          color: '#F05BB8',
+                        }}
+                      >
+                        {JSON.stringify(pauseAdCompliancePayload, null, 2)}
                       </Typography>
                     </Box>
                   ) : isPauseOverlayActive && activePauseMomentScene ? (

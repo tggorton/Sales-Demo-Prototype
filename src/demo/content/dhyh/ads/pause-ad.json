@@ -1,0 +1,404 @@
+{
+    "status": "success",
+    "message": "results found for video_id: sales-demo-ad",
+    "data": {
+        "id": "5irBUPdtxjx7UjHKZamGXR47KrIARUiStpwBREAWHRV",
+        "client_url": "https://rcdn.kervinteractive.com/test-videos/THD_DIY_30s.mp4",
+        "type": "mp4",
+        "duration_in_seconds": "30.089000",
+        "fps": "23.976032847165",
+        "ad_approval_data": {
+            "iab_category": {
+                "id": "280",
+                "name": "Home Improvement",
+                "confidence": 0.9
+            },
+            "garm_category": {},
+            "brand_safety_100": {},
+            "brand_safety_75": {},
+            "advertiser": "The Home Depot",
+            "adomain": "homedepot.com",
+            "primary_language": "English"
+        },
+        "metadata": {
+            "logos": [
+                "Wet Head",
+                "The Home Depot"
+            ],
+            "object_labels": [
+                {
+                    "Name": "Box",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Pants",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Female",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Girl",
+                    "Confidence": 0.98
+                },
+                {
+                    "Name": "Person",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Teen",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Cardboard",
+                    "Confidence": 0.97
+                },
+                {
+                    "Name": "Carton",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Home_Renovation_Work",
+                    "Confidence": 0.96
+                },
+                {
+                    "Name": "Shoe",
+                    "Confidence": 0.91
+                },
+                {
+                    "Name": "Face",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Head",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Dynamite",
+                    "Confidence": 0.93
+                },
+                {
+                    "Name": "Weapon",
+                    "Confidence": 0.93
+                },
+                {
+                    "Name": "Pencil",
+                    "Confidence": 0.56
+                },
+                {
+                    "Name": "Finger",
+                    "Confidence": 0.56
+                },
+                {
+                    "Name": "Art",
+                    "Confidence": 0.56
+                },
+                {
+                    "Name": "Crayon",
+                    "Confidence": 0.54
+                },
+                {
+                    "Name": "Marker",
+                    "Confidence": 0.53
+                },
+                {
+                    "Name": "Pen",
+                    "Confidence": 0.52
+                },
+                {
+                    "Name": "Adult",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Woman",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Surprised",
+                    "Confidence": 0.8
+                },
+                {
+                    "Name": "Neck",
+                    "Confidence": 0.96
+                },
+                {
+                    "Name": "Happy",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Smile",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Male",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Man",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Indoors",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Shop",
+                    "Confidence": 0.91
+                },
+                {
+                    "Name": "Computer_Hardware",
+                    "Confidence": 0.56
+                },
+                {
+                    "Name": "Computer_Keyboard",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Boy",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Hammer",
+                    "Confidence": 0.97
+                },
+                {
+                    "Name": "Perfume",
+                    "Confidence": 0.73
+                },
+                {
+                    "Name": "Grenade",
+                    "Confidence": 0.63
+                },
+                {
+                    "Name": "Interior_Design",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Tin",
+                    "Confidence": 0.57
+                },
+                {
+                    "Name": "Can",
+                    "Confidence": 0.71
+                },
+                {
+                    "Name": "Spray_Can",
+                    "Confidence": 0.54
+                },
+                {
+                    "Name": "Beverage",
+                    "Confidence": 0.91
+                },
+                {
+                    "Name": "Coffee_Cup",
+                    "Confidence": 0.91
+                },
+                {
+                    "Name": "Lamp",
+                    "Confidence": 0.57
+                },
+                {
+                    "Name": "Cleaning",
+                    "Confidence": 0.57
+                },
+                {
+                    "Name": "Package",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Package_Delivery",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Coat",
+                    "Confidence": 0.9
+                },
+                {
+                    "Name": "Handbag",
+                    "Confidence": 0.8
+                },
+                {
+                    "Name": "Gun",
+                    "Confidence": 0.9
+                },
+                {
+                    "Name": "Working_Out",
+                    "Confidence": 0.65
+                },
+                {
+                    "Name": "Hiding",
+                    "Confidence": 0.63
+                },
+                {
+                    "Name": "Pillow",
+                    "Confidence": 0.56
+                },
+                {
+                    "Name": "Hospital",
+                    "Confidence": 0.53
+                },
+                {
+                    "Name": "Reading",
+                    "Confidence": 0.53
+                },
+                {
+                    "Name": "Shelf",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Cricket_Bat",
+                    "Confidence": 0.71
+                },
+                {
+                    "Name": "Food",
+                    "Confidence": 0.63
+                },
+                {
+                    "Name": "Device",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Power_Drill",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Security",
+                    "Confidence": 0.57
+                },
+                {
+                    "Name": "Worker",
+                    "Confidence": 0.92
+                },
+                {
+                    "Name": "Door",
+                    "Confidence": 0.54
+                },
+                {
+                    "Name": "Woodworking",
+                    "Confidence": 0.52
+                },
+                {
+                    "Name": "Photography",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Portrait",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Glasses",
+                    "Confidence": 0.95
+                },
+                {
+                    "Name": "Sitting",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Black_Hair",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Sad",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Mobile_Phone",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Phone",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Solo_Performance",
+                    "Confidence": 0.94
+                },
+                {
+                    "Name": "Smoke",
+                    "Confidence": 0.7
+                },
+                {
+                    "Name": "Hand",
+                    "Confidence": 0.55
+                },
+                {
+                    "Name": "Home_Decor",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Living_Room",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Painting",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Child",
+                    "Confidence": 0.98
+                },
+                {
+                    "Name": "Walk-In_Closet",
+                    "Confidence": 1
+                },
+                {
+                    "Name": "Furniture",
+                    "Confidence": 0.99
+                },
+                {
+                    "Name": "Closet",
+                    "Confidence": 0.94
+                },
+                {
+                    "Name": "Couch",
+                    "Confidence": 0.98
+                },
+                {
+                    "Name": "Plant",
+                    "Confidence": 0.94
+                },
+                {
+                    "Name": "Credit_Card",
+                    "Confidence": 0.74
+                },
+                {
+                    "Name": "Market",
+                    "Confidence": 0.64
+                },
+                {
+                    "Name": "Grocery_Store",
+                    "Confidence": 0.58
+                },
+                {
+                    "Name": "Ice_Cream",
+                    "Confidence": 0.97
+                },
+                {
+                    "Name": "Advertisement",
+                    "Confidence": 0.84
+                },
+                {
+                    "Name": "Cutlery",
+                    "Confidence": 0.8
+                },
+                {
+                    "Name": "Spoon",
+                    "Confidence": 0.8
+                },
+                {
+                    "Name": "Maraca",
+                    "Confidence": 0.58
+                },
+                {
+                    "Name": "Musical_Instrument",
+                    "Confidence": 0.58
+                },
+                {
+                    "Name": "Brush",
+                    "Confidence": 0.57
+                }
+            ]
+        }
+    }
+}
