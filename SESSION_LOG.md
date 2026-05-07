@@ -309,6 +309,110 @@ from the same master.
 
 ---
 
+### 2026-05-05 / 06 — Sessions 6 + 7: Pause-mode scaffolding (narrative gap)
+
+Session 6 (05-05) scaffolded `CTA Pause` and `Organic Pause` as new
+Tier 3-only ad modes; Session 7 (05-06) was the longest day of the
+engagement, wiring the pause-overlay end-to-end against the third
+partner-supplied `test-moments-json-c`, building the desktop-aspect
+`<ProductDestinationDialog>`, generating Organic Pause data from
+Tier 3 with a 90s dedupe + trailing-5 carousel window, adding a
+committed pre-push hook (defence against the `tsc -b` strictness gap
+that ate one Vercel build), and discovering Akamai 403s the click-out
+iframe URLs (Option B fallback queued).
+
+Detailed block-level coverage lives in [`TIME_LOG.md`](TIME_LOG.md) for
+both sessions; this doc's narrative gap is intentional (the time log
+is detailed enough for those days to serve as canonical history). The
+commit table below reflects every commit chronologically.
+
+---
+
+### 2026-05-07 — Session 8: Per-content `ads/` reshape + Figma-spec polish + new Pause Ad mode
+
+Three landings, all motivated by clarifying conversations rather than
+new partner asks: one architectural cleanup, one batch of Figma-driven
+UI nudges, and one full new ad-playback mode plus the cookbook skill
+for the next one.
+
+**Per-content reshape — the right cut for content × mode.** User
+flagged that `content/dhyh/` had three empty scaffolded folders
+(`ads/`, `products/`, `compliance/`) and asked what they were for.
+Investigating turned up a real architectural mismatch: every Sync
+mode's "compliance fixture" — content-specific data tied to DHYH's
+THD ad — was sitting under `src/demo/ad-modes/modes/<sync>/fixtures.json`,
+i.e. a **content-specific file under a content-agnostic folder**.
+That meant adding Content #2 would require either splitting the mode
+folder or littering Content #2's data across global mode dirs.
+
+The right cut: **mode CODE is global, mode DATA is per-content**.
+Mode folders (`ad-modes/modes/<mode-id>/`) hold the registry config
++ optional component code; per-content data files live at
+`content/<id>/ads/<mode-id>.json` keyed by mode id. Adding Content #2
+becomes `mkdir content/content2 && cp -r content/dhyh/{ads,tiers}
+content/content2/`, edit JSONs, register in `content/index.ts`. Mode
+code stays untouched.
+
+Executed in 4 phases gated by build + test runs: (1) `git mv` 3 sync
+fixtures → `content/dhyh/ads/<mode-id>.json` and update mode-config
+imports; (2) `git mv` + rename `pause-moments.json` →
+`ads/cta-pause.json` + `organic-pause-moments.json` →
+`ads/organic-pause.json`, update adapter + generator paths + skill
+docs; (3) skipped move of `review/dhyh-products.json` (it's a
+generated review artefact, not a runtime catalog — kept in `review/`
+which is gitignored); (4) deleted empty `compliance/` and `products/`.
+Updated `content/README.md` with the per-content mental model + the
+shape Content #2 would mirror. Commit `7f56d7b`. 156/156 tests still
+green.
+
+Followed by a mid-session conversation about whether posters / videos
+/ ads should also move from `public/assets/` into `content/<id>/`.
+Landed on: leave static media in `public/assets/` (matches every
+other web app's bundler convention; no benefit to bundling binaries
+through Vite). The legibility goal is satisfied with naming
+conventions (`<content-id>-` filename prefix for content-owned assets;
+DHYH's poster is already `dhyh.jpg`).
+
+**Two Figma-spec repositions.** User shared Figma node 3083:42122
+(Pause-to-Shop CTA) and 3083:42129 (Pause Carousel). Coordinates
+translated from the 1920×1080 reference into player-relative
+percentages: CTA `bottom: 14% → 7.59%, right: 4% → 5.05%`; carousel
+`bottom: 8% → 7.7%`, slot width `100% / 3.5 → 26.1%`. All
+percentage-based so they hold across player sizes; affects CTA Pause
+and Organic Pause equally because they share `<PauseProductCarousel>`.
+Plus the small content-select fix earlier (magenta tile ring → hover-
+only via `outline`). All in commit `c9a345e`.
+
+**New Pause Ad mode + skill.** User specced a new ad-playback mode
+that's **conceptually different** from CTA / Organic Pause: a static
+(eventually video) banner ad that surfaces every time the user pauses
+content under the `Pause Ad` mode. No scene-keying, no editorial
+windows — pause anywhere → ad shows. Closing affordance: clicking
+the dim backdrop OR the X button resumes playback (same end state),
+which naturally hides the overlay because the gating includes
+`!isVideoPlaying`. Re-pausing later shows the ad again.
+
+End-to-end implementation: asset move
+(`_Temp-Files/temp_pauseAd.png` → `public/assets/ads/dhyh-pause-ad.png`),
+data duplication (`sync-lbar.json` → `pause-ad.json` as a placeholder
+compliance payload), `AdModeDefinition` extended with optional
+`dhyhPauseAdImageUrl`, `pause-ad/config.ts` wired (enabled + data +
+image URL + `_PauseAd Response` label), new `<PauseAdOverlay>`
+component (semi-transparent backdrop + centred ad image + close X),
+gating in `useDemoPlayback`, prop chain through App → DemoView →
+VideoPlayer, JSON panel injection branch above the existing CTA /
+Organic Pause branch, `Pause Ad` added to DHYH's `defaultAdModes`
+AND `adModesByTier['Exact Product Match']` (available on every tier),
+`getAvailableAdModes` test updated. Commit `a1cabcb`.
+
+Plus a new skill: `add-new-ad-playback-mode` — content-agnostic
+10-step recipe codifying registry wiring, per-content data, runtime
+gating, prop plumbing, optional UI surface, JSON-panel injection,
+tier availability, and the test pin. The next ad-playback mode lands
+as a recipe-follow rather than a fresh design.
+
+---
+
 ## Future considerations
 
 These are user-flagged items that are **not** part of the current restructuring scope but that the structure should accommodate cleanly when the time comes.
@@ -434,6 +538,27 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 68 | `4223156` | 04-30 19:52 | Re-add `vercel.json` with cache headers (isolated from prior revert) |
 | 69 | `99a5acc` | 04-30 19:52 | Re-add `preload="auto"` on content video (isolated from prior revert) |
 | 70 | `01a0044` | 04-30 19:57 | Faster product images: lazy-load + cache headers |
+| 71 | `1220f4f` | 04-30 20:05 | Housekeeping: SESSION_LOG + TIME_LOG checkpoint for end-of-day Session 4 |
+| 72 | `1f779de` | 05-01 09:08 | TIME_LOG: end-of-engagement AI Work recalibration (~29% reduction) |
+| 73 | `fa99882` | 05-01 10:33 | Session 5: asset delivery package (handoff/) + log entry |
+| 74 | `292aeb3` | 05-01 11:04 | TIME_LOG: combine with TIME_LOG-001 into two-track structure |
+| 75 | `8054459` | 05-01 11:19 | Archive `TIME_LOG-001.md` to clean up the project root |
+| 76 | `fb8c5d8` | 05-01 14:02 | TIME_LOG: append Figma MCP panel-capture block to Session 5 |
+| 77 | `79b85ba` | 05-05 17:43 | Scaffold CTA Pause + Organic Pause ad modes (Tier 3 only) |
+| 78 | `81e54ae` | 05-05 17:45 | TIME_LOG: append Session 6 (CTA Pause + Organic Pause scaffolding) |
+| 79 | `c65beea` | 05-06 12:11 | Pause-overlay polish + first-play / window-gated visibility |
+| 80 | `91e78ee` | 05-06 12:11 | Fix Content Selection title sizing |
+| 81 | `c420f30` | 05-06 12:13 | TIME_LOG: append Session 7 (pause-overlay refinement + JSON exploration) |
+| 82 | `753e332` | 05-06 16:58 | Wire CTA Pause pause-moments JSON + detail polish + click-out dialog |
+| 83 | `7469aa2` | 05-06 17:01 | TIME_LOG: append Session 7 afternoon (CTA Pause JSON wire-up) |
+| 84 | `71f4e50` | 05-06 17:11 | Drop unused `captionColor` — fix Vercel build (TS6133) |
+| 85 | `380f857` | 05-06 18:16 | Organic Pause: Tier 3 → JSON generator + dual-mode adapter + carousel polish |
+| 86 | `5babfa2` | 05-06 18:18 | TIME_LOG: append Session 7 evening (Organic Pause + push-safeguard process work) |
+| 87 | `81ee819` | 05-06 18:34 | TIME_LOG: append closing diagnosis (Akamai 403 confirms Option B is the path) |
+| 88 | `7f56d7b` | 05-07 11:30 | Per-content org: relocate ad-mode DATA under `content/<id>/ads/` |
+| 89 | `c9a345e` | 05-07 14:11 | UI polish: hover-only content tile + Figma-spec carousel/CTA placement |
+| 90 | `a1cabcb` | 05-07 14:12 | Pause Ad: new ad-playback mode + add-new-ad-playback-mode skill |
+| 91 | `6615525` | 05-07 14:30 | TIME_LOG: append Session 8 (per-content reshape + Figma polish + Pause Ad mode) |
 
 ---
 
