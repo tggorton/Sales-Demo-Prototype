@@ -1,6 +1,6 @@
 ---
 name: convert-pause-moments-json
-description: Convert a partner-supplied pause-to-shop "moments" JSON (the tracker-pixel-style document the campaign team produces) into the local `src/demo/content/<content-id>/pause-moments.json` format the demo's adapter consumes. Use when the user drops a new test JSON in `_Temp-Files/` (or supplies one inline) and wants it wired up for a content tile.
+description: Convert a partner-supplied pause-to-shop "moments" JSON (the tracker-pixel-style document the campaign team produces) into the local `src/demo/content/<content-id>/ads/cta-pause.json` format the demo's adapter consumes. Use when the user drops a new test JSON in `_Temp-Files/` (or supplies one inline) and wants it wired up for a content tile.
 ---
 
 # Skill: `/convert-pause-moments-json`
@@ -16,7 +16,7 @@ Take a partner-supplied JSON in the upstream "pause-to-shop" shape and produce t
 ## What this skill does
 
 1. **Find the source JSON.** Default location: `_Temp-Files/`. The user may name it anything (`test-moments-json-c`, `pause-data.json`, etc.). Read the raw content first; do not assume the schema is identical to a previous round.
-2. **Identify the target content id.** The destination is `src/demo/content/<content-id>/pause-moments.json`. For DHYH that's `src/demo/content/dhyh/pause-moments.json`. If the user is targeting a different content tile (e.g. a future `bb` for Big Brother), confirm the id with the user before writing.
+2. **Identify the target content id.** The destination is `src/demo/content/<content-id>/ads/cta-pause.json`. For DHYH that's `src/demo/content/dhyh/ads/cta-pause.json`. If the user is targeting a different content tile (e.g. a future `bb` for Big Brother), confirm the id with the user before writing.
 3. **Validate the source's basic shape.** Top-level should be `{ video_id, campaign: [...] }`. Each campaign should have `pause_to_shop_screen`, `product_detail_screen`, and `scenes[]`. Each scene should have `objects[].product_match[]`. If any of those are missing, flag the issue and ask the user before proceeding (don't silently produce a bad local file).
 4. **Apply the conversion rules** below.
 5. **Write the local file** to the target path.
@@ -82,7 +82,7 @@ Add a leading `_note` key to the local file documenting the conversions applied 
 
 A typical invocation should produce:
 
-1. A new (or updated) `src/demo/content/<content-id>/pause-moments.json` matching the rules above.
+1. A new (or updated) `src/demo/content/<content-id>/ads/cta-pause.json` matching the rules above.
 2. Confirmation that `npx tsc --noEmit` and `npx vitest run` pass.
 3. A short summary that lists per-scene timestamp rebases (source → clip-time), how many products per scene, anything trimmed beyond the standard rules, and any open questions (e.g. ambiguous timestamps, missing `cta_url`).
 
@@ -91,7 +91,7 @@ Do **not** fire trackers, do **not** modify the partner-supplied file in `_Temp-
 ## File paths
 
 - Source samples: `_Temp-Files/test-moments-json*` (gitignored — do not modify)
-- Target: `src/demo/content/<content-id>/pause-moments.json`
+- Target: `src/demo/content/<content-id>/ads/cta-pause.json`
 - Adapter: `src/demo/content/<content-id>/pauseMoments.ts`
 - Payload type: `src/demo/components/player/pause-overlay/pauseOverlay.types.ts`
 - Tests: `tests/unit/pauseMoments.test.ts`

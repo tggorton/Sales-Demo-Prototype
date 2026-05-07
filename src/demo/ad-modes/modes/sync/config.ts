@@ -1,6 +1,9 @@
 import { envString } from '../../../utils/env'
 import type { AdModeDefinition } from '../../types'
-import fixtures from './fixtures.json'
+// DHYH's Sync (parent) compliance payload. Lives under
+// `content/dhyh/ads/` per the per-content-org rule (see
+// `sync-lbar/config.ts`).
+import fixtures from '../../../content/dhyh/ads/sync.json'
 
 export const syncMode: AdModeDefinition = {
   id: 'Sync',

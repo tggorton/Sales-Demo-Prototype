@@ -161,8 +161,8 @@ describe('getActivePauseOverlayPayload', () => {
 
 // ─── Organic Pause resolver — tier3-derived moments ────────────
 //
-// `organic-pause-moments.json` is auto-generated from `tier3.json`
-// by `scripts/generate-organic-pause-moments.mjs`; its scenes cover
+// `content/dhyh/ads/organic-pause.json` is auto-generated from
+// `tier3.json` by `scripts/generate-organic-pause-moments.mjs`; its scenes cover
 // the entire 0–602s clip-time range so any pause-time resolves to an
 // active moment (unlike the editorial CTA Pause moments which only
 // cover two windows). Concrete numbers below are tied to the
@@ -223,7 +223,7 @@ describe('Organic Pause resolver', () => {
 
   it('shares campaign theme assets with the CTA Pause document', () => {
     // The generator copies the `pause_to_shop_screen` and
-    // `product_detail_screen` blocks from `pause-moments.json` so
+    // `product_detail_screen` blocks from `ads/cta-pause.json` so
     // both modes use the same sponsor logos / bg artwork while the
     // scenes diverge.
     const ctaPayload = getActivePauseOverlayPayload(90)!

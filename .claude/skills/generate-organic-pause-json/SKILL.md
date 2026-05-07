@@ -1,11 +1,11 @@
 ---
 name: generate-organic-pause-json
-description: Re-run the Tier 3 → Organic Pause JSON generator (`scripts/generate-organic-pause-moments.mjs`) so `src/demo/content/<content-id>/organic-pause-moments.json` reflects the current Tier 3 source. Use whenever Tier 3 data changes, the dedupe window or trailing-window cap shifts, the bundled-image path moves, or the user asks to "regenerate organic pause" / "refresh organic moments".
+description: Re-run the Tier 3 → Organic Pause JSON generator (`scripts/generate-organic-pause-moments.mjs`) so `src/demo/content/<content-id>/ads/organic-pause.json` reflects the current Tier 3 source. Use whenever Tier 3 data changes, the dedupe window or trailing-window cap shifts, the bundled-image path moves, or the user asks to "regenerate organic pause" / "refresh organic moments".
 ---
 
 # Skill: `/generate-organic-pause-json`
 
-Bridge a content tile's Tier 3 scene metadata (the per-scene product matches the Vision pipeline produces against the original source-time axis) into the same `pause-moments.json` shape the demo's pause-overlay adapter consumes — but on the spliced clip-time axis the player actually plays.
+Bridge a content tile's Tier 3 scene metadata (the per-scene product matches the Vision pipeline produces against the original source-time axis) into the same `ads/cta-pause.json` shape the demo's pause-overlay adapter consumes — but on the spliced clip-time axis the player actually plays.
 
 This is the "test/POC" recipe — it produces a usable Organic Pause document for DHYH from the data we have today (no editorial copy, no sponsor-supplied QR images, no per-product copy). When upstream supplies real organic-pause copy + QR assets, this skill becomes "translate that document into the local shape" and most of the synthesis below collapses; until then, this is the recipe.
 
@@ -22,7 +22,7 @@ This is the "test/POC" recipe — it produces a usable Organic Pause document fo
 2. **Read the script.** Open `scripts/generate-organic-pause-moments.mjs` and re-read the comment block at the top. The script is the canonical source of truth for the conversion logic; this skill is the human-readable companion. If the script has drifted from this skill, **trust the script and update the skill**.
 3. **Sanity-check the inputs.** The generator reads two files:
    - `src/demo/content/<id>/tiers/tier3.json` — Tier 3 source data with per-scene `objects[].product_match[]` and source-time `startTime` / `endTime`.
-   - `src/demo/content/<id>/pause-moments.json` — the CTA Pause document. Only its `campaign[0].pause_to_shop_screen` and `campaign[0].product_detail_screen` blocks are reused (so Organic Pause shares sponsor logos / backdrop artwork with CTA Pause).
+   - `src/demo/content/<id>/ads/cta-pause.json` — the CTA Pause document. Only its `campaign[0].pause_to_shop_screen` and `campaign[0].product_detail_screen` blocks are reused (so Organic Pause shares sponsor logos / backdrop artwork with CTA Pause).
 
    If either file is missing or malformed, fix it before re-running.
 4. **Run** `node scripts/generate-organic-pause-moments.mjs` from the project root. The script writes the output and prints a `scenes: N\n  total products: M` summary.
@@ -82,7 +82,7 @@ The generator copies each product's `link` URL into the output's `qr` field so t
 
 ### 8. Theme block reused verbatim
 
-The output's `campaign[0].pause_to_shop_screen` and `campaign[0].product_detail_screen` blocks are copied verbatim from `pause-moments.json`, so Organic Pause uses the same sponsor logos / detail backdrop / focused-tile artwork as CTA Pause. The two modes share campaign assets while their scenes diverge.
+The output's `campaign[0].pause_to_shop_screen` and `campaign[0].product_detail_screen` blocks are copied verbatim from `ads/cta-pause.json`, so Organic Pause uses the same sponsor logos / detail backdrop / focused-tile artwork as CTA Pause. The two modes share campaign assets while their scenes diverge.
 
 ## Constants you may need to edit
 
@@ -98,7 +98,7 @@ The output's `campaign[0].pause_to_shop_screen` and `campaign[0].product_detail_
 
 - Generator: `scripts/generate-organic-pause-moments.mjs`
 - Source: `src/demo/content/<id>/tiers/tier3.json`
-- CTA Pause document (theme reuse): `src/demo/content/<id>/pause-moments.json`
+- CTA Pause document (theme reuse): `src/demo/content/<id>/ads/cta-pause.json`
 - Output: `src/demo/content/<id>/organic-pause-moments.json`
 - Adapter: `src/demo/content/<id>/pauseMoments.ts` (consumes both CTA and Organic documents)
 - Resolver tests: `tests/unit/pauseMoments.test.ts` (last describe block: "Organic Pause resolver")

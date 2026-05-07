@@ -1,24 +1,58 @@
 # `src/demo/content/` — per-content tile bundles
 
 Every piece of content the demo can play lives at `src/demo/content/<id>/`
-with everything it owns: tier JSONs, ad creatives + manifests, products,
-compliance docs, generated review artifacts, and content-specific
-timeline/config. Adding a new tile is a self-contained directory drop, not
-a treasure-hunt across the project.
+with everything it owns: tier JSONs, per-mode ad data, content-specific
+timeline / config, and any generated review artifacts. Adding a new tile
+is a self-contained directory drop, not a treasure-hunt across the
+project.
 
-## Directory shape
+## Mental model
+
+> **Mode CODE is global** — `src/demo/ad-modes/modes/<mode-id>/` holds
+> how a mode works (component, types, mode-level config). It never
+> imports content-specific data files.
+>
+> **Mode DATA is per-content** — every content tile carries its own
+> JSON for every ad mode it supports, named by mode-id. Adding Content
+> #2 = `mkdir content/content2/` + drop in its own ads/tiers/etc.; the
+> mode code doesn't change.
+
+## Directory shape (current)
 
 ```
 src/demo/content/<id>/
-  config.ts        # ContentConfig — id, title, hidden taxonomies, ad-mode availability
-  timeline.ts      # content-specific constants (splice points, ad-break time, etc.)
-  scenes.ts        # tier-payload → SceneMetadata[] builders (when content has its own logic)
-  schema.ts        # Zod schema for tier JSON (added in Phase 5b once a 2nd tile exists)
-  tiers/           # tier1.json, tier2.json, tier3.json
-  ads/             # creatives + manifests scoped to this content (mirrors ad-modes/modes/* shape)
-  products/        # per-content product overrides / curated lists
-  compliance/      # per-content compliance JSON, IAB attestations
-  review/          # gitignored — one-off generated artifacts (e.g. dhyh-products.json)
+  config.ts          # ContentConfig — id, title, hidden taxonomies, ad-mode availability
+  timeline.ts        # content-specific constants (splice points, ad-break time, etc.)
+  scenes.ts          # tier-payload → SceneMetadata[] builder
+  pauseMoments.ts    # adapter that wires this content's pause-mode JSONs into the player overlay
+  tiers/
+    tier1.json
+    tier2.json
+    tier3.json
+  ads/               # this content's data for each ad mode, keyed by mode-id
+    sync.json
+    sync-lbar.json
+    sync-impulse.json
+    cta-pause.json
+    organic-pause.json
+    # pause-ad.json, etc. — one file per mode the content supports
+  review/            # gitignored — one-off generated review artifacts (e.g. dhyh-products.json)
+```
+
+Folders only get created when they have something to hold. A future
+`compliance/` (per-content IAB attestations) or `products/` (per-content
+product overrides not derivable from tier JSONs) lands when the first
+real file does — no scaffolded empties.
+
+## Future shape (when Content #2 lands)
+
+```
+src/demo/content/
+  index.ts                  # CONTENT_REGISTRY + getContentConfig + getAvailableAdModes
+  dhyh/                     # current
+    ads/, tiers/, review/, config.ts, timeline.ts, scenes.ts, pauseMoments.ts
+  content2/                 # mirrors dhyh's shape with content2's data
+    ads/, tiers/, review/, config.ts, timeline.ts, scenes.ts, pauseMoments.ts
 ```
 
 ## How the shell consumes a content tile
@@ -36,6 +70,12 @@ src/demo/content/<id>/
    filters against the globally-enabled set in `ad-modes/registry.ts`. A
    tier-exclusive mode (e.g. a future Tier-3-only `Carousel Shop`) is one
    `adModesByTier` entry — no code changes elsewhere.
+4. **Mode data** for a given `(content, mode)` lives at
+   `src/demo/content/<id>/ads/<mode-id>.json`. Each mode's `config.ts`
+   imports the JSON it needs from there; pause-mode adapters live at
+   `src/demo/content/<id>/pauseMoments.ts` because they wire the
+   per-content JSON into a per-mode shape (CTA Pause + Organic Pause
+   share the adapter today).
 
 ## Content × tier × ad-mode availability
 

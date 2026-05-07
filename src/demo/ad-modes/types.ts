@@ -12,8 +12,12 @@ export type AdCompliancePayload = Record<string, unknown>
  * runtime. One entry per mode in `AD_MODE_REGISTRY`.
  *
  * Adding a new mode = creating a folder under `modes/<id>/` with a
- * `config.ts` (this shape) and a `fixtures.json`, then registering it.
- * See `README.md` for the full cookbook.
+ * `config.ts` (this shape) and registering it. Mode CODE is content-
+ * agnostic; per-content compliance/creative DATA lives under
+ * `src/demo/content/<id>/ads/<mode-id>.json` and gets imported into
+ * the mode config (today every consumer is DHYH; when Content #2
+ * lands, the mode config will route by content id). See `README.md`
+ * for the full cookbook.
  */
 export type AdModeDefinition = {
   /** The dropdown value as users see it. Also the registry key. */

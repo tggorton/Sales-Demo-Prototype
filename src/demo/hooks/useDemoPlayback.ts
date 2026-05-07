@@ -306,11 +306,11 @@ export function useDemoPlayback({
   // Live payload that drives the carousel + detail when the overlay
   // is mounted. Each pause mode reads from its own JSON source per
   // the playback-mode-isolation rule:
-  //   - CTA Pause → `pause-moments.json` (partner-curated editorial
-  //     moments at fixed windows).
-  //   - Organic Pause → `organic-pause-moments.json` (auto-derived
-  //     from Tier 3 scenes; covers the entire clip so any pause
-  //     resolves to an active moment).
+  //   - CTA Pause → `content/dhyh/ads/cta-pause.json` (partner-curated
+  //     editorial moments at fixed windows).
+  //   - Organic Pause → `content/dhyh/ads/organic-pause.json` (auto-
+  //     derived from Tier 3 scenes; covers the entire clip so any
+  //     pause resolves to an active moment).
   // The two `useMemo` blocks return null when their mode isn't
   // active so the chained `??` below picks the right one without
   // either path running unnecessarily. Falls through to

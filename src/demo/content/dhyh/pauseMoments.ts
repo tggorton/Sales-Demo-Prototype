@@ -3,8 +3,8 @@ import type {
   PauseProductDetail,
   PauseProductTile,
 } from '../../components/player/pause-overlay'
-import pauseMomentsJson from './pause-moments.json'
-import organicPauseMomentsJson from './organic-pause-moments.json'
+import pauseMomentsJson from './ads/cta-pause.json'
+import organicPauseMomentsJson from './ads/organic-pause.json'
 
 // JSON document shape. Mirrors the partner-supplied test fixture
 // (`_Temp-Files/test-moments-json-c`), trimmed to only what the
@@ -151,7 +151,7 @@ function findActiveSceneInDocument(
 }
 
 /** CTA Pause active-scene resolver — looks up against
- *  `pause-moments.json` (partner-supplied editorial windows). */
+ *  `ads/cta-pause.json` (partner-supplied editorial windows). */
 export function getActivePauseMomentScene(
   clipSeconds: number
 ): { scene: PauseMomentScene; campaign: PauseMomentCampaign } | null {
@@ -159,7 +159,7 @@ export function getActivePauseMomentScene(
 }
 
 /** Organic Pause active-scene resolver — looks up against
- *  `organic-pause-moments.json` (auto-generated from `tier3.json`).
+ *  `ads/organic-pause.json` (auto-generated from `tier3.json`).
  *  Distinct from the CTA Pause resolver per the playback-mode
  *  isolation rule, but shares the same underlying lookup. */
 export function getActiveOrganicMomentScene(

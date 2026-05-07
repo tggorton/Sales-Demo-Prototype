@@ -92,7 +92,7 @@ type DemoViewProps = {
   isPauseOverlayActive: boolean
   isPauseToShopCtaVisible: boolean
   activePauseOverlayPayload: PauseOverlayPayload
-  /** Live scene from `pause-moments.json` while the CTA Pause
+  /** Live scene from `ads/cta-pause.json` while the CTA Pause
    *  overlay is active. Null on resume or outside any window. The
    *  JSON panel renders this in its own branch so the existing
    *  Sync ad-break JSON path stays untouched. */
@@ -629,9 +629,9 @@ export function DemoView({
                     </Box>
                   ) : isPauseOverlayActive && activePauseMomentScene ? (
                     /* Pause-mode panel branch — fires for CTA Pause
-                       (editorial moments from `pause-moments.json`)
+                       (editorial moments from `ads/cta-pause.json`)
                        OR Organic Pause (auto-generated moments from
-                       `organic-pause-moments.json`). Both modes route
+                       `ads/organic-pause.json`). Both modes route
                        through the same `activePauseMomentScene` value
                        upstream — the hook picks the right document
                        per mode. The label below distinguishes them so
