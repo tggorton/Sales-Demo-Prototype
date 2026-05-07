@@ -59,7 +59,12 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
           position: 'absolute',
           left: 0,
           right: 0,
-          bottom: '8%',
+          // Bottom inset matches Figma node 3083:42129 (1920×1080
+          // reference): tile bottom edge at y=991 → 8.24% from
+          // player bottom. The tile track adds ~6px of py-bottom for
+          // shadow breathing room, so the container sits at ~7.7%
+          // and the tiles land at 8.24% from the bottom.
+          bottom: '7.7%',
         }}
       >
         {/* Sponsor row — small inline label + logo chip. Anchored above
@@ -155,11 +160,13 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
             <Box
               key={tile.id}
               sx={{
-                // Flex-basis `100%` references the flex container's
-                // content-box width (player width minus the 11% padding-
-                // left), so `100% / 3.5` evaluates to the same per-slot
-                // size as the prior `left: 11%, right: 0` parent.
-                flex: '0 0 calc(100% / 3.5)',
+                // Slot width matches Figma node 3083:42129 (1920×1080
+                // reference): adjacent tile centers ~500px apart →
+                // 26.1% of player width per slot. With 11% padding-
+                // left, three full slots use 11% + 78.3% = 89.3% of
+                // player width; the 4th slot's ~41% peek on the right
+                // edge stays as the scrollability affordance.
+                flex: '0 0 26.1%',
                 scrollSnapAlign: 'start',
                 display: 'flex',
                 alignItems: 'center',

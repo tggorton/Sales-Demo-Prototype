@@ -49,10 +49,15 @@ export function PauseToShopCta({ visible, imageSrc, onPause }: PauseToShopCtaPro
       }
       sx={{
         position: 'absolute',
-        // Anchored to the bottom-right of the player, sitting above
-        // the control bar so the controls stay clickable.
-        bottom: '14%',
-        right: '4%',
+        // Anchored to the bottom-right of the player, matching Figma
+        // node 3083:42122 (1920×1080 reference). Coordinates derive
+        // from the Figma frame:
+        //   right  = (1920 − 1460 − 363) / 1920 ≈ 5.05%
+        //   bottom = (1080 − 898 − 100) / 1080 ≈ 7.59%
+        // Both percentages keep the CTA proportionally placed across
+        // any player size.
+        bottom: '7.59%',
+        right: '5.05%',
         // Sized via a viewport clamp so the CTA scales with the
         // player without making the image artwork too tall on big
         // displays. Image's intrinsic aspect ratio is preserved by

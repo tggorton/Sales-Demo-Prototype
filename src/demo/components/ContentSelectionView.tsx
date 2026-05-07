@@ -83,8 +83,21 @@ export function ContentSelectionView({
                     backgroundImage: `url(${item.posterUrl})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    border: selected ? '3px solid #ed005e' : '1px solid rgba(0,0,0,0.1)',
-                    boxShadow: selected ? '0 0 0 3px rgba(237, 0, 94, 0.15)' : 'none',
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    // Magenta ring as `outline` (not `border`) so it
+                    // doesn't shift layout on hover. Outline is
+                    // transparent at rest and lights up only when the
+                    // user is hovering. Pre-existing "selected" state
+                    // (set on click + persisted in sessionStorage) is
+                    // intentionally NOT visualised here — the magenta
+                    // is a hover-only affordance.
+                    outline: '3px solid transparent',
+                    outlineOffset: '-1px',
+                    transition: 'outline-color 160ms ease, box-shadow 160ms ease',
+                    '&:hover': {
+                      outlineColor: '#ed005e',
+                      boxShadow: '0 0 0 3px rgba(237, 0, 94, 0.15)',
+                    },
                   }}
                 />
                 <Typography
