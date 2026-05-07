@@ -411,6 +411,106 @@ gating, prop plumbing, optional UI surface, JSON-panel injection,
 tier availability, and the test pin. The next ad-playback mode lands
 as a recipe-follow rather than a fresh design.
 
+### 2026-05-07 evening — Responsive shell for large displays (CSS zoom)
+
+The single hardest sub-thread of the engagement so far in calendar
+time-cost-per-LOC, even though the final landed change is a single
+CSS property. User asked for the demo's focal area to feel
+proportionally bigger on 4K monitors and TVs (the sales team had
+been working around the issue with manual browser-zoom mid-
+presentation). I attempted two architectural approaches before
+landing the right one.
+
+**Round 1 — CSS variable + per-component scaling (commit `3482380`,
+since reverted).** The plan: a `--demo-scale` CSS custom property on
+the focal Container, consumed via `calc(<n>px * var(--demo-scale, 1))`
+in panel rails, grid heights, and control-bar tokens. Conceptually
+clean, decoupled from the rest of the app. Implementation broke the
+demo on the user's actual 4K display: scrubber dead, panels stacking
+under the player, player getting huge with 2 panels open. Diagnosis
+post-revert: my variable definition,
+`clamp(1, calc(0.5 + 100vw / 2880), 1.4)`, mixed unitless + length
+values inside the `calc()` (`100vw / 2880` is a length, not a
+dimensionless ratio). The whole `clamp()` was therefore invalid.
+And — critically — when a CSS custom property has an invalid value at
+substitution time, the consuming property does NOT fall back to
+`var()`'s default; the consuming property itself becomes invalid and
+resets to its initial value. So `gridTemplateColumns: ...calc(...
+var(--demo-scale, 1))...` evaluated to `none`, items auto-flowed as a
+single column, panels stacked under the player. The Slider thumb's
+sizing fell back to MUI defaults inconsistently, breaking the
+scrubber. Hard-reset (`git reset --hard HEAD~1`) — the commit was
+local-only, never pushed.
+
+**Round 2 — Phase A alone (commit `af18133`, since reverted).** Per
+the post-mortem I argued the malformed CSS variable was the only bug
+and Phase A by itself (just the shell-width clamp) should be safe.
+User asked for a fast-revert mechanism; I created git tag
+`safepoint-pre-responsive-shell` pointing at `6887fe6`. Applied Phase
+A (a single literal in `App.tsx` from `width: 1440` to `width:
+clamp(1440px, calc(1440px + (100vw - 1440px) * 0.6), 2400px)`).
+Verification on the 4K display revealed a deeper coupling I'd
+missed: the DemoView grid uses `gridTemplateColumns: minmax(0, 1fr)
+324px [324px ...]`, and the player INSIDE the `1fr` column has
+`width: visiblePanelCount <= 1 ? 'min(100%, 976px)' : '100%'`. So
+when the shell grew from 1440 → 2400 px, the `1fr` column grew from
+~1100 → ~2050 px, but the player stayed capped at 976 px — leaving a
+huge gap between player and panels. With 2+ panels, the player
+switched to `width: 100%` and grew way past the grid's fixed
+`height: 549`, breaking aspect ratio. Hard-reset to safepoint tag.
+
+**Round 3 — CSS `zoom` (commit `2406fcd`, landed).** The right answer
+was the team's existing manual workaround: browser zoom. CSS has a
+`zoom` property that programmatically scales an element and all its
+descendants — Chromium- and Safari-supported, Firefox since v126.
+Unlike `transform: scale()` it scales the layout box (not just paint),
+so children flow correctly. Hit-targets, scroll positions, font
+rendering — all scale together, exactly like Cmd-+. One CSS
+property, one line: `zoom: clamp(1, calc(100vw / 1440px), 1.6)`.
+`100vw / 1440px` is length÷length = dimensionless, no mixed-units
+gotcha this time. 1.0 at 1440 px viewport (MBP byte-identical), 1.33
+at 1920 px, capped at 1.6 above 2304 px.
+
+**Process change that made round 3 stick: verify-before-commit.** Per
+the user's explicit ask after rounds 1 and 2, I applied the change to
+the working tree only, ran build, started the dev server in
+background, and waited for visual sign-off on both the MBP and the
+Samsung 4K before committing. (This is the workflow I should have
+used the first two times; my haste to commit-then-verify burned
+~95 min of round-trip time.)
+
+**Two long-lived process artefacts** seeded from this thread:
+
+1. `dev_port_reserved.md` — a port-reservation rule. When I started
+   the dev server during round 3 verification, Vite auto-fell-through
+   from 5173 (in use, busy) to 5174 — which the user has reserved for
+   another project on their machine. The new memory: 5174 / 5175 /
+   5180 are off-limits for this project; always check 5173 is free
+   first; if it isn't, ASK before binding to anything else; use
+   `npm run dev -- --port N --strictPort` so Vite can never silently
+   fall through. The pre-existing `local_dev_url.md` rule (use
+   `localhost:5173`, not `127.0.0.1`) still stands.
+
+2. `responsive_zoom_feature.md` — full maintenance reference for the
+   zoom feature. Where it lives (`src/App.tsx` Container's `sx`),
+   how to tune the cap, how to change the growth curve, how to
+   extend to modals (apply at `body` level instead of Container), how
+   to remove entirely. Plus the safepoint git tag's name, in case a
+   future session wants to revert.
+
+**Caveat documented but not addressed:** MUI Dialogs / Drawers render
+via Portal to `document.body`, outside the Container, so they aren't
+zoomed today. They render at native viewport size — acceptable per
+design discussion since modals are momentary and the team isn't
+presenting them as the demo's main feature. If it feels jarring in
+live presentations, the follow-up is one CSS rule on `body` (also
+documented in the maintenance memo).
+
+The user asked not to push tonight; they may have more changes in the
+morning. Three commits land locally only: `2406fcd` (the zoom),
+`3b46baa` (TIME_LOG evening), and the about-to-be-made SESSION_LOG
+update.
+
 ---
 
 ## Future considerations
@@ -559,6 +659,10 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 89 | `c9a345e` | 05-07 14:11 | UI polish: hover-only content tile + Figma-spec carousel/CTA placement |
 | 90 | `a1cabcb` | 05-07 14:12 | Pause Ad: new ad-playback mode + add-new-ad-playback-mode skill |
 | 91 | `6615525` | 05-07 14:30 | TIME_LOG: append Session 8 (per-content reshape + Figma polish + Pause Ad mode) |
+| 92 | `2406fcd` | 05-07 evening | Responsive shell via CSS `zoom` for large displays (verify-before-commit) |
+| 93 | `3b46baa` | 05-07 evening | TIME_LOG: append Session 8 evening (responsive shell saga + CSS zoom landing) |
+
+*(Two commits — `3482380` and `af18133` — were committed locally during the responsive-shell saga and then dropped via `git reset --hard` after user-reported breakage. They never appeared on `origin/main` and don't get table entries; the safepoint tag `safepoint-pre-responsive-shell` at commit `6887fe6` was the recovery anchor for both reverts.)*
 
 ---
 
