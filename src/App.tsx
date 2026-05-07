@@ -394,7 +394,28 @@ function App() {
 
   return (
     <AppShell sx={{ py: 2 }}>
-      <Container maxWidth={false} sx={{ width: 1440, maxWidth: '100%', px: 3 }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          width: 1440,
+          maxWidth: '100%',
+          px: 3,
+          // Automated browser-zoom for large displays. The Container's
+          // logical width stays 1440 px (so MBP behaviour is unchanged),
+          // but at viewport widths above 1440 px the rendered surface
+          // proportionally enlarges via CSS `zoom`. This is the same
+          // mechanism Chromium uses for Cmd-+ browser zoom — every child
+          // (player, panels, control bar, typography, hit-targets) scales
+          // together with no layout-balance issues, exactly the way the
+          // sales team has been doing it manually on 4K presentations.
+          //
+          // Cap at 1.6 so even a 5K display doesn't make the demo feel
+          // ultra-wide. At 1440 px viewport the zoom resolves to 1.0
+          // (no change). At 2304 px viewport the cap kicks in. Between,
+          // zoom grows linearly with viewport width.
+          zoom: 'clamp(1, calc(100vw / 1440px), 1.6)',
+        }}
+      >
         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, bgcolor: 'transparent' }}>
           {currentView === 'login' ? (
             <LoginView
