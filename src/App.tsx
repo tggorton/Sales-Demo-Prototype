@@ -401,19 +401,24 @@ function App() {
           maxWidth: '100%',
           px: 3,
           // Automated browser-zoom for large displays. The Container's
-          // logical width stays 1440 px (so MBP behaviour is unchanged),
-          // but at viewport widths above 1440 px the rendered surface
-          // proportionally enlarges via CSS `zoom`. This is the same
-          // mechanism Chromium uses for Cmd-+ browser zoom — every child
-          // (player, panels, control bar, typography, hit-targets) scales
-          // together with no layout-balance issues, exactly the way the
-          // sales team has been doing it manually on 4K presentations.
+          // logical width stays 1440 px, but at viewport widths above
+          // the M1 MacBook Pro's "looks like" resolution (1512 px) the
+          // rendered surface proportionally enlarges via CSS `zoom`.
+          // This is the same mechanism Chromium uses for Cmd-+ browser
+          // zoom — every child (player, panels, control bar, typography,
+          // hit-targets) scales together with no layout-balance issues,
+          // exactly the way the sales team has been doing it manually
+          // on 4K presentations.
           //
-          // Cap at 1.6 so even a 5K display doesn't make the demo feel
-          // ultra-wide. At 1440 px viewport the zoom resolves to 1.0
-          // (no change). At 2304 px viewport the cap kicks in. Between,
-          // zoom grows linearly with viewport width.
-          zoom: 'clamp(1, calc(100vw / 1440px), 1.6)',
+          // Baseline is 1512 px (the 14" M1 MBP's logical viewport)
+          // rather than the 1440 px design reference. At MBP fullscreen
+          // the zoom resolves to 1.0 — byte-identical to pre-zoom
+          // behaviour. Below that (browser dev-tools open, narrower
+          // window) the `clamp` floor of 1 keeps zoom at 1.0 too, so
+          // there's no shrinkage. Above 1512 px, zoom grows linearly
+          // and caps at 1.6 around 2419 px viewport — a 5K display
+          // hits the same cap as a 4K and never feels ultra-wide.
+          zoom: 'clamp(1, calc(100vw / 1512px), 1.6)',
         }}
       >
         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, bgcolor: 'transparent' }}>
