@@ -511,6 +511,55 @@ morning. Three commits land locally only: `2406fcd` (the zoom),
 `3b46baa` (TIME_LOG evening), and the about-to-be-made SESSION_LOG
 update.
 
+### 2026-05-07 late evening — Zoom calibration, honest time recalibration, device transfer
+
+Three loosely-connected items before wrapping for the night.
+
+**Zoom-baseline recalibration to MBP fullscreen.** The morning's push
+landed `zoom: clamp(1, calc(100vw / 1440px), 1.6)` on the focal
+Container. User verified on the Samsung 4K (looks great) but on
+returning to the MacBook Pro noticed a subtle ~5 % zoom that hadn't
+been there before. Diagnosis: their MBP's logical viewport is 1512 px,
+not 1440 px — `1512 / 1440 = 1.05` so the formula evaluates above 1.0
+on the MBP even at fullscreen. Recalibrated denominator to 1512 so MBP
+fullscreen sits exactly at the no-zoom floor; scaling kicks in only
+above the MBP's logical width. Updated the `responsive_zoom_feature.md`
+maintenance memo to match. Commit `b776ada`, pushed to origin.
+
+**Honest AI Work recalibration of Session 8.** User end-of-day ask:
+verify the AI Work numbers are honest, not inflated by idle-wait time.
+The methodology section had already flagged this systematic over-count
+(commit-timestamp anchoring captures wall-clock between commits,
+which includes long stretches of user-side verification — clicking
+through the demo on the 4K monitor, composing screenshot reports,
+deciding next prompts), and a Session 4 follow-up calibration had
+applied a ~28 % reduction to sessions 1–4. Re-walked every Session 8
+block honestly with the stricter definition ("time between AI
+receiving a prompt and AI completing the response, NOT wall-clock");
+reduced 9 blocks by 17–35 minutes each. Session 8 went from 370 m AI
+Work logged to 261 m honest (~30 % reduction) — matching the
+historical Session-4 calibration ratio. Earlier sessions (5–7) left
+alone: no fresh memory to re-audit without speculating. Audit trail
+in the Session 8 subtotal cell. Commit `6e12812`.
+
+**Device-transfer prep for new-machine move.** User mentioned moving
+to a new computer. Since `~/.claude/projects/.../memory/` lives at the
+user level (outside the project folder), the memory files wouldn't
+come over via project-folder copy. Snapshotted all 15 memory files
+into `handoff/memory-snapshot/`, wrote a comprehensive transfer doc
+at `handoff/DEVICE_TRANSFER-2026-05-07.md` covering new-machine setup
+steps, what's tracked-vs-gitignored, the conversation-context summary
+of the day's work, and pointers to other reference docs. Both files
+land in the gitignored `handoff/` directory per the existing
+convention — they travel via project-folder copy, not via git, which
+matches the user's "only Vercel-essential elements should be in git"
+rule.
+
+Three commits land tonight in total: `b776ada` (zoom recalibration,
+already pushed to origin), `6e12812` (TIME_LOG honest recalibration,
+local-only), and the about-to-be-made SESSION_LOG update (also local
+until next push).
+
 ---
 
 ## Future considerations
@@ -661,6 +710,9 @@ All commits on `feat/restructuring-pass` since branching from `main` at `b26cf54
 | 91 | `6615525` | 05-07 14:30 | TIME_LOG: append Session 8 (per-content reshape + Figma polish + Pause Ad mode) |
 | 92 | `2406fcd` | 05-07 evening | Responsive shell via CSS `zoom` for large displays (verify-before-commit) |
 | 93 | `3b46baa` | 05-07 evening | TIME_LOG: append Session 8 evening (responsive shell saga + CSS zoom landing) |
+| 94 | `e22d238` | 05-07 evening | SESSION_LOG: Session 8 evening narrative — responsive shell saga + CSS zoom |
+| 95 | `b776ada` | 05-07 late evening | Recalibrate responsive-shell zoom baseline 1440 → 1512 px (M1 MBP fullscreen) |
+| 96 | `6e12812` | 05-07 late evening | TIME_LOG: Session 8 honest-recalibration of AI Work (–30%) |
 
 *(Two commits — `3482380` and `af18133` — were committed locally during the responsive-shell saga and then dropped via `git reset --hard` after user-reported breakage. They never appeared on `origin/main` and don't get table entries; the safepoint tag `safepoint-pre-responsive-shell` at commit `6887fe6` was the recovery anchor for both reverts.)*
 
