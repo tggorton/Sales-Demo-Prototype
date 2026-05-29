@@ -18,13 +18,14 @@ import {
   Typography,
   Button,
 } from '@mui/material'
+import { GlassSection } from '@kerv-one/theme'
 import { useMemo, type MutableRefObject } from 'react'
 import { PanelGlyph } from './primitives/PanelGlyph'
 import { VideoPlayer } from './player/VideoPlayer'
 import { TaxonomySceneCard } from './cards/TaxonomySceneCard'
 import { ProductCard } from './cards/ProductCard'
 import { JsonSceneCard } from './cards/JsonSceneCard'
-import type { PauseOverlayPayload } from './player/pause-overlay'
+import type { PauseOverlayPayload, PauseProductDestinationTarget } from './player/pause-overlay'
 import type { PauseMomentScene } from '../content/dhyh/pauseMoments'
 import {
   TAXONOMY_DEDUPE_WINDOW_SECONDS,
@@ -132,7 +133,7 @@ type DemoViewProps = {
   onOpenExpandedPanel: (panel: DemoPanel) => void
   onOpenJsonDownload: () => void
   onOpenCompanionModal: () => void
-  onOpenProductDestination: (url: string) => void
+  onOpenProductDestination: (target: PauseProductDestinationTarget) => void
 }
 
 export function DemoView({
@@ -243,15 +244,7 @@ export function DemoView({
 
   return (
     <Stack spacing={2}>
-      <Paper
-        sx={{
-          p: 2,
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.08)',
-          backgroundColor: 'rgba(255,255,255,0.5)',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-        }}
-      >
+      <GlassSection sx={{ p: 2 }}>
         <Stack spacing={isTitlePanelExpanded ? 1.75 : 0}>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Stack direction="row" alignItems="center" spacing={0.8}>
@@ -329,19 +322,9 @@ export function DemoView({
             </Stack>
           )}
         </Stack>
-      </Paper>
+      </GlassSection>
 
-      <Paper
-        ref={playbackLoadAreaRef}
-        sx={{
-          p: 3,
-          minHeight: 650,
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.08)',
-          backgroundColor: 'rgba(255,255,255,0.5)',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-        }}
-      >
+      <GlassSection ref={playbackLoadAreaRef} sx={{ p: 3, minHeight: 650 }}>
         <Stack spacing={2.5}>
           <Box
             sx={{
@@ -832,7 +815,7 @@ export function DemoView({
             </Box>
           </Box>
         </Stack>
-      </Paper>
+      </GlassSection>
     </Stack>
   )
 }

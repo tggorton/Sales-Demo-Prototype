@@ -7,20 +7,24 @@ import {
   getActivePauseOverlayPayload,
 } from '../../src/demo/content/dhyh/pauseMoments'
 
-// Pin the resolver + adapter contracts. The fixture has scene 254
-// covering 77–107 (clip-time, CTA Pause Window 1) and scene 258
-// covering 153–532 (Window 2), each with five products.
+// Pin the resolver + adapter contracts. CTA Pause moments are generated from
+// Tier 3 and tile the two editorial windows (77–107s, 153–532s); pausing inside
+// a window resolves to a scene-accurate moment carrying products.
 describe('getActivePauseMomentScene', () => {
-  it('returns scene 254 inside Window 1 (77–107s)', () => {
-    expect(getActivePauseMomentScene(77)?.scene.scene).toBe(254)
-    expect(getActivePauseMomentScene(90)?.scene.scene).toBe(254)
-    expect(getActivePauseMomentScene(107)?.scene.scene).toBe(254)
+  it('resolves a moment anywhere inside Window 1 (77–107s)', () => {
+    for (const t of [77, 90, 107]) {
+      const match = getActivePauseMomentScene(t)
+      expect(match).not.toBeNull()
+      expect(match!.scene.objects.length).toBeGreaterThan(0)
+    }
   })
 
-  it('returns scene 258 inside Window 2 (153–532s)', () => {
-    expect(getActivePauseMomentScene(153)?.scene.scene).toBe(258)
-    expect(getActivePauseMomentScene(300)?.scene.scene).toBe(258)
-    expect(getActivePauseMomentScene(532)?.scene.scene).toBe(258)
+  it('resolves a moment anywhere inside Window 2 (153–532s)', () => {
+    for (const t of [153, 300, 532]) {
+      const match = getActivePauseMomentScene(t)
+      expect(match).not.toBeNull()
+      expect(match!.scene.objects.length).toBeGreaterThan(0)
+    }
   })
 
   it('returns null in the gap between the two windows', () => {
@@ -41,15 +45,12 @@ describe('buildPauseOverlayPayload', () => {
   it('flattens objects → products into tiles, capping at 5', () => {
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
-    // Scene 254 has 5 objects, each with 1 product.
-    expect(payload.tiles).toHaveLength(5)
-    expect(payload.tiles.map((t) => t.id)).toEqual([
-      '69fb7f33c670ce8ddf3d07f6-254-1',
-      '69fb7f33c670ce8ddf3d07f6-254-2',
-      '69fb7f33c670ce8ddf3d07f6-254-3',
-      '69fb7f33c670ce8ddf3d07f6-254-4',
-      '69fb7f33c670ce8ddf3d07f6-254-5',
-    ])
+    expect(payload.tiles.length).toBeGreaterThan(0)
+    expect(payload.tiles.length).toBeLessThanOrEqual(5)
+    for (const tile of payload.tiles) {
+      expect(typeof tile.id).toBe('string')
+      expect(tile.id.length).toBeGreaterThan(0)
+    }
   })
 
   it('lifts the per-product CTA text onto the tile', () => {
@@ -63,10 +64,8 @@ describe('buildPauseOverlayPayload', () => {
   it('prefixes the upstream price string with $', () => {
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
-    const detail = payload.detailsById['69fb7f33c670ce8ddf3d07f6-254-1']
-    expect(detail.price).toBe('$130')
-    const detail4 = payload.detailsById['69fb7f33c670ce8ddf3d07f6-254-4']
-    expect(detail4.price).toBe('$138.99')
+    const detail = payload.detailsById[payload.tiles[0].id]
+    expect(detail.price.startsWith('$')).toBe(true)
   })
 
   it('builds a detailsById entry for every tile', () => {
@@ -77,37 +76,36 @@ describe('buildPauseOverlayPayload', () => {
     }
   })
 
-  it('lifts the QR destination URL onto each detail entry (with TEMP_PRODUCT_DESTINATION_OVERRIDES)', () => {
-    // The adapter prefers the temp product-destination override map
-    // (keyed by product name) over the partner-supplied `qr` field
-    // because the upstream tracker URL JS-redirects to a final URL
-    // that the demo can't iframe through. When the upstream supplies
-    // final URLs directly the override map and this assertion go
-    // away.
+  it('lifts the product link as the QR destination URL on each detail entry', () => {
+    // The generated `qr` field carries the real product page URL (Tier 3
+    // `link`); the adapter surfaces it as the detail card's QR destination.
+    // (The old `Product-1..5` → Home Depot override map is gone now.)
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
-    expect(
-      payload.detailsById['69fb7f33c670ce8ddf3d07f6-254-1'].qrDestinationUrl
-    ).toContain('homedepot.com/p/Makita-18V-LXT')
-    expect(
-      payload.detailsById['69fb7f33c670ce8ddf3d07f6-254-5'].qrDestinationUrl
-    ).toContain('homedepot.com/p/BUCKET-BOSS')
+    for (const tile of payload.tiles) {
+      expect(payload.detailsById[tile.id].qrDestinationUrl).toMatch(/^https:\/\//)
+    }
   })
 
-  it('lifts the carousel sponsor logo from pause_to_shop_screen', () => {
+  it('lifts the carousel sponsor logo from pause_to_shop_screen (string or null)', () => {
+    // Per 2026-05-28 direction: sponsor branding is optional. When the JSON
+    // supplies a `sponsored_by_logo_url`, the adapter must surface it as a
+    // string URL; when it's empty/missing, the adapter must surface it as
+    // `null` so the carousel can omit the sponsor row entirely. Both shapes
+    // are valid — this test pins the type contract, not a specific URL.
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
-    expect(payload.sponsorLogoSrc).toBe(
-      'https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/91786de4-f708-4229-8c9a-e27adda47dee.png'
-    )
+    const value = payload.sponsorLogoSrc
+    expect(value === null || typeof value === 'string').toBe(true)
   })
 
-  it('lifts the detail sponsor logo from product_detail_screen', () => {
+  it('lifts the detail sponsor logo from product_detail_screen (string or null)', () => {
+    // Same contract as the carousel logo: optional, may be null when the
+    // campaign omits Paramount-style sponsor branding for the detail screen.
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
-    expect(payload.detailSponsorLogoSrc).toBe(
-      'https://rcdn.kervinteractive.com/pts/shop-logo.png'
-    )
+    const value = payload.detailSponsorLogoSrc
+    expect(value === null || typeof value === 'string').toBe(true)
   })
 
   it('lifts the focused-tile background image from the campaign', () => {
@@ -121,8 +119,11 @@ describe('buildPauseOverlayPayload', () => {
   it('lifts the detail card background image from the campaign', () => {
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
+    // The detail bg points at the local asset since 2026-05-28 (the previous
+    // partner-hosted URL had the scan-QR icon baked in; the local "clean"
+    // version lets the in-code overlay render at the correct position).
     expect(payload.detailBackgroundImageSrc).toBe(
-      'https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/1b8cfb41-d42a-4586-a889-15ce59d60f8a.png'
+      '/assets/pause-overlay/product-detail-bg.png'
     )
   })
 
@@ -138,11 +139,11 @@ describe('buildPauseOverlayPayload', () => {
     )
   })
 
-  it('returns scene 258 with five tiles in Window 2', () => {
+  it('returns five tiles deep inside Window 2', () => {
     const match = getActivePauseMomentScene(300)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
     expect(payload.tiles).toHaveLength(5)
-    expect(payload.tiles[0].id).toBe('69fb7f33c670ce8ddf3d07f6-258-1')
+    expect(payload.tiles[0].id.length).toBeGreaterThan(0)
   })
 })
 
@@ -200,13 +201,14 @@ describe('Organic Pause resolver', () => {
     }
   })
 
-  it('builds an overlay payload with the placeholder description', () => {
+  it('builds an overlay payload with real Tier-3 product descriptions', () => {
     const payload = getActiveOrganicOverlayPayload(60)
     expect(payload).not.toBeNull()
     expect(payload?.tiles.length).toBeGreaterThan(0)
     const firstId = payload!.tiles[0].id
     const detail = payload!.detailsById[firstId]
-    expect(detail.description).toMatch(/placeholder description/i)
+    expect(detail.description.length).toBeGreaterThan(0)
+    expect(detail.description).not.toMatch(/placeholder description/i)
   })
 
   it("uses the Tier-3 product's link URL as the QR destination", () => {

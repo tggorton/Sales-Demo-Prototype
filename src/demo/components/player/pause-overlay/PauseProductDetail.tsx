@@ -1,7 +1,9 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import { QRCodeSVG } from 'qrcode.react'
-import type { PauseProductDetail as PauseProductDetailData } from './pauseOverlay.types'
+import type {
+  PauseProductDestinationTarget,
+  PauseProductDetail as PauseProductDetailData,
+} from './pauseOverlay.types'
 
 type PauseProductDetailProps = {
   detail: PauseProductDetailData
@@ -14,14 +16,17 @@ type PauseProductDetailProps = {
   cardBackgroundImageSrc: string | null
   // Click anywhere on the inner card → opens
   // `ProductDestinationDialog` (desktop-aspect, separate from the
-  // Sync mobile-companion modal) pointed at the active product's QR
-  // destination URL.
-  onOpenProductDestination: (url: string) => void
-  // Exit button returns to the carousel (still paused). The user
-  // dismisses the overlay entirely by clicking the Play control in
-  // the bottom bar — keeping the in-card button scoped to
-  // navigation avoids a "did Exit just resume playback?" foot-gun.
-  onBackToCarousel: () => void
+  // Sync mobile-companion modal) with the active product's full
+  // context (URL + image/title/description/price) so the modal can
+  // render an in-app product preview when the retailer blocks iframing.
+  onOpenProductDestination: (target: PauseProductDestinationTarget) => void
+  // Exit dismisses the overlay AND resumes playback (2026-05-29). The
+  // semantic was previously "back to carousel (still paused)" but the
+  // user explicitly wanted Exit to function as a second unpause path
+  // alongside the Play button in the control bar. The carousel ↔ detail
+  // sub-navigation is now entry-only (tile click → detail); leaving the
+  // detail means leaving the overlay entirely.
+  onExit: () => void
 }
 
 // Two-layer surface: a semi-transparent black backdrop fills the player area
@@ -41,11 +46,18 @@ export function PauseProductDetail({
   sponsorLogoSrc,
   cardBackgroundImageSrc,
   onOpenProductDestination,
-  onBackToCarousel,
+  onExit,
 }: PauseProductDetailProps) {
   const hasQrDestination = Boolean(detail.qrDestinationUrl)
   const handleCardClick = () => {
-    if (detail.qrDestinationUrl) onOpenProductDestination(detail.qrDestinationUrl)
+    if (!detail.qrDestinationUrl) return
+    onOpenProductDestination({
+      url: detail.qrDestinationUrl,
+      title: detail.title,
+      imageSrc: detail.imageSrc,
+      description: detail.description,
+      price: detail.price,
+    })
   }
   // When the campaign supplies a card background image we treat it as
   // a dark/branded image and flip product copy to white. When there's
@@ -103,8 +115,21 @@ export function PauseProductDetail({
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderRadius: '10px',
+          // White stroke. Width is scaled, not fixed: Figma specs the stroke
+          // as 3 px at the 1540-px-wide reference card. At smaller players
+          // (panels open, narrower viewports) a flat 3 px reads way too
+          // thick relative to the card body. Using `cqw` against the card's
+          // own width (containerType: 'inline-size' below) keeps the stroke
+          // proportional — 3 / 1540 ≈ 0.195cqw — and the clamp() floor of
+          // 1 px keeps it visible at very small player sizes while the
+          // ceiling of 3 px caps it at the Figma-ideal so it never *grows*
+          // beyond spec at full 1080p.
           border: '3px solid rgba(255,255,255,0.95)',
-          boxShadow: '0 2px 25px rgba(255,255,255,0.45)',
+          borderWidth: 'clamp(1px, 0.195cqw, 3px)',
+          // No glow on the stroke per 2026-05-27 design direction — the
+          // border is the entire "stroke" (Figma weight 3). The earlier
+          // `0 2px 25px rgba(255,255,255,0.45)` glow visually thickened it.
+          boxShadow: 'none',
           overflow: 'hidden',
           color: titleColor,
           // Whole card is the click target — opens the CompanionDialog
@@ -127,50 +152,46 @@ export function PauseProductDetail({
             any player size. Numbers in comments are the source-Figma
             pixel values inside the 1540×900 card. */}
 
-        {/* Logo Area — Figma (293, 26) within 1540×900 → 19% left,
-            2.9% top, 41.4%×13.3% size. Renders the campaign sponsor
-            logo image when supplied; otherwise a "Sponsor Logo"
-            placeholder block. */}
-        <Box
-          sx={{
-            position: 'absolute',
-            left: '19%',
-            top: '2.9%',
-            width: '41.4%',
-            aspectRatio: '638 / 120',
-            backgroundColor: sponsorLogoSrc ? 'transparent' : '#c4c4c4',
-            backgroundImage: sponsorLogoSrc ? `url(${sponsorLogoSrc})` : 'none',
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {!sponsorLogoSrc && (
-            <Typography
-              sx={{
-                fontSize: 'clamp(11px, 1.4vw, 22px)',
-                fontWeight: 700,
-                color: 'rgba(255,255,255,0.85)',
-                letterSpacing: 0.4,
-              }}
-            >
-              {sponsorLabel} · LOGO
-            </Typography>
-          )}
-        </Box>
+        {/* Logo Area — campaign sponsor logo. Per 2026-05-27 design direction,
+            horizontally aligned with the description column (`left: 30.5%`
+            matches the copy `Stack` below); top 8.89%, width 41.4% (Figma).
+            Per 2026-05-28 direction: render ONLY when the campaign actually
+            supplies a logo URL. Missing logo → render nothing (no gray
+            placeholder, no "Sponsor · LOGO" text). The system "uses it if
+            it's there and ignores it otherwise." */}
+        {sponsorLogoSrc && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '30.5%',
+              // 80px from the top of the inner card (Figma 1540×900) → 80/900 ≈ 8.89%.
+              top: '8.89%',
+              width: '41.4%',
+              aspectRatio: '638 / 120',
+              backgroundImage: `url(${sponsorLogoSrc})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              // Align the visible logo image with the box's left edge (and thus
+              // the description column at 30.5%). With 'center', the contained
+              // image inset from the left whenever its natural aspect ratio is
+              // narrower than the box's, leaving an off-by-N gap.
+              backgroundPosition: 'left center',
+            }}
+            aria-label={sponsorLabel}
+          />
+        )}
 
-        {/* Image Area — Figma (54, 297) → 3.5% left, 33% top,
-            23.6%×40.4% size, square aspect. Product hero image on
-            the left side of the card. */}
+        {/* Image Area — per 2026-05-27 design direction: 54px from the card's
+            left edge, 364×364 px, VERTICALLY CENTERED in the card. Against
+            Figma 1540×900: left = 54/1540 = 3.51%, width = 364/1540 = 23.64%
+            (square via aspectRatio), top = (900 − 364) / 2 / 900 = 268/900
+            = 29.78% (the vertical-center offset). */}
         <Box
           sx={{
             position: 'absolute',
-            left: '3.5%',
-            top: '33%',
-            width: '23.6%',
+            left: '3.51%',
+            top: '29.78%',
+            width: '23.64%',
             aspectRatio: '1 / 1',
             borderRadius: 1,
             backgroundColor: '#c4c4c4',
@@ -213,14 +234,18 @@ export function PauseProductDetail({
           sx={{
             position: 'absolute',
             left: '30.5%',
-            top: '33%',
+            // Title top aligns with the image's top (29.78%) per 2026-05-27
+            // design direction so the two columns "lock up" at the same
+            // horizon line.
+            top: '29.78%',
             width: '48%',
             maxWidth: 740,
             justifyContent: 'flex-start',
             // Figma stack gap is 36 px at 1540-px card. `cqw` resolves
             // against the card's inline size, so 36/1540 ≈ 2.34cqw
             // gives 36 px at the Figma reference and shrinks
-            // proportionally when the card narrows.
+            // proportionally when the card narrows. Confirmed 2026-05-27:
+            // 36px between title↔description and description↔price.
             gap: 'clamp(8px, 2.34cqw, 36px)',
           }}
         >
@@ -239,14 +264,14 @@ export function PauseProductDetail({
               // whole frame.
               lineHeight: 1.05,
               color: titleColor,
-              // Up to 3 lines for the longest titles (Figma's example
-              // is two lines of "Yellowstone Dutton Ranch Logo Hat
-              // Yellowstone Dutton Ranch Logo Hat"). Keeps short names
-              // ("Product-1") on one line.
+              // Per 2026-05-27 design direction: cap title at 2 lines, then
+              // truncate with an ellipsis. The text frame is 740 px wide
+              // (Stack width below).
               display: '-webkit-box',
-              WebkitLineClamp: 3,
+              WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             {detail.title}
@@ -282,17 +307,21 @@ export function PauseProductDetail({
           </Typography>
         </Stack>
 
-        {/* Small QR Code Area — Figma (1424, 632) → within the inner
-            card at (1234, 578), 250×250. As percentages: 80.1% left,
-            64.2% top, 16.2% wide, square aspect. The QR fills the
-            entire white square (no inner padding); `marginSize` on
-            the SVG provides the required scannable quiet zone. */}
+        {/* Small QR Code Area — per 2026-05-27 design direction: 72px from
+            the right edge AND 72px from the bottom edge of the inner card.
+            Against the Figma 1540×900 frame, width stays 16.2% (250px), so
+            left = 1218/1540 = 79.1% and top = 578/900 = 64.2% (which puts
+            the bottom edge exactly 72px above the card bottom). The QR fills
+            the entire white square (no inner padding); `marginSize` on the
+            SVG provides the required scannable quiet zone. */}
         <Box
           sx={{
             position: 'absolute',
-            left: '80.1%',
-            top: '64.2%',
-            width: '16.2%',
+            left: '79.09%',
+            top: '64.22%',
+            // 250×250 px against Figma 1540×900 → 250/1540 = 16.23%; aspectRatio
+            // keeps it square (height also 250 px).
+            width: '16.23%',
             aspectRatio: '1 / 1',
             borderRadius: 1,
             backgroundColor: '#FFFFFF',
@@ -332,71 +361,77 @@ export function PauseProductDetail({
           )}
         </Box>
 
-        {/* Scan QR Code Message — Figma (687, 685) → 44.6% left,
-            76.1% top, 19.4%×8.9% size (299×80 inside the 1540×900
-            card). Only rendered when the card has NO campaign
-            background image; the partner artwork ships with the
-            phone-icon + "SCAN OR CODE WITH YOUR CAMERA AND SHOP NOW"
-            already baked into the bg image, so an extra overlay
-            duplicates the CTA. When `cardBackgroundImageSrc` is
-            null (placeholder content, organic-pause-without-data,
-            etc.) the SVG provides the message instead. */}
-        {!hasCardBgImage && (
-          <Box
-            sx={{
-              position: 'absolute',
-              left: '44.6%',
-              top: '76.1%',
-              width: '19.4%',
-              aspectRatio: '299 / 80',
-              // Native SVG colours are white. On a white placeholder
-              // card we invert to dark so the message stays readable.
-              filter: 'invert(1)',
-            }}
-          >
-            <Box
-              component="img"
-              src="/assets/pause-overlay/scan-qr-message.svg"
-              alt=""
-              sx={{ display: 'block', width: '100%', height: '100%' }}
-            />
-          </Box>
-        )}
-      </Box>
-
-      {/* Exit button sits on the black backdrop, outside the card.
-          Figma places it at ~4% from left edge, ~4% from bottom —
-          left-aligned so it doesn't compete with the centered card.
-          The previous "Browse" sibling was redundant (both buttons
-          went back to the carousel) and has been removed. */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: '4%',
-          left: '4%',
-        }}
-      >
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<ArrowBackIcon sx={{ fontSize: 18 }} />}
-          onClick={onBackToCarousel}
+        {/* Scan QR Code Message — per 2026-05-27 design direction: 58px to
+            the left of the QR's left edge AND 81px from the card bottom.
+            Against the Figma 1540×900 frame, width stays 19.4% (299px), so
+            left = (1218 - 58 - 299) / 1540 = 861/1540 = 55.9% and
+            top = (900 - 81 - 80) / 900 = 739/900 = 82.1%.
+            NOTE — when a campaign `cardBackgroundImageSrc` is set (the partner
+            artwork), that bg image typically has the phone-icon + "SCAN OR
+            CODE WITH YOUR CAMERA AND SHOP NOW" already baked in; this SVG
+            overlay is only rendered as a fallback for `null` bg (placeholder
+            content / organic-pause-without-data). The Paramount detail-screen
+            bg was updated 2026-05-28 to a "clean" version (no baked-in icon),
+            so the overlay now renders unconditionally; the `invert(1)` filter
+            stays scoped to the no-bg placeholder case where the asset's white
+            glyphs would be invisible on a white card. */}
+        <Box
           sx={{
-            color: '#FFFFFF',
-            borderColor: 'rgba(255,255,255,0.7)',
-            '&:hover': {
-              borderColor: '#FFFFFF',
-              backgroundColor: 'rgba(255,255,255,0.08)',
-            },
-            textTransform: 'uppercase',
-            fontSize: 12,
-            letterSpacing: 0.5,
-            fontWeight: 600,
-            px: 2,
+            position: 'absolute',
+            left: '55.9%',
+            top: '82.1%',
+            width: '19.4%',
+            aspectRatio: '299 / 80',
+            // Asset glyphs are white. Only invert on the no-bg placeholder
+            // card (white background) so they read as dark there.
+            filter: hasCardBgImage ? 'none' : 'invert(1)',
           }}
         >
-          Exit
-        </Button>
+          <Box
+            component="img"
+            src="/assets/pause-overlay/scan-qr-message.svg"
+            alt=""
+            sx={{ display: 'block', width: '100%', height: '100%' }}
+          />
+        </Box>
+      </Box>
+
+      {/* Exit button — dismisses the overlay AND resumes playback (the
+          "I'm done shopping" path; equivalent to clicking Play in the
+          control bar). Position is the original 29-px-below-card spec at
+          the 1920×1080 reference, scaled proportionally for any player
+          size. As of the 2026-05-29 evening layered fix, the overlay's
+          content frame is bottom-inset by the control bar height — so
+          `top: 90.69%` of THIS frame (which is `playerHeight - controlBarHeight`
+          tall) naturally lands Exit in the safe band above the controls.
+          No z-index gymnastics needed; this Box just inherits the overlay's
+          stacking context. Math is unchanged in spirit (everything is a
+          proportion of the active container, the active container just
+          happens to exclude the control bar now). */}
+      <Box
+        component="button"
+        type="button"
+        onClick={onExit}
+        aria-label="Exit and resume playback"
+        sx={{
+          position: 'absolute',
+          top: '90.69%',
+          left: '10%',
+          width: '5.625%',
+          aspectRatio: '108 / 48.5',
+          background: 'transparent',
+          border: 0,
+          padding: 0,
+          cursor: 'pointer',
+          display: 'block',
+        }}
+      >
+        <Box
+          component="img"
+          src="/assets/pause-overlay/exit.svg"
+          alt=""
+          sx={{ display: 'block', width: '100%', height: '100%' }}
+        />
       </Box>
     </Box>
   )

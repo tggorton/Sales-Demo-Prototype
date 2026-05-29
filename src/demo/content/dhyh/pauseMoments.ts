@@ -95,38 +95,13 @@ function extractCtaImageUrl(ctaUrl: string): string | null {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// TEMPORARY product-destination overrides (delete when upstream
-// supplies final URLs directly).
-//
-// The JSON's `qr` field today is a paramountplus-tv.com tracker
-// URL that fires pixels then JS-redirects to a Home Depot product
-// page. Browsers can't follow that JS-redirect inside our iframe
-// modal in a way that ends up showing the destination — and even
-// when they do, Home Depot's CSP / Akamai bot-protection often
-// blocks framing. So as a stopgap we map the partner-supplied
-// product `name` straight to the known Home Depot URL and feed
-// that final URL to the QR generator + the modal iframe.
-//
-// Keyed by `product.name` (not `product_id`) because the same
-// product appears under different IDs across scenes; the name is
-// the stable axis. When the upstream adopts final URLs in the JSON
-// directly, drop this map and the override branch in the adapter.
-const TEMP_PRODUCT_DESTINATION_OVERRIDES: Record<string, string> = {
-  'Product-1':
-    'https://www.homedepot.com/p/Makita-18V-LXT-5-3-8-in-Circular-Trim-Saw-Tool-Only-XSS03Z/205561436',
-  'Product-2':
-    "https://www.homedepot.com/p/Milwaukee-Electrician-s-Pliers-Hand-Tool-Set-5-Piece-48-22-6331-48-22-6100-48-22-3079/310730449",
-  'Product-3':
-    'https://www.homedepot.com/p/Milwaukee-M18-FUEL-18V-Lithium-Ion-Brushless-Cordless-4-1-2-in-5-in-Grinder-w-Paddle-Switch-Tool-Only-2880-20/315445886',
-  'Product-4':
-    'https://www.homedepot.com/p/Milwaukee-M18-18V-Lithium-Ion-Cordless-1-2-in-Drill-Driver-Tool-Only-2606-20/204632932',
-  'Product-5':
-    'https://www.homedepot.com/p/BUCKET-BOSS-3-Bag-17-Pocket-Professional-High-Visibility-Framers-Work-Tool-Belt-Tool-Storage-Suspension-Rig-with-Suspenders-in-Black-55285-HV/309173071',
-}
-
+// The product's `qr` field carries the destination URL — the real product page,
+// supplied directly in the Tier-3-generated pause JSONs (`qr` ← Tier 3 `link`).
+// The detail card renders it as a client-side QR and uses it as the click-out
+// modal URL. (The earlier `Product-1..5` → Home Depot override map is gone now
+// that the data carries real URLs.)
 function resolveQrDestination(product: PauseMomentProduct): string | null {
-  return TEMP_PRODUCT_DESTINATION_OVERRIDES[product.name] || product.qr || null
+  return product.qr || null
 }
 
 /** Returns the scene whose `[startTime, endTime]` (inclusive) contains

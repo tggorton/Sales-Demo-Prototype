@@ -45,6 +45,13 @@ export const resolveProductImageUrl = (
   }
 
   if (match.image && match.image.length > 0) {
+    // Clip-native (`DB-DemoVid1`) product data carries an absolute CDN URL in
+    // `image` (e.g. https://images.thdstatic.com/...). Use it as-is rather than
+    // treating it as a bundled `/assets/products/` path. Older data uses a
+    // relative path (e.g. `homedpt/<id>.jpg`) which still resolves to the
+    // bundled assets. A local copy of these CDN images is also kept for future
+    // self-hosting — see analysis/TIER-PREP-NOTES.md.
+    if (/^https?:\/\//i.test(match.image)) return match.image
     return `${BUNDLED_PRODUCT_IMAGE_BASE}${match.image.replace(/^\/+/, '')}`
   }
   if (match.image_url && match.image_url.length > 0) return match.image_url

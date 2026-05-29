@@ -3,6 +3,7 @@ export { PauseToShopCta } from './PauseToShopCta'
 export { PAUSE_OVERLAY_PLACEHOLDER } from './pauseOverlay.placeholder'
 export type {
   PauseOverlayPayload,
+  PauseProductDestinationTarget,
   PauseProductDetail,
   PauseProductTile,
 } from './pauseOverlay.types'

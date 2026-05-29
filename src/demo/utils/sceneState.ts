@@ -90,6 +90,7 @@ export const resolveTaxonomyAvailability = (
     Faces: false,
     Emotion: false,
     Object: false,
+    Logo: false,
   }
   for (const option of options.allTaxonomies) {
     if (options.hiddenTaxonomies.includes(option)) continue

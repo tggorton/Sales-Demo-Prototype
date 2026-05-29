@@ -30,11 +30,13 @@ import {
 import { getTaxonomySceneData } from '../../data/taxonomySceneData'
 import type {
   AdDecisioningTailItem,
+  AdPlaybackOption,
   ExpandedPanel,
   ProductEntry,
   SceneMetadata,
   TaxonomyOption,
 } from '../../types'
+import type { PauseMomentScene } from '../../content/dhyh/pauseMoments'
 import { formatTime } from '../../utils/formatTime'
 
 type ExpandedPanelDialogProps = {
@@ -60,6 +62,16 @@ type ExpandedPanelDialogProps = {
   activeAdBreakLabel: string
   adDecisionPayload: Record<string, unknown>
   adDecisioningTail: AdDecisioningTailItem[]
+  // Pause-mode props — kept in sync with the inline (collapsed) JSON panel
+  // in DemoView so the expanded view always shows the same content as
+  // the collapsed view. The expanded dialog is "show more of the same
+  // content," never "show a different scene." (Global rule, 2026-05-28.)
+  selectedAdPlayback: AdPlaybackOption
+  isPauseAdActive: boolean
+  pauseAdCompliancePayload: Record<string, unknown> | null
+  pauseAdResponseLabel: string
+  isPauseOverlayActive: boolean
+  activePauseMomentScene: PauseMomentScene | null
   videoCurrentSeconds: number
   /** Monotonic counter from `useDemoPlayback`. Bumps every time the
    *  user scrubs the player. The dialog re-fires its open-time scroll
@@ -90,6 +102,12 @@ export function ExpandedPanelDialog({
   activeAdBreakLabel,
   adDecisionPayload,
   adDecisioningTail,
+  selectedAdPlayback,
+  isPauseAdActive,
+  pauseAdCompliancePayload,
+  pauseAdResponseLabel,
+  isPauseOverlayActive,
+  activePauseMomentScene,
   videoCurrentSeconds,
   scrubVersion,
   onClose,
@@ -424,6 +442,72 @@ export function ExpandedPanelDialog({
               }}
             >
               {buildAdBreakJsonString(activeAdBreakLabel, adDecisionPayload, adDecisioningTail)}
+            </Typography>
+          </Box>
+        ) : isPauseAdActive && pauseAdCompliancePayload ? (
+          // Pause Ad — mirrors the collapsed inline branch in DemoView so the
+          // expanded view always shows the same payload as the inline panel.
+          <Box sx={{ p: 0.85 }}>
+            <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
+              Pause Ad · {pauseAdResponseLabel} @ {formatTime(videoCurrentSeconds)}
+            </Typography>
+            <Typography
+              component="pre"
+              sx={{
+                m: 0,
+                mb: 0.4,
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontSize: 10.4,
+                lineHeight: 1.45,
+                color: '#f3f7fd',
+              }}
+            >
+              {`{
+  "${pauseAdResponseLabel}"
+}
+:`}
+            </Typography>
+            <Typography
+              component="pre"
+              sx={{
+                m: 0,
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontSize: 10.4,
+                lineHeight: 1.45,
+                color: '#F05BB8',
+              }}
+            >
+              {JSON.stringify(pauseAdCompliancePayload, null, 2)}
+            </Typography>
+          </Box>
+        ) : isPauseOverlayActive && activePauseMomentScene ? (
+          // CTA Pause / Organic Pause — mirrors the collapsed inline branch so
+          // the expanded view shows the same active pause-moment JSON the user
+          // sees in the collapsed panel. Both modes route through the same
+          // `activePauseMomentScene` value upstream; the label below
+          // distinguishes them.
+          <Box sx={{ p: 0.85 }}>
+            <Typography sx={{ fontSize: 11, color: '#d4deea', mb: 0.5 }}>
+              {selectedAdPlayback === 'Organic Pause'
+                ? 'Organic Pause Moment'
+                : 'Pause Moment'}{' '}
+              · scene {activePauseMomentScene.scene} @{' '}
+              {formatTime(videoCurrentSeconds)}
+            </Typography>
+            <Typography
+              component="pre"
+              sx={{
+                m: 0,
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontSize: 10.4,
+                lineHeight: 1.45,
+                color: '#F05BB8',
+              }}
+            >
+              {JSON.stringify(activePauseMomentScene, null, 2)}
             </Typography>
           </Box>
         ) : (

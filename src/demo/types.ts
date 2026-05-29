@@ -27,6 +27,7 @@ export type TaxonomyOption =
   | 'Faces'
   | 'Emotion'
   | 'Object'
+  | 'Logo'
 
 export type JsonDownloadOption = 'Original JSON' | 'Summary JSON'
 

@@ -32,6 +32,20 @@ export type PauseProductDetail = PauseProductTile & {
   qrDestinationUrl: string | null
 }
 
+// Payload handed to the product-destination modal when a detail card is
+// clicked. Carries the full product context (not just the URL) so the modal
+// can render an in-app product preview (Option B) — many retailers
+// (e.g. Home Depot) block iframing their pages via X-Frame-Options / CSP, so
+// we show image + title + description + price + QR + "open in new tab" rather
+// than embedding the live page. See ProductDestinationDialog.
+export type PauseProductDestinationTarget = {
+  url: string
+  title: string
+  imageSrc: string | null
+  description: string
+  price: string
+}
+
 export type PauseOverlayPayload = {
   // Optional sponsor branding shown above the tile carousel. `null`
   // hides the header row entirely.

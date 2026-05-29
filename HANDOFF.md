@@ -16,6 +16,39 @@ This file is the single source of truth a new agent should read before touching 
 
 ---
 
+> **⏳ In progress (2026-05-27) — DHYH tier-data swap.** We are preparing to swap the DHYH
+> hero tiers (`tier1/2/3.json`) from the 44-min source-time data
+> (`DHYH1_111H_RIDO111H_CLEAN`, remapped via the splice in §6) to **natively-10-min
+> clip-time data (`DB-DemoVid1`)** that matches the spliced `dhyh-cmp.mp4` directly. The
+> prepared JSONs are staged in `_Temp-Files/response-tier{1,2,3}_1b.json`; **no app code has
+> changed yet.** Planned, backward-compatible shifts (so it's revertable via a flag + the
+> archived old tiers): clip-native timeline (`DHYH_TIER_TIME_BASE`), `emotion` unified
+> (supersedes `music_emotion`), product images from the thdstatic CDN, and a `"synthetic"`
+> object marker (synthetic objects power Products but are hidden from the Object taxonomy).
+> **Full rationale + the streamlining report:
+> [`analysis/TIER-PREP-NOTES.md`](analysis/TIER-PREP-NOTES.md).**
+>
+> **Update (2026-05-27):** the swap landed (clip-native tiers live; old 44-min tiers in
+> `archive/`), **and** CTA + Organic Pause were regenerated from the new Tier 3 with real
+> products. Both pause modes now use generators sharing `scripts/lib/pause-moments-core.mjs`
+> with `TIME_BASE` (clip vs source-splice) + `IMAGE_SOURCE` (local/CDN/S3) knobs. The CTA
+> skill was renamed `convert-pause-moments-json` → **`generate-cta-pause-json`**. All local
+> (uncommitted).
+>
+> **Product click-out = in-app preview, NOT an iframe (2026-05-27).** Clicking a product
+> in the pause overlay opens `ProductDestinationDialog`, which now renders an **in-app
+> product preview** (image, title, price, description, a client-side QR, and an "open in
+> new tab" button) instead of embedding the retailer page. Reason: Home Depot — like most
+> major retailers — blocks iframe embedding via **`X-Frame-Options` / CSP `frame-ancestors`**
+> plus **Akamai bot protection** (returns 403), so an embedded page renders blank. This is
+> the agreed "Option B" fallback (not a backend proxy, not default-new-tab). It works for
+> any retailer regardless of framing policy. **Revert:** flip
+> `PRODUCT_DESTINATION_MODE` in `ProductDestinationDialog.tsx` from `'preview'` to `'iframe'`
+> (the legacy iframe body is preserved). The preview modal styling is intentionally basic
+> for now — a candidate for a later polish pass.
+
+---
+
 ## 1. What this project is
 
 A React + MUI prototype of the KERV Sales Demo Tool. It walks a sales rep through:

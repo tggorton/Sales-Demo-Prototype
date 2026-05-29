@@ -66,6 +66,12 @@ export function PlayerControls({
         left: 0,
         right: 0,
         bottom: 0,
+        // Sit above the pause overlays (PauseOverlay z=5, PauseAdOverlay z=3) so
+        // the dim wash that fills the full player during pause modes paints
+        // BEHIND the control row and the user can still hit Play to resume.
+        // Without this, the overlay's explicit z-index beats DOM order and
+        // visually covers the controls even though they're rendered later.
+        zIndex: 6,
         px: playerControlTokens.overlayPx,
         py: playerControlTokens.overlayPy,
         background: 'linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15))',

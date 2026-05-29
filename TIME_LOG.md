@@ -344,6 +344,97 @@ new sessions get appended here.
 | Reserved-ports memory + zoom feature memo + TIME_LOG (this block) | 3m | 20m | Two new memory entries triggered by tonight's work. (a) `dev_port_reserved.md` — 5173 is THIS project; 5174 / 5175 / 5180 belong to other projects on the user's machine; always check 5173 is free before `npm run dev` and ASK the user before falling through. Triggered by Vite auto-falling-through to 5174 when 5173 was busy, which stomped on the user's other project. Includes the `npm run dev -- --port N --strictPort` recipe so future dev-server starts can't silently fall through. (b) `responsive_zoom_feature.md` — full reference for the zoom feature: where it lives, how to tune the cap or growth curve, how to extend to modals, how to remove entirely. Plus this TIME_LOG block. |
 | **Session subtotal** | **~2h 23m** | **~5h 09m** | Mid-day (~78m / ~156m): per-content reshape, Figma-spec polish, new Pause Ad mode + skill, push. Evening (~48m / ~105m): two failed responsive-shell attempts before landing CSS `zoom`; two long-lived memory entries (port-reservation rule + zoom maintenance memo). Late evening (~17m / ~48m): zoom-baseline recalibration to 1512 px after MBP-fullscreen feedback, honest AI Work recalibration of all 9 prior Session 8 blocks (~30% reduction), device-transfer prep for new-machine move. **Calibration note:** original Session 8 logged 370m AI Work; honest recalibrated to 261m (~30% reduction), then 309m after adding the late-evening blocks. The over-count source was the same one the methodology already flags — commit-timestamp anchoring captures wall-clock between commits, which includes long stretches of user-side verification on the 4K display, screenshot composition, and decision time. The verify-before-commit workflow exposed this clearly. Earlier sessions (1–7) not re-audited (already had one calibration round; further reduction without fresh memory would be guessing). |
 
+### 2026-05-26 — Session 9: Device transfer — re-establish project on new Mac
+
+**Wall-clock span:** ~08:25 – ~08:50 local. First session on the new machine, executing the move the Session 8 device-transfer prep anticipated. No feature commits — environment bootstrap from the `handoff/` package plus transfer-doc + log updates. AI Work here is genuinely small (fast file ops, a 12s `npm install`, a 4.5s build, a 0.7s test run); the honest definition keeps it that way rather than crediting wall-clock.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| New-machine bootstrap from `handoff/` | 7m | 24m | Swept `handoff/` (DEVICE_TRANSFER doc + 15-file memory snapshot), followed the doc's self-bootstrap checklist: confirmed the auto-created per-project memory dir at the *new* CloudStorage path, restored all 15 snapshot `.md` files into it. Found `core.hooksPath` already `.githooks` (traveled in `.git/config` via the folder copy — Step 3 was a no-op). `node_modules/` had synced only partially (23 top-level entries via Dropbox) → `npm install` completed the tree (+233 packages). `npm run build` clean; `npx vitest run` → 156/156 pass; dev server live on 5173 via `--port 5173 --strictPort` (per the reserved-ports rule). Verified both git remotes intact (`origin` = production, `v2` = review). Uncommitted (setup-only). |
+| Transfer Q&A + new-path memory | 5m | 9m | User confirmed the deliberate relocation under the Dropbox CloudStorage mount and asked three clarifying questions: (1) update the path, (2) does keeping `node_modules` in Dropbox sync break git→Vercel, (3) does the same-repo/same-Vercel pipeline still work from a new machine. Answered: Dropbox sync is correctness-irrelevant (node_modules is gitignored; Vercel runs its own install), and git→Vercel is machine-independent (deploys via GitHub integration; `.vercel/` CLI link only matters for manual `npx vercel`). Wrote `device_transfer_2026-05-26.md` memory recording the new canonical path + username change (`grantgorton` → `ggorton`) and indexed it in MEMORY.md. |
+| Transfer-doc actuals + TIME_LOG + SESSION_LOG (this block) | 3m | 11m | Appended a "Transfer log — what actually happened" section to `handoff/DEVICE_TRANSFER-2026-05-07.md` (the original was a prediction; this records the executed 2026-05-26 move as precedent for the next transfer), plus this TIME_LOG Session 9 table and the SESSION_LOG Session 9 narrative. |
+| **Session subtotal** | **~15m** | **~44m** | Clean transfer — every documented expectation held except two minor surprises worth the note: the memory-dir path was no longer predictable from the old rule (CloudStorage prefix + new username), and the Dropbox-synced `node_modules` arrived incomplete. Both handled. No feature work; durable output is the restored memory + the transfer-log precedent. |
+
+### 2026-05-26 — Session 10: Tier-data analysis (DB-DemoVid1 vs DHYH1) — no-commit investigation
+
+**Wall-clock span:** ~09:45 – ~16:50 local, but with a multi-hour midday idle gap; only active analysis time is counted. **No commits** — this was a data-investigation session whose durable output is the gitignored `analysis/TIER-COMPARISON.md`, two new project memories, and the local `_Temp-Files/` working JSONs (incl. the `_1b` pair). With no commit timestamps to anchor AI Work, estimates here are honest-effort from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Tier comparison doc + taxonomy breakdowns | 16m | 34m | Built `analysis/TIER-COMPARISON.md` comparing the three `_Temp-Files` tier JSONs (video_id `DB-DemoVid1`, 10-min/198-scene cut): scenes, taxonomies, hero-taxonomy matrix, plus per-block breakdowns (IAB, GARM/brand-safety, sentiment, emotion). ~10 throwaway analysis scripts run via `/tmp`. |
+| Emotion vs music_emotion + merge builds | 12m | 24m | Established `emotion` (visual) vs `music_emotion` (audio) are independent per-scene signals; user clarified `emotion` is the successor field (legacy tooling still emits both). Built `_1b` emotion-merged T2/T3 (music moods folded into `emotion`, ids E7–E11). Wrote `emotion_supersedes_music_emotion` memory; reframed doc R1/R2. |
+| Objects / synthetic-objects investigation | 14m | 32m | Showed T3 objects are NOT a T2 subset; identified "synthetic" objects via bounding-box reuse (99.8% share an in-scene box) + non-detection names; tied to the Detic → category-mapping → `allowed_categories` (12 retail buckets) pipeline. Wrote `tier3_synthetic_objects` memory; reframed doc R6→E3, added R8/R9 (description/labels gaps). |
+| App-vs-DB-DemoVid1, Vercel check, housekeeping | 12m | 25m | Confirmed the live app **and** the deployed Vercel bundle use `DHYH1` (44-min), not `DB-DemoVid1` (verified by grepping deployed tier chunks). Moved analysis docs to a new gitignored `/analysis/`; fixed the `_Temp-Files/` gitignore gap. Transcript audit proving the morning cleanup deleted no mp4 (11 PNGs/SVG only). |
+| Object-alignment `_1b` rebuild + logging | 8m | 15m | Per user direction, regenerated `_1b` with strict object alignment (T3 objects = T2 exactly by name+bbox; 203 products kept, 416 dropped). This TIME_LOG Session 10 table + SESSION_LOG narrative. |
+| **Session subtotal** | **~1h 02m** | **~2h 10m** | Largest analysis-only session of the project; zero commits. Durable output: the comparison doc, two memories, and the `_1b` working files — all local/gitignored. |
+
+### 2026-05-27 — Session 11: Tier-swap planning + data prep (no commits)
+
+**Wall-clock span:** spread across 2026-05-27 (some investigation carried over from 05-26 late). Investigation + planning + data prep only — no app-code changes, no commits. Durable output: the prepared `_Temp-Files/response-tier{1,2,3}_1b.json`, `analysis/TIER-PREP-NOTES.md`, a memory update, and an in-progress note in `HANDOFF.md`. AI Work estimated from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| App-vs-DB-DemoVid1 + Vercel build + mp4 audit | 14m | 28m | Established the live app + deployed Vercel bundle use `DHYH1` (44-min, trimmed at runtime), not `DB-DemoVid1`; grepped the deployed tier chunks + static-asset manifest to confirm only the 10-min `dhyh-cmp.mp4` ships (full 44-min `dhyh-cmp-full.mp4` is 1.18 GB, gitignored). Transcript audit confirming the morning cleanup deleted no mp4. |
+| Tier-swap planning + checks | 26m | 42m | Read `scenes.ts` / `resolveTierPayload.ts` / `resolveProductImage.ts` / `sceneState.ts` / `useDemoPlayback.ts` / the organic-pause generator. Found the blockers (44-min remap drops all clip-native scenes; emotion-merge removes the field the app reads; thdstatic product URLs break the bundled resolver), confirmed the centralized one-clock→one-active-scene sync, and iterated the plan with the user (scope narrowed to hero tiers + Sync family + panels; pause modes deferred). Settled the taxonomy-vs-metadata definition and synthetic-object rule C. |
+| Data prep + documentation | 13m | 32m | Confirmed the restored enriched T3 (`DB-DemoVid1-hd`, 619 products). Rebuilt `response-tier1_1b` (+per-scene sentiment) and `response-tier3_1b` (enriched + emotion merge + faces/description/text/labels from T2 + 665 `"synthetic":true` markers, all 619 products preserved). Wrote `analysis/TIER-PREP-NOTES.md` (streamlining report + synthetic logic + planned shifts), updated the synthetic-objects memory, added the in-progress `HANDOFF.md` note, and this log entry. |
+| **Session subtotal** | **~53m** | **~1h 42m** | Planning + data-prep + docs; no app code, no commits. Sets up the swap to be a data drop + one flag, fully revertable. |
+
+### 2026-05-27 — Session 12: Tier-swap implementation (clip-native hero tiers)
+
+**Wall-clock span:** continued from Session 11 the same day. The implementation pass — real app-code + data changes, build + tests green, user-verified in the browser. **Uncommitted** (no push without an explicit ask). AI Work estimated from tool-call cadence; Prompting is low this session (short go-ahead + verification messages).
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| App-code changes (backward-compatible) | 4m | 32m | Explored the full taxonomy/consumption wiring, then edited 8 files: `timeline.ts` (`DHYH_TIER_TIME_BASE` flag), `scenes.ts` (clip-native pass-through, unified `emotion` reader, synthetic-object filter on the Object panel, type updates), `resolveProductImage.ts` (absolute CDN-URL passthrough), and a data-gated `Logo` taxonomy across `types.ts` / `constants.ts` / `sceneState.ts` / `taxonomySceneData.ts`. All paths handle both old 44-min and new clip-native shapes. |
+| Data swap + verify + image backup | 4m | 25m | Archived the old 44-min tiers → `archive/…-2026-05-27/` (+ revert README), copied the prepared `_1b` JSONs into `src/demo/content/dhyh/tiers/`. `npm run build` clean (tsc -b + vite); 156/156 tests pass; verified clip-native keeps all 198 scenes (0 dropped), 619 products preserved, 665 synthetic hidden, CDN images resolve. Downloaded a gitignored local backup of all 360 product images (15.3 MB). User confirmed in-browser: tiers/panels/sync/objects/products-images/emotion all good. |
+| **Session subtotal** | **~8m** | **~57m** | Implementation landed and verified; fully revertable via the `DHYH_TIER_TIME_BASE` flag + archived tiers. Still uncommitted. |
+
+### 2026-05-27 — Session 13: Pause-mode regeneration (CTA + Organic) + click-out Option B
+
+**Wall-clock span:** continued same day. Regenerated both pause-overlay modes from the new Tier 3 and replaced the (frame-blocked) iframe click-out with an in-app product preview. Build + tests green, user-verified in-browser. **Uncommitted.** AI Work estimated from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Vercel manifest check + pause-mode planning | 20m | 28m | Confirmed the deployed build ships only the 10-min `dhyh-cmp.mp4` (full 44-min is gitignored). Reviewed current `cta-pause.json` / `organic-pause.json` / the organic generator / `pauseMoments.ts`; mapped the plan and settled decisions (Option B scene-accurate CTA windows, image-host switching, skill renames, length-agnostic generators). |
+| Pause-mode implementation | 6m | 44m | Built `scripts/lib/pause-moments-core.mjs` + `generate-cta-pause-moments.mjs`, rewrote the organic generator (clip-native `TIME_BASE`, `IMAGE_SOURCE` local/CDN/S3, real descriptions, qr=link). Regenerated CTA (91 moments) + Organic (111 moments, from t=0). Removed `TEMP_PRODUCT_DESTINATION_OVERRIDES`. Renamed `convert-pause-moments-json` → `generate-cta-pause-json`; rewrote both skill docs. Updated the data-coupled pause tests to invariants. |
+| Click-out Option B (in-app preview) | 10m | 30m | Diagnosed the blank modal as Home Depot's `X-Frame-Options`/CSP + Akamai 403 (confirmed it's not link-dependent). Built the in-app product-preview modal (image/title/price/description/QR/open-in-new-tab) with a `PRODUCT_DESTINATION_MODE` revert flag; threaded `PauseProductDestinationTarget` through 5 components. Build clean, 156/156 tests pass. |
+| Docs + logging | 3m | 12m | HANDOFF.md update (pause regen + Option B + iframe rationale), `analysis/TIER-PREP-NOTES.md` §5b, updated the iframe-fallback memory to "implemented", and this log entry. |
+| **Session subtotal** | **~39m** | **~1h 54m** | Pause modes now run real products on the clip-native Tier 3; click-out is retailer-agnostic. No app behavior lost; revertable (`PRODUCT_DESTINATION_MODE`, archived JSONs). Uncommitted. |
+
+### 2026-05-27 — Session 14: Delivery package + tier-alignment skill
+
+**Wall-clock span:** continued same day. Packaging + documentation — no app code. Purely additive (copies + new docs/skill). AI Work estimated from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| JSON delivery package | 6m | 22m | Created `_Temp-Files/DELIVERY-jsons-2026-05-27/` with copies of the 5 live JSONs (tier1/2/3 + cta/organic pause) and wrote `JSON-DELIVERY-HANDOFF.md` — a production-team brief leading with the 10-min-clip-vs-44-min-episode contract, per-file specifics, and how the modes/taxonomies/products work. No originals moved. |
+| Image backup + doc expansion | 4m | 18m | Copied the 360 product images into the package (`product-images/`, 16 MB); expanded the doc with a plain-language "In plain terms" overview, a dedicated "Product images & hosting" section mapping the Home Depot CDN linkage + the local backup + CDN→local→S3 switch table. |
+| `align-tier-jsons` skill | 2m | 18m | New skill documenting the hero-tier alignment contract + checklist (clip-time, emotion unification, T1 sentiment, T2↔T3 parity, synthetic marker, nested products) + verification — the hero-tier counterpart to the pause skills. |
+| **Session subtotal** | **~12m** | **~58m** | Delivery package + reference skill; no code. Uncommitted/local (delivery folder under gitignored `_Temp-Files/`; skill tracked). |
+
+### 2026-05-28 — Session 15: Detail-card polish + Paramount unbrand + full-area pause backdrop
+
+**Wall-clock span:** all-day iterative polish of the PauseProductDetail card against partner-supplied assets and Figma redlines, plus a JSON-level unbranding pass so the demo isn't Paramount-specific, plus a one-line fix so the dim pause backdrop covers the full player. Build + tests green at each landing point; user-verified in-browser via HMR. **Uncommitted.** AI Work estimated from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| Detail-card polish iterations | 22m | 38m | Iterative cycles against partner-supplied assets and Figma redlines: exit button (108×48.5 scaled proportionally, 29 px gap from card bottom), sponsor logo column-aligned with description (`backgroundPosition: 'left center'`), scan-QR-message graphic positioned in code (vs baked into bg), product image 364×364 vertically centered 54 px from left, title 2-line clamp / description 5-line clamp / text frame 740 px / 36 px stack gap, `product-detail-bg.png` swap to a clean (no-baked-icon) version, scan-QR SVG swap to the user-supplied version, ExpandedPanelDialog JSON-panel pause-mode branches so the expanded view mirrors the collapsed pause-mode payload, controls auto-hide during pause-mode overlays. |
+| Paramount unbrand (sponsor logo removal) | 4m | 11m | Blanked `sponsored_by_logo_url` (carousel) and `shop_logo_url` (detail) in `cta-pause.json`; regenerated `organic-pause.json` (inherits the theme). `PauseProductDetail` + `PauseProductCarousel` made conditional on a truthy logo URL — missing logo → renders nothing (no placeholder, no "Sponsor · LOGO" label). Two tests rewritten from URL-equality to `string \| null` invariant. "Use it if it's there, ignore it otherwise." 156/156 green. |
+| Pause backdrop fills full player | 2m | 5m | Both pause overlays (carousel + ad) had `bottom: ${controlBarHeight}px` leaving a strip uncovered by the dim wash. Controls already auto-hide during pause modes, so switched both wrappers to `inset: 0`. One file, two stanzas. |
+| **Session subtotal** | **~28m** | **~54m** | Three landings; all uncommitted. PauseProductDetail now matches the Figma spec at runtime sizes, the demo is sponsor-agnostic at the JSON level, and the pause dim wash covers edge-to-edge. |
+
+### 2026-05-29 — Session 16: UI-kit audit + glass shimmer pass + PauseProductDetail style guide
+
+**Wall-clock span:** morning session. Audited the new `_Temp-Files/kerv-ui-kit/` against the existing `kerv-one-theme` (delta = the "shimmer edge" the white containers were missing) and shipped a surgical fix on a dedicated branch so revert = `git switch`. Followed up with a designer-and-engineer reference for the scaling pattern the PauseProductDetail card uses. **Uncommitted.** AI Work estimated from tool-call cadence.
+
+| Block | Prompting | AI Work | Notes |
+|---|---:|---:|---|
+| UI-kit audit + strategy decision | 6m | 18m | Read the kit's tokens/theme/components/package shape; mapped against the existing `kerv-one-theme`. Finding: glass / gradient / shimmer-border values are byte-identical between the two — the screenshot mismatch wasn't a missing kit feature but four `<Paper>` containers in `DemoView` + `ContentSelectionView` that styled their own bg+border inline and skipped the theme's `glassSection` treatment. Flagged the three notable kit deltas (`cssVariables: true`, Storybook devDeps, module-augmentation overlap). Surfaced three adoption paths via AskUserQuestion; user picked surgical fix + deferred kit migration. |
+| Glass shimmer pass (4-container swap) | 4m | 14m | New branch `feat/glass-shimmer-pass` off `feat/restructuring-pass`. Swapped four outer `<Paper>` containers (DemoView title + playback panels, ContentSelectionView header + grid) to `<GlassSection>` from `@kerv-one/theme` — picks up the shimmer-edge `::before` pseudo, 20 px backdrop blur, 16 px radius, and `0 4px 8px rgba(0,0,0,0.05)` shadow automatically. Kept inner-panel `<Paper>` elements untouched (different intent). Build clean, 156/156 tests pass. Revert = `git switch feat/restructuring-pass`. |
+| Style-guide doc + handoff move | 9m | 16m | Drafted `PAUSE_PRODUCT_DETAIL_STYLE_GUIDE.md` (8 sections: problem statement, two reference frames, three units, conversion formula, element-by-element map with Figma→code values for every piece on the card, 6 pitfalls the code already hit, add-a-new-element procedure, what-it-doesn't-cover). Moved into `handoff/` per user direction and rewrote the relative links so the path references still resolve. |
+| Logging | 3m | 6m | This entry + the matching SESSION_LOG narrative. |
+| **Session subtotal** | **~22m** | **~54m** | Shimmer-edge fix landed on its own revertable branch; design-handoff doc lives in `handoff/`. Uncommitted. |
+
 ## Running totals
 
 ### Cursor engagement (frozen)
@@ -370,15 +461,23 @@ new sessions get appended here.
 | Handoff Session 6 (05-05) | 47m | 200m |
 | Handoff Session 7 (05-06) | 154m | 586m |
 | Handoff Session 8 (05-07) | 143m | 309m |
-| **Handoff subtotal** | **~11h 20m** | **~31h 07m** |
+| Handoff Session 9 (05-26) | 15m | 44m |
+| Handoff Session 10 (05-26) | 1h 02m | 2h 10m |
+| Handoff Session 11 (05-27) | 53m | 1h 42m |
+| Handoff Session 12 (05-27) | 8m | 57m |
+| Handoff Session 13 (05-27) | 39m | 1h 54m |
+| Handoff Session 14 (05-27) | 12m | 58m |
+| Handoff Session 15 (05-28) | 28m | 54m |
+| Handoff Session 16 (05-29) | 22m | 54m |
+| **Handoff subtotal** | **~15h 19m** | **~41h 20m** |
 
 ### Combined (full project lifecycle)
 
 | | Prompting | AI Work |
 |---|---:|---:|
 | Cursor engagement | ~5h 45m | ~17h 35m |
-| Handoff engagement | ~11h 20m | ~31h 07m |
-| **Combined total** | **~17h 05m** | **~48h 42m** |
+| Handoff engagement | ~15h 19m | ~41h 20m |
+| **Combined total** | **~21h 04m** | **~58h 55m** |
 
 ---
 

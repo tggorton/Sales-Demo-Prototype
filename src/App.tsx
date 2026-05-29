@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEven
 import { AuthenticatedHeader } from './demo/components/layout/AuthenticatedHeader'
 import { CompanionDialog } from './demo/components/dialogs/CompanionDialog'
 import { ProductDestinationDialog } from './demo/components/dialogs/ProductDestinationDialog'
+import type { PauseProductDestinationTarget } from './demo/components/player/pause-overlay/pauseOverlay.types'
 import { ContentSelectionView } from './demo/components/ContentSelectionView'
 import { DemoView } from './demo/components/DemoView'
 import { ExpandedPanelDialog } from './demo/components/dialogs/ExpandedPanelDialog'
@@ -382,13 +383,13 @@ function App() {
   // destination URL. Separate from the companion modal because the
   // two playback experiences use different visual treatments and
   // different URL sources.
-  const [selectedProductDestinationUrl, setSelectedProductDestinationUrl] =
-    useState('')
+  const [selectedProductDestination, setSelectedProductDestination] =
+    useState<PauseProductDestinationTarget | null>(null)
   const [isProductDestinationModalOpen, setIsProductDestinationModalOpen] =
     useState(false)
-  const openProductDestinationModal = (url: string) => {
-    if (!url) return
-    setSelectedProductDestinationUrl(url)
+  const openProductDestinationModal = (target: PauseProductDestinationTarget) => {
+    if (!target?.url) return
+    setSelectedProductDestination(target)
     setIsProductDestinationModalOpen(true)
   }
 
@@ -575,6 +576,12 @@ function App() {
         activeAdBreakLabel={demoPlayback.activeAdBreakLabel}
         adDecisionPayload={demoPlayback.adDecisionPayload}
         adDecisioningTail={demoPlayback.adDecisioningTail}
+        selectedAdPlayback={selectedAdPlayback}
+        isPauseAdActive={demoPlayback.isPauseAdActive}
+        pauseAdCompliancePayload={demoPlayback.pauseAdCompliancePayload}
+        pauseAdResponseLabel={demoPlayback.pauseAdResponseLabel}
+        isPauseOverlayActive={demoPlayback.isPauseOverlayActive}
+        activePauseMomentScene={demoPlayback.activePauseMomentScene}
         videoCurrentSeconds={videoCurrentSeconds}
         scrubVersion={demoPlayback.scrubVersion}
         onClose={closeExpandedPanel}
@@ -609,7 +616,7 @@ function App() {
 
       <ProductDestinationDialog
         open={isProductDestinationModalOpen}
-        selectedUrl={selectedProductDestinationUrl}
+        product={selectedProductDestination}
         onClose={() => setIsProductDestinationModalOpen(false)}
       />
     </AppShell>

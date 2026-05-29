@@ -48,6 +48,10 @@ export const taxonomyOptions: TaxonomyOption[] = [
   'Faces',
   'Emotion',
   'Object',
+  // Logo is a recognized taxonomy but only surfaces when the upstream JSON
+  // emits `logos` data for a scene (none in the current DHYH content). Added
+  // for future content that does carry logo detections.
+  'Logo',
 ]
 
 // Per-tier taxonomy whitelist. The dropdown only surfaces taxonomies that
@@ -74,6 +78,7 @@ export const TAXONOMIES_AVAILABLE_BY_TIER: Record<TierOption, TaxonomyOption[]> 
     'Location',
     'Faces',
     'Object',
+    'Logo',
   ],
   'Categorical Product Match': [
     'IAB',
@@ -83,6 +88,7 @@ export const TAXONOMIES_AVAILABLE_BY_TIER: Record<TierOption, TaxonomyOption[]> 
     'Location',
     'Faces',
     'Object',
+    'Logo',
   ],
   'Exact Product Match': [
     'IAB',
@@ -92,6 +98,7 @@ export const TAXONOMIES_AVAILABLE_BY_TIER: Record<TierOption, TaxonomyOption[]> 
     'Location',
     'Faces',
     'Object',
+    'Logo',
   ],
 }
 

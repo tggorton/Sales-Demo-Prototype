@@ -35,6 +35,7 @@ dist-ssr
 public/assets/video/dhyh-cmp-full.mp4
 public/assets/ads/scott-brothers-home-depot-lbar.mp4
 _Temp/
+_Temp-Files/
 _Temp_Ads/
 # Local-only stash of the original (uncompressed) source images. The deployed
 # app uses the optimized JPEGs in public/assets; keep these around in case we
@@ -69,6 +70,10 @@ _archive/
 # whose data was merged into `TIME_LOG.md`). Kept on disk for traceability
 # but not part of the repo — the canonical source already lives elsewhere.
 /archive/
+
+# Local-only data/tier analysis docs (e.g. TIER-COMPARISON.md). Kept on disk
+# for reference and partner review, but never part of the repo or Vercel build.
+/analysis/
 
 # Local Claude Code settings (user-specific, not project-wide).
 # (Ignore specific local-only files inside .claude/ but DO track .claude/skills/

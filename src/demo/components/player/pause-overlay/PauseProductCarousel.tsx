@@ -70,58 +70,43 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
         {/* Sponsor row — small inline label + logo chip. Anchored above
             the tile track, left-aligned with the leftmost tile slot.
             The 11% inset matches the tile track's `paddingLeft` so the
-            sponsor logo lines up with the first tile's left edge. */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{ mb: 1, pl: 'calc(11% + 4px)' }}
-        >
-          <Typography
-            sx={{
-              fontSize: 'clamp(10px, 0.85vw, 14px)',
-              color: 'rgba(255,255,255,0.88)',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
+            sponsor logo lines up with the first tile's left edge.
+            Per 2026-05-28 direction: render ONLY when the campaign actually
+            supplies a logo URL — missing logo → render nothing (label + chip
+            both omitted, no gray placeholder). "Use it if it's there, ignore
+            it otherwise." */}
+        {payload.sponsorLogoSrc && (
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ mb: 1, pl: 'calc(11% + 4px)' }}
           >
-            {payload.sponsorLabel}
-          </Typography>
-          <Box
-            sx={{
-              width: 'clamp(72px, 6.5vw, 120px)',
-              aspectRatio: '5 / 1',
-              borderRadius: '3px',
-              backgroundColor: payload.sponsorLogoSrc
-                ? 'transparent'
-                : 'rgba(255,255,255,0.35)',
-              backgroundImage: payload.sponsorLogoSrc
-                ? `url(${payload.sponsorLogoSrc})`
-                : 'none',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {!payload.sponsorLogoSrc && (
-              <Typography
-                sx={{
-                  fontSize: 'clamp(8px, 0.7vw, 11px)',
-                  color: 'rgba(0,0,0,0.6)',
-                  fontWeight: 600,
-                  letterSpacing: 0.3,
-                  textTransform: 'uppercase',
-                }}
-              >
-                Sponsor Logo
-              </Typography>
-            )}
-          </Box>
-        </Stack>
+            <Typography
+              sx={{
+                fontSize: 'clamp(10px, 0.85vw, 14px)',
+                color: 'rgba(255,255,255,0.88)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+              }}
+            >
+              {payload.sponsorLabel}
+            </Typography>
+            <Box
+              sx={{
+                width: 'clamp(72px, 6.5vw, 120px)',
+                aspectRatio: '5 / 1',
+                borderRadius: '3px',
+                backgroundImage: `url(${payload.sponsorLogoSrc})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+              }}
+              aria-label={payload.sponsorLabel}
+            />
+          </Stack>
+        )}
 
         {/* Tile track. The track itself spans the full player width
             (left: 0, right: 0 on the parent) so tiles can bleed past

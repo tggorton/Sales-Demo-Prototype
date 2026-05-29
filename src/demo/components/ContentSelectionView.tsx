@@ -1,4 +1,5 @@
-import { Box, FormControl, InputLabel, MenuItem, Paper, Select, Stack, Typography } from '@mui/material'
+import { Box, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material'
+import { GlassSection } from '@kerv-one/theme'
 import { categories } from '../constants'
 import { dropdownMagentaStyles } from '../styles'
 import type { ContentCategory, ContentItem } from '../types'
@@ -20,15 +21,7 @@ export function ContentSelectionView({
 }: ContentSelectionViewProps) {
   return (
     <Stack spacing={2}>
-      <Paper
-        sx={{
-          p: 2,
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.08)',
-          backgroundColor: 'rgba(255,255,255,0.5)',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-        }}
-      >
+      <GlassSection sx={{ p: 2 }}>
         <Stack spacing={2}>
           <Typography variant="h4" color="text.primary">
             Content Selection
@@ -50,18 +43,9 @@ export function ContentSelectionView({
             </Select>
           </FormControl>
         </Stack>
-      </Paper>
+      </GlassSection>
 
-      <Paper
-        sx={{
-          p: 4,
-          minHeight: 520,
-          borderRadius: 3,
-          border: '1px solid rgba(0,0,0,0.08)',
-          backgroundColor: 'rgba(255,255,255,0.5)',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-        }}
-      >
+      <GlassSection sx={{ p: 4, minHeight: 520 }}>
         <Box
           sx={{
             display: 'grid',
@@ -115,7 +99,7 @@ export function ContentSelectionView({
             )
           })}
         </Box>
-      </Paper>
+      </GlassSection>
     </Stack>
   )
 }

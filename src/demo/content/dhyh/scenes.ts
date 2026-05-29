@@ -9,6 +9,7 @@ import {
   DHYH_SEGMENT_A_SOURCE_START,
   DHYH_SEGMENT_B_SOURCE_END,
   DHYH_SEGMENT_B_SOURCE_START,
+  DHYH_TIER_TIME_BASE,
 } from './timeline'
 import { resolveProductImageUrl, resolveTierPayload } from '../../sources'
 import type {
@@ -51,6 +52,10 @@ type DhyhObject = {
   name: string
   confidence?: number
   product_match?: DhyhProductMatch[]
+  // Marks product-matching scaffolding objects (derived, not detected). These
+  // power the Products panel but are filtered OUT of the Object taxonomy panel.
+  // See analysis/TIER-PREP-NOTES.md (synthetic-object rule).
+  synthetic?: boolean
 }
 
 type DhyhGarmCategory = {
@@ -65,6 +70,14 @@ type DhyhSentiment = { name: string; id?: string; confidence?: number }
 type DhyhMusicEmotion =
   | { name: string; confidence?: number }
   | Array<{ name: string; confidence?: number }>
+
+// Unified emotion taxonomy. `emotion` supersedes the legacy `music_emotion`
+// field (which was soundtrack-only); in the current clip-native data the music
+// moods are folded into `emotion` as additional categories. May be a single
+// object (older exports) or an array (merged exports). See
+// memory `emotion_supersedes_music_emotion`.
+type DhyhEmotionEntry = { name: string; id?: string; confidence?: number }
+type DhyhEmotion = DhyhEmotionEntry | DhyhEmotionEntry[]
 
 type DhyhFace = {
   name?: string
@@ -89,6 +102,7 @@ type DhyhScene = {
   text?: Array<{ value?: string; text?: string }>
   locations?: DhyhNamed[]
   objects?: DhyhObject[]
+  emotion?: DhyhEmotion
   music_emotion?: DhyhMusicEmotion
   shoppable_score?: number
 }
@@ -159,11 +173,20 @@ const riskLevelToLabel = (level?: string) => {
   }
 }
 
-const firstMusicEmotion = (value?: DhyhMusicEmotion) => {
-  if (!value) return null
-  if (Array.isArray(value)) return value[0] ?? null
-  return value
+// Normalize a scene's emotion signal to a flat list of {name, confidence}.
+// Prefers the unified `emotion` field (array or single object); falls back to
+// the legacy `music_emotion` field so older 44-min exports still render.
+const sceneEmotions = (scene: DhyhScene): DhyhEmotionEntry[] => {
+  const emo = scene.emotion
+  if (Array.isArray(emo)) return emo.filter((e) => e && e.name)
+  if (emo && emo.name) return [emo]
+  const music = scene.music_emotion
+  if (Array.isArray(music)) return music.filter((m) => m && m.name)
+  if (music && music.name) return [music]
+  return []
 }
+
+const firstEmotion = (scene: DhyhScene): DhyhEmotionEntry | null => sceneEmotions(scene)[0] ?? null
 
 const TIER_HAS_PRODUCTS: Record<TierOption, boolean> = {
   'Assets Summary': false,
@@ -307,16 +330,20 @@ const buildTaxonomyData = (
     }
   }
 
-  const music = firstMusicEmotion(scene.music_emotion)
-  if (music?.name) {
+  const emotions = sceneEmotions(scene)
+  const topEmotion = emotions[0]
+  if (topEmotion?.name) {
+    // Unified Emotion taxonomy: lists all detected emotions for the scene
+    // (visual + the former music moods, now merged into `emotion`).
+    const allNames = emotions.map((e) => e.name).filter(Boolean).join(', ')
     data.Emotion = {
-      headline: music.name,
-      chip: formatConfidence(music.confidence, 0.82),
+      headline: topEmotion.name,
+      chip: formatConfidence(topEmotion.confidence, 0.82),
       sections: [
-        { label: 'Music Emotion:', value: music.name },
+        { label: 'Emotion:', value: allNames || topEmotion.name },
         {
           label: 'Confidence:',
-          value: formatConfidence(music.confidence, 0.82),
+          value: formatConfidence(topEmotion.confidence, 0.82),
         },
       ],
     }
@@ -382,7 +409,10 @@ const buildTaxonomyData = (
     }
   }
 
-  const objectList = scene.objects ?? []
+  // Object taxonomy shows DETECTED objects only — synthetic (product-matching
+  // scaffolding) objects are excluded here even though they remain in the data
+  // and power the Products panel. See analysis/TIER-PREP-NOTES.md.
+  const objectList = (scene.objects ?? []).filter((obj) => !obj.synthetic)
   if (objectList.length > 0) {
     const names = objectList
       .slice(0, 6)
@@ -399,6 +429,27 @@ const buildTaxonomyData = (
           label: 'Confidence:',
           value: formatConfidence(top?.confidence, 0.8),
         },
+      ],
+    }
+  }
+
+  // Logo taxonomy — only emitted when the scene actually carries `logos` data
+  // (none in the current DHYH content, so this never renders here). Data-gated
+  // exactly like Faces/Object so it stays out of the panel until data exists.
+  const logoList = scene.logos ?? []
+  if (logoList.length > 0) {
+    const names = logoList
+      .slice(0, 6)
+      .map((logo) => logo.name)
+      .filter(Boolean)
+      .join(', ')
+    const top = logoList[0]
+    data.Logo = {
+      headline: top?.name ?? 'Logos detected',
+      chip: formatConfidence(top?.confidence, 0.8),
+      sections: [
+        { label: 'Logos:', value: names },
+        { label: 'Confidence:', value: formatConfidence(top?.confidence, 0.8) },
       ],
     }
   }
@@ -476,6 +527,7 @@ const buildRawJsonForScene = (scene: DhyhScene, resolvedLocation: ResolvedLocati
     faces: scene.faces?.length ? scene.faces : undefined,
     locations: scene.locations?.length ? scene.locations : synthesizedLocations,
     objects: scene.objects?.length ? scene.objects : undefined,
+    emotion: scene.emotion ?? undefined,
     music_emotion: scene.music_emotion ?? undefined,
     shoppable_score: scene.shoppable_score,
   }
@@ -495,7 +547,7 @@ const isSceneMeaningful = (scene: DhyhScene) =>
       scene.sentiment_analysis ||
       scene.locations?.length ||
       scene.faces?.length ||
-      scene.music_emotion ||
+      sceneEmotions(scene).length ||
       scene.labels?.length ||
       scene.logos?.length
   )
@@ -530,6 +582,23 @@ const remapSceneToClipTime = (sourceStart: number, sourceEnd: number): ClipRange
   return null
 }
 
+// Clip-native path (DHYH_TIER_TIME_BASE === 'clip'): the scene's start/end are
+// ALREADY clip-time (the JSON was processed directly from the spliced mp4), so
+// pass them through 1:1 — no source remap, no segment filtering. Clamp to the
+// clip window and drop only zero/negative-length scenes.
+const clipNativeRange = (start: number, end: number): ClipRange | null => {
+  const s = clamp(start, 0, DHYH_CLIP_DURATION_SECONDS)
+  const e = clamp(end, 0, DHYH_CLIP_DURATION_SECONDS)
+  if (e <= s) return null
+  return { start: s, end: e }
+}
+
+// Select the scene→clip-time mapping based on the configured tier time base.
+const sceneToClipRange = (scene: DhyhScene): ClipRange | null =>
+  DHYH_TIER_TIME_BASE === 'clip'
+    ? clipNativeRange(scene.startTime, scene.endTime)
+    : remapSceneToClipTime(scene.startTime, scene.endTime)
+
 const buildScene = (
   scene: DhyhScene,
   index: number,
@@ -539,7 +608,7 @@ const buildScene = (
   const sentimentRaw = Array.isArray(scene.sentiment_analysis)
     ? scene.sentiment_analysis[0]
     : scene.sentiment_analysis
-  const music = firstMusicEmotion(scene.music_emotion)
+  const music = firstEmotion(scene)
   const iabConsidered =
     (scene.iab_taxonomy ?? [])
       .slice(0, 3)
@@ -632,7 +701,7 @@ const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle =>
   // video plays through the splice.
   const remapped = payload.Scenes.map((scene) => ({
     scene,
-    range: remapSceneToClipTime(scene.startTime, scene.endTime),
+    range: sceneToClipRange(scene),
   })).filter(
     (entry): entry is { scene: DhyhScene; range: ClipRange } => entry.range !== null
   )

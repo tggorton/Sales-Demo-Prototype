@@ -40,6 +40,19 @@ export const DHYH_CLIP_DURATION_SECONDS =
 // Segment A → Ad → Segment B.
 export const DHYH_AD_BREAK_CLIP_SECONDS = DHYH_SEGMENT_A_DURATION
 
+// ---------- Tier-JSON time base (clip-native vs 44-min source) ----------------
+// Selects how `scenes.ts` interprets each tier scene's `startTime`/`endTime`:
+//   • 'source' — legacy: scenes are on the 44-min source-time axis and get
+//     remapped onto the spliced clip via the segment constants above (drops
+//     scenes outside Segment A / B). Use this with the archived 44-min tiers
+//     (`DHYH1_111H_RIDO111H_CLEAN`).
+//   • 'clip'   — current: scenes are ALREADY on the 10:02 clip timeline
+//     (`DB-DemoVid1`, processed natively from `dhyh-cmp.mp4`), so we pass them
+//     through 1:1 (no source remap, no segment filtering).
+// To revert to the 44-min data: set this to 'source' AND restore the archived
+// tier JSONs (see `archive/`). The remap code path is kept intact for that.
+export const DHYH_TIER_TIME_BASE: 'clip' | 'source' = 'clip'
+
 // ---------- DHYH curated location timeline -----------------------------------
 //
 // The upstream model only emits scene-level `locations` on a small handful of

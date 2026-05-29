@@ -147,6 +147,10 @@ export const getTaxonomySceneData = (
           },
         ],
       }
+    case 'Logo':
+      // No placeholder logo data — Logo only renders for real content that
+      // emits `logos` (surfaced via the scene.taxonomyData override above).
+      return null
     case 'Emotion':
     default:
       return {

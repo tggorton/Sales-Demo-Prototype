@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
 import { PlayerControls } from './PlayerControls'
 import { PauseOverlay, PauseToShopCta } from './pause-overlay'
-import type { PauseOverlayPayload } from './pause-overlay'
+import type { PauseOverlayPayload, PauseProductDestinationTarget } from './pause-overlay'
 import { PauseAdOverlay } from './PauseAdOverlay'
 import type { PlayerControlTokens, SyncImpulseSegment } from '../../types'
 
@@ -65,7 +65,7 @@ type VideoPlayerProps = {
    *  Distinct from `onOpenCompanionModal` (which is the Sync
    *  mobile-companion modal) so the two playback experiences stay
    *  fully isolated. */
-  onOpenProductDestination: (url: string) => void
+  onOpenProductDestination: (target: PauseProductDestinationTarget) => void
 }
 
 /**
@@ -136,8 +136,21 @@ export function VideoPlayer({
   // (clicking play/pause, dragging the scrubber) keeps the mouse inside
   // the player so the hover state stays true throughout — no separate
   // "interaction lock" needed.
+  //
+  // Pause-mode exception (2026-05-29): during CTA Pause / Organic Pause /
+  // Pause Ad the user is intentionally paused into an overlay UI. We want
+  // the controls to auto-hide on mouse-off (so the carousel / detail card
+  // reads clean against the dim wash) but come back on hover (so the user
+  // can still hit Play). Suppressing the `!isVideoPlaying` "stay visible
+  // while paused" rule during pause-mode overlays gives us exactly that:
+  // hover-only visibility, identical to the playback auto-hide behavior.
+  // When the controls DO appear they sit ABOVE the overlay via PlayerControls'
+  // `zIndex: 6`, so clicking Play resumes without needing to dismiss the
+  // overlay first. Exit on the detail card is the second resume path.
   const [isHovered, setIsHovered] = useState(false)
-  const controlsVisible = isHovered || !isVideoPlaying
+  const isPauseModeOverlayActive = isPauseOverlayActive || isPauseAdActive
+  const controlsVisible =
+    isHovered || (!isVideoPlaying && !isPauseModeOverlayActive)
 
   // Effect 1: forward whichever element is currently active to the parent's
   // adVideoRef so the playback hook's seek effect targets the right one.
@@ -402,24 +415,57 @@ export function VideoPlayer({
         {/* Pause overlay — pause-triggered product carousel + detail, only
             mounted while the user is paused in `CTA Pause` / `Organic Pause`
             modes (Tier 3) AND has started playback at least once (so the
-            initial pre-roll frame stays clean). Sits above the click-to-
-            play layer (z-index 5) but inside the bottom-control padding
-            so the user can still hit Play to dismiss. */}
+            initial pre-roll frame stays clean).
+            -
+            Layered architecture (2026-05-29 evening): the dim wash lives in
+            two pieces so the wash covers the WHOLE player while content
+            stays in the safe zone above the control bar:
+              (1) a dim-wash strip behind the control bar's vertical space,
+                  rendered as a sibling — fills the strip the inset frame
+                  would otherwise leave un-dimmed when the controls auto-hide.
+              (2) the inset content frame (top:0, bottom:controlBarHeight)
+                  hosts PauseOverlay, whose inner Box paints its own dim wash
+                  in the content area. Children (card, carousel tiles, Exit
+                  button) position against this shorter frame so they
+                  naturally land above the control row even at small player
+                  sizes — same behavior as pre-2026-05-29 morning, but with
+                  the dim wash now continuous. */}
         {isPauseOverlayActive && (
-          <Box
-            sx={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: `${playerControlTokens.controlBarHeight}px`,
-            }}
-          >
-            <PauseOverlay
-              payload={activePauseOverlayPayload}
-              onOpenProductDestination={onOpenProductDestination}
+          <>
+            {/* Dim-wash strip — covers the strip behind the control bar so
+                the dim is continuous across the whole player even when the
+                controls auto-hide on mouse-off. Matches the heavier 0.6 wash
+                the detail card paints; the carousel's lighter 0.32 wash will
+                show a subtle step at the strip boundary, but the strip is
+                largely behind the (sometimes-visible) controls and reads as
+                "control area" rather than "content area." */}
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: `${playerControlTokens.controlBarHeight}px`,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                zIndex: 4,
+              }}
             />
-          </Box>
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: `${playerControlTokens.controlBarHeight}px`,
+              }}
+            >
+              <PauseOverlay
+                payload={activePauseOverlayPayload}
+                onOpenProductDestination={onOpenProductDestination}
+                onResumePlayback={onToggleVideoPlaying}
+              />
+            </Box>
+          </>
         )}
 
         {/* Pause Ad overlay — distinct from the carousel-style pause
@@ -427,24 +473,38 @@ export function VideoPlayer({
             `Pause Ad` is the active mode. Single static creative + a
             close (X) that dismisses for the current pause session
             only; resuming play resets the dismiss flag upstream so
-            the next pause re-shows. Sits inside the same control-bar
-            inset so play / scrubber stay clickable. */}
+            the next pause re-shows. Same layered architecture as the
+            pause-overlay above: dim-wash strip behind controls + inset
+            content frame for the creative. */}
         {pauseAdImageSrc && (
-          <Box
-            sx={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: `${playerControlTokens.controlBarHeight}px`,
-            }}
-          >
-            <PauseAdOverlay
-              visible={isPauseAdActive}
-              imageSrc={pauseAdImageSrc}
-              onResume={onToggleVideoPlaying}
+          <>
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: `${playerControlTokens.controlBarHeight}px`,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                zIndex: 4,
+              }}
             />
-          </Box>
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: `${playerControlTokens.controlBarHeight}px`,
+              }}
+            >
+              <PauseAdOverlay
+                visible={isPauseAdActive}
+                imageSrc={pauseAdImageSrc}
+                onResume={onToggleVideoPlaying}
+              />
+            </Box>
+          </>
         )}
 
         {/* Bottom control bar — extracted into its own component for clarity. */}

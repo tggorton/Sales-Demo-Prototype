@@ -562,6 +562,338 @@ until next push).
 
 ---
 
+### 2026-05-26 — Session 9: Device transfer — re-establish on new Mac
+
+First session on the new machine. This is the move Session 8's
+device-transfer prep was written for — and the prep paid off: the
+`handoff/DEVICE_TRANSFER-2026-05-07.md` doc carried a self-bootstrap
+checklist that drove the whole setup.
+
+**The transfer itself.** Method was a project-folder copy via Dropbox
+sync — the user deliberately relocated their projects under the Dropbox
+**CloudStorage** mount (folder "available offline") so they sync as
+local files going forward. Swept `handoff/`, read the transfer doc +
+the 15-file memory snapshot, then ran the checklist: restored all 15
+memory files into the auto-created per-project memory dir, ran
+`npm install`, `npm run build` (clean), `npx vitest run` (156/156),
+and started the dev server on 5173 (`--strictPort`, per the
+reserved-ports rule). Both git remotes intact; build/tests match the
+documented handoff state exactly.
+
+**Two surprises vs. the prediction, both minor.** (1) The new path is
+`~/Library/CloudStorage/Dropbox-KERV/Grant Gorton/Projects/SalesDemo-Prototype`
+(not the predicted `~/Dropbox/Grant Gorton/...`) and the macOS username
+changed `grantgorton` → `ggorton`. Combined, that made the memory-dir
+name no longer predictable from the old "absolute-path, `/`→`-`" rule —
+confirming the doc's own advice to just let the harness auto-create it
+and restore the snapshot rather than pre-computing the path.
+(2) `node_modules/` had synced only partially through Dropbox (23
+top-level entries); `npm install` completed it (+233 packages). So a
+folder copy does **not** reliably bring a complete `node_modules` —
+always install after, exactly as the doc says. The pre-push hook needed
+no manual activation this time: `core.hooksPath` traveled in
+`.git/config` via the folder copy.
+
+**User's three questions, answered.** The user wanted to confirm the
+move wouldn't disturb the deploy pipeline. Key clarifications: keeping
+`node_modules` in Dropbox sync is correctness-irrelevant (it's
+gitignored, so Vercel never sees the local copy and runs its own
+install) — the doc's exclusion suggestion is a performance optimization
+only, not a requirement. And git→Vercel is fully machine-independent:
+deploys run via the GitHub integration on the same two repos as before
+(`origin` = production, `v2` = review), so pushing from the new machine
+behaves identically. The `.vercel/` CLI link is the only machine-local
+Vercel artifact, and it only matters for manual `npx vercel` deploys —
+not the normal pipeline — so it was left unlinked.
+
+**Durable output.** No feature work. A new memory `device_transfer_2026-05-26.md`
+records the new canonical path + username change; the transfer doc got
+a "Transfer log — what actually happened" section so the *next* move
+has a real executed precedent rather than only a prediction. This
+SESSION_LOG + TIME_LOG Session 9 entry close out the session. All
+changes are uncommitted (no push without an explicit ask).
+
+---
+
+### 2026-05-26 — Session 10: Tier-data analysis (DB-DemoVid1 vs DHYH1)
+
+A long, **no-commit** investigation session — no app code changed. The
+work was understanding the partner-supplied tier JSONs sitting in
+`_Temp-Files/` and capturing the findings for review. Durable output is
+the gitignored `analysis/TIER-COMPARISON.md`, two new project memories,
+and the local `_1b` working files.
+
+**What the data turned out to be.** The three working JSONs
+(`response-tier1-NEW`, `response-tier2`, `response-tier3-NEW`) are video
+`DB-DemoVid1` — a **natively-10-minute** analysis (602s, 198 scenes) — in
+contrast to the live app, which runs on the **44-minute**
+`DHYH1_111H_RIDO111H_CLEAN` data trimmed at runtime to the spliced 10-min
+clip. Confirmed the distinction holds in the deployed build too: grepping
+the live Vercel bundle's `tier1/2/3` chunks shows `DHYH1`, zero
+`DB-DemoVid1`. So `DB-DemoVid1` lives **only** in local gitignored
+analysis material; it is not wired into the app or either deploy.
+
+**Three findings worth the memory.** (1) `emotion` vs `music_emotion`:
+the user explained `emotion` is the **successor** field — emotion was
+originally soundtrack-only (`music_emotion`), later generalized to visual
+cues and renamed; some tooling still emits both. So their co-existence is
+a legacy artifact, not a defect. (2) **Synthetic objects:** T3's larger
+object count isn't extra *detections* — it's a Detic detector →
+category-mapping → `allowed_categories` (12 retail buckets) pipeline, plus
+"synthetic" objects derived for product matching that **reuse a detected
+object's bounding box** (99.8% share an in-scene box) and carry
+product-category names. That reframed the "objects differ" flag from a
+discrepancy to expected behavior. (3) **Rounded-vs-raw confidence:** T2
+and T3 report different confidence figures for the same labels (T2 rounded
+~2dp, T3 raw ~4dp), pointing to different processing runs.
+
+**`_1b` experiments.** Built emotion-merged `_1b` copies of T2/T3 (music
+moods folded into a single `emotion` list, no provenance tag, ids E7–E11),
+then per the user's direction regenerated them with **strict object
+alignment** — T3's objects forced to exactly match T2's (name+bbox),
+which kept 203 products and dropped 416 (the synthetic-borne ones). These
+are throwaway working files, not app data.
+
+**Housekeeping.** Moved the analysis docs out of the routinely-cleared
+`_Temp-Files/` into a new gitignored `/analysis/`, and fixed a
+`.gitignore` gap (`_Temp/` was ignored but the real folder is
+`_Temp-Files/`). Also ran a transcript audit to settle a question about a
+"deleted mp4" — the morning cleanup removed only 11 PNG/SVG files; no
+video was ever in the folder.
+
+Everything is local/uncommitted (no push without an explicit ask).
+
+---
+
+### 2026-05-27 — Session 11: Tier-swap planning + data prep
+
+A planning + data-prep session, **no app code and no commits**. The aim: prepare to swap
+the DHYH hero tiers from the 44-min source-time data (`DHYH1`, remapped via the splice) to
+the natively-10-min `DB-DemoVid1` data that matches the spliced `dhyh-cmp.mp4` the app
+actually plays.
+
+**Grounding the swap.** First confirmed what the app and the deploy actually use: the live
+build *and* the deployed Vercel bundle run on `DHYH1` (44-min), trimmed to the 10-min clip
+at runtime — `DB-DemoVid1` lives only in the local analysis files. The static-asset manifest
+confirmed only the 10-min `dhyh-cmp.mp4` ships (the 1.18 GB full episode is gitignored). A
+transcript audit also put to rest a worry about a "deleted mp4" — the morning cleanup
+removed only image files; no video was ever in `_Temp-Files`.
+
+**The checks that shaped the plan.** Reading the consumption path surfaced three real
+blockers, none a simple file swap: (1) `scenes.ts` remaps every scene from 44-min *source*
+time and would drop all clip-native scenes; (2) the earlier emotion merge removed
+`music_emotion`, which the app reads for the Emotion panel; (3) the new product `image`
+values are absolute thdstatic URLs that break the bundled-image resolver. We also confirmed
+the sync architecture is centrally driven (one clock → `resolveActiveSceneIndex` → all
+panels), so panel-to-panel + playback sync holds as long as scenes carry correct clip-time.
+
+**Decisions.** Scope narrowed to hero tiers + Sync/Impulse/L-Bar + the three panels; CTA/
+Organic Pause and their generators deferred (and verified safe to leave running, since they
+read their own pre-generated JSONs, not `tier3` at runtime). Locked the taxonomy-vs-metadata
+definition (taxonomies = Location/IAB/GARM/Sentiment/Emotion/Object/Faces/Logo, shown only
+with data; `description`/`text`/`labels` are metadata, not taxonomies). For T3's objects vs.
+products: products stay **nested** (matches the current working logic), and synthetic
+objects are explicitly marked `"synthetic": true` (rule C — non-vocabulary name + shared
+bbox) so the app can hide them from the Object panel while products read from all objects.
+
+**Data prepared.** After recovering the enriched T3 from Dropbox, built the prepared trio in
+`_Temp-Files/`: `tier1_1b` (+per-scene sentiment), `tier2_1b` (emotion-merged, unchanged),
+and `tier3_1b` (enriched + emotion merge + faces/description/text/labels filled from T2 +
+665 synthetic markers, **all 619 products preserved**). Captured the rationale + streamlining
+report in `analysis/TIER-PREP-NOTES.md`, updated the synthetic-objects memory, and added an
+in-progress note to `HANDOFF.md`.
+
+Next pass is the app-code implementation (clip-native flag, emotion-either, synthetic filter,
+absolute image URLs, Logo taxonomy) — all backward-compatible so the swap is a data drop +
+one flag, fully revertable via the archived old tiers. Everything this session is
+local/uncommitted.
+
+---
+
+### 2026-05-27 — Session 12: Tier-swap implementation
+
+The implementation pass that Session 11 planned — and it went in cleanly. The DHYH hero
+tiers now run on the **clip-native `DB-DemoVid1`** data (10:02, 198 scenes) instead of the
+44-min source-time data trimmed at runtime.
+
+**The changes.** Eight files, all written to handle *both* the old and new data shapes so
+the swap is reversible by a single flag:
+- `timeline.ts` — `DHYH_TIER_TIME_BASE: 'clip' | 'source'` (default `'clip'`).
+- `scenes.ts` — when `'clip'`, scene times pass through 1:1 (no 44-min source remap, no
+  segment filtering); the Emotion taxonomy reads the unified `emotion` field (falling back
+  to legacy `music_emotion`); the Object taxonomy panel filters out `synthetic` objects
+  while the Products panel still reads `product_match` from all objects.
+- `resolveProductImage.ts` — absolute `http(s)` image URLs (the thdstatic CDN links in the
+  new data) pass through instead of being prefixed with `/assets/products/`.
+- A data-gated `Logo` taxonomy added across `types.ts` / `constants.ts` / `sceneState.ts` /
+  `taxonomySceneData.ts` — recognized everywhere but only renders when a scene carries
+  `logos` data (none today, so it never shows).
+
+**Swap + safety.** Archived the old 44-min tiers to `archive/dhyh-tiers-44min-source-2026-05-27/`
+with a revert README, then dropped the prepared `_1b` JSONs in as `tier1/2/3.json`. Also
+stashed a gitignored local backup of all 360 product images (15.3 MB) for future
+self-hosting. Revert = flip `DHYH_TIER_TIME_BASE` to `'source'` + restore the archived tiers.
+
+**Verification.** `npm run build` clean (tsc -b + vite), 156/156 tests pass. A data sanity
+check confirmed the clip-native path keeps all 198 scenes (0 dropped, span 0→602s), 619
+products preserved, 665 synthetic objects hidden from the Object panel (2,822 real shown),
+emotion on all 198 scenes, faces on 104, and product images resolving to the CDN. The user
+then verified in-browser: Basic/Advanced/Exact all map correctly, panels sync with playback
+and each other, the Object panel shows real objects, product images load via the CDN, and
+emotion looks right.
+
+**Known/deferred.** CTA & Organic Pause still run on their pre-swap generated JSONs (they
+read those at runtime, not `tier3`, so they don't break) — regenerating them is the deferred
+next pass. Everything this session is local/uncommitted (no push without an explicit ask).
+
+---
+
+### 2026-05-27 — Session 13: Pause-mode regeneration + click-out Option B
+
+The deferred pause-mode pass, plus a fix to the product click-out. Two parts.
+
+**CTA + Organic Pause regenerated from the new Tier 3.** Both modes now run on **real
+products** (real titles, descriptions, links, CDN images) from the clip-native `DB-DemoVid1`
+Tier 3, replacing the hand-built fake CTA products and the placeholder-description Organic
+data. A shared core (`scripts/lib/pause-moments-core.mjs`) backs two generators so they
+can't drift, with two reusable knobs: **`TIME_BASE`** (`'clip'` pass-through, any length, vs
+`'source-splice'` legacy 44-min) and **`IMAGE_SOURCE`** (`local` / `cdn` / `s3` — change +
+re-run to switch hosting, no app change). CTA tiles the two editorial windows with
+scene-accurate moments (91 moments); Organic emits one moment per product-scene from t=0 so
+"pause anytime" is fully covered (111 moments). Removed the obsolete
+`TEMP_PRODUCT_DESTINATION_OVERRIDES` from `pauseMoments.ts`. The CTA skill was renamed
+`convert-pause-moments-json` → **`generate-cta-pause-json`**, and both pause skills were
+rewritten to document the knobs + that the latest Tier 3 batch is the canonical format. Old
+pause JSONs archived.
+
+**Click-out is now an in-app product preview (Option B), not an iframe.** Verifying the pause
+modes surfaced two things: one product image not loading (CDN data is valid — left as-is for
+now), and the click-out modal rendering blank. Diagnosed the blank modal as **Home Depot's
+own anti-embedding protections** — `X-Frame-Options` / CSP `frame-ancestors` plus Akamai bot
+protection (403) — confirmed not fixable by swapping which HD link we use (the page blocks
+framing; the CDN link is only an image). Implemented the agreed **Option B**:
+`ProductDestinationDialog` now renders the product in-app (image, title, price, description, a
+client-side QR, "open product page"), working for any retailer regardless of framing policy.
+A `PRODUCT_DESTINATION_MODE` flag preserves the legacy iframe path for instant revert. This
+required threading a `PauseProductDestinationTarget` (full product context, not just a URL)
+through five components.
+
+Build clean, 156/156 tests pass (the data-coupled pause tests were rewritten to assert
+invariants against the real data). The user verified both parts in-browser; the preview-modal
+styling is intentionally basic, flagged as a later polish candidate. HANDOFF.md + the
+iframe-fallback memory updated to reflect the implemented state. All local/uncommitted.
+
+---
+
+### 2026-05-27 — Session 14: Delivery package + tier-alignment skill
+
+Packaging the day's work for the production team — no app code, purely additive.
+
+**Delivery package.** Assembled `_Temp-Files/DELIVERY-jsons-2026-05-27/`: copies of the five
+live JSONs (tier1/2/3 + cta/organic pause), the 360 product images (`product-images/`,
+16 MB), and `JSON-DELIVERY-HANDOFF.md`. The brief leads with a plain-language "In plain
+terms" overview, then the **critical contract** — these JSONs are timed to the ~10-minute
+clip, NOT the 44-minute episode — followed by per-file specifics, a dedicated "Product
+images & hosting" section (mapping the Home Depot CDN linkage, the included local backup, and
+the CDN→local→S3 switch), and the two known behaviors (CDN hotlink images, in-app click-out
+preview). Nothing was moved or deleted — only copied.
+
+**Tier-alignment skill.** Created `/align-tier-jsons`, the hero-tier counterpart to the two
+pause-mode skills. It's the reference for making any future Tier 1/2/3 batch app-ready: the
+app contract (clip-time timestamps the #1 gotcha, same-cut tiers, taxonomy-vs-metadata, tier
+roles), the alignment checklist (formatting, emotion unification, T1 per-scene sentiment,
+T2↔T3 parity, synthetic-object marker, nested products/images), a verification gate, and a
+file-map of where the app enforces each piece. Kept as one comprehensive skill (the tiers are
+aligned as a set) with a note that the transforms could later be promoted into a reusable
+`scripts/align-hero-tiers.mjs`.
+
+All local/uncommitted.
+
+### 2026-05-28 — Session 15: Detail-card polish + Paramount unbrand + full-area pause backdrop
+
+Iterative polish day. The PauseProductDetail card had been laid out against the Figma 1920×1080
+reference but several elements were still off-spec against partner-supplied assets — the Exit
+button was sized in fixed pixels (looked oversized at runtime), the sponsor logo was using
+`backgroundPosition: 'center'` so it inset away from the description column, the scan-QR
+graphic was baked into the partner BG image (so positioning it in code was a no-op), and the
+text-frame title needed a 2-line clamp. We worked through each one against redlines:
+
+- **Exit button** — converted from fixed `108×48px` to a proportional `width: 5.625%` + `aspectRatio: 108/48.5` against the outer 1920×1080 frame, with `top: 90.69%` so it sits 29 px (in 1080p-equivalent) below the card's bottom edge. The SVG (`exit.svg`) replaced the earlier MUI-styled button.
+- **Sponsor logo** — left-aligned to the description column (`left: 30.5%`) and pinned with `backgroundPosition: 'left center'` so the visible logo sits flush at the box's left edge regardless of natural aspect ratio.
+- **Product image / text / QR** — 364×364 square 54 px from the card's left edge, vertically centered. Text frame 740 px wide with title 2-line clamp, description 5-line clamp, 36 px stack gap. QR 250×250 anchored 72 px from the right AND 72 px from the bottom — coordinates derived from those two anchors. Scan-QR message graphic 58 px to the left of the QR's left edge, 81 px from the card bottom.
+- **BG image + scan-QR SVG swap** — partner supplied a "clean" `product-detail-bg.png` with no icon baked in, plus an updated `scan-qr-message.svg`. Both dropped into `public/assets/pause-overlay/` and the scan-QR overlay was flipped from conditional ("only when no card bg") to unconditional, since the new clean bg means the in-code overlay always renders correctly. The `invert(1)` filter stays scoped to the placeholder (no-bg) case.
+- **Expanded panel sync** — the JSON panel in `ExpandedPanelDialog` was missing pause-mode branches, so the expanded view didn't mirror what the collapsed inline JSON panel showed during CTA / Organic Pause. Wired through `isPauseAdActive` / `pauseAdCompliancePayload` / `pauseAdResponseLabel` / `isPauseOverlayActive` / `activePauseMomentScene` so the two views stay in lockstep.
+- **Controls auto-hide during pause modes** — the bottom control bar was always visible during pause-mode overlays, competing with the dim wash. Scoped the `controlsVisible` override (`!isVideoPlaying`) to exclude pause-mode overlays so the controls cleanly auto-hide while a pause overlay is up.
+
+**Paramount unbrand.** User flagged that this is not a Paramount demo and the sponsor branding
+(the "PARAMOUNT SHOP / Powered by Snow Commerce" mark on the detail card, plus the "SPONSORED BY"
+row in the carousel) needed to go — but the JSON contract should keep both fields so future
+campaigns can opt back in. Blanked `pause_to_shop_screen.sponsored_by_logo_url` (carousel) and
+`product_detail_screen.shop_logo_url` (detail) in `cta-pause.json`, regenerated
+`organic-pause.json` (it inherits the campaign theme), and made both components conditional on
+a truthy URL — missing/empty → render nothing (no placeholder, no "Sponsor · LOGO" label).
+Two tests were rewritten from URL equality to a `string | null` invariant. The rule is now
+**"use it if it's there, ignore it otherwise"** — set either URL in a campaign theme block and
+the chrome appears automatically; leave them empty/missing and neither slot renders. 156/156
+tests pass.
+
+**Pause backdrop fills the full player.** User noticed a strip of un-dimmed video at the
+bottom of the player whenever a pause overlay was up. Both pause overlays were using
+`bottom: ${controlBarHeight}px` to inset around the control row — but the control row already
+auto-hides during pause modes (the prior fix), so the wash should extend edge-to-edge. Swapped
+both wrappers to `inset: 0`. One file, two stanzas.
+
+All landings uncommitted on `feat/restructuring-pass`.
+
+### 2026-05-29 — Session 16: UI-kit audit + glass shimmer pass + PauseProductDetail style guide
+
+User had a "more robust UI kit" prepared at `_Temp-Files/kerv-ui-kit/` (a package merge of the
+existing `kerv-one-theme` + a newer `handoff/ui-kit`) and noted the "shimmer edge" around the
+white container boxes had not made it into the project — pointed at side-by-side screenshots
+showing the correct vs. current treatment.
+
+**The audit found something more interesting than expected.** The new kit's tokens (glass card
+treatment, background gradient, shimmer border, backdrop blur values) are **byte-identical**
+to the existing `kerv-one-theme` package. The kit is a repackage / surface-area improvement
+(Storybook playground, registry, primitives like `GlassCard`/`PageHeader`/`KpiStat`,
+`cssVariables: true`), not a redesign. The visual mismatch the user was seeing wasn't a missing
+kit feature — it was four `<Paper>` containers in `DemoView` and `ContentSelectionView` that
+hand-styled their background + border inline and *never consumed the theme's `glassSection`
+treatment*. The shimmer edge already exists in the theme; the screens just didn't use it.
+
+Three notable deltas in the kit, all non-blocking: `cssVariables: true` enables MUI 6+ CSS
+variables mode (low risk, worth knowing); Storybook 8 + Vite are devDeps that wouldn't install
+under a `file:` link (so node_modules stays lean); module augmentation overlaps with the
+existing `kerv-one-theme`'s augmentation but the field shapes match so the merge is a no-op.
+
+**Surgical fix on a dedicated branch.** Surfaced three adoption paths via AskUserQuestion;
+user chose "surgical fix now, kit migration later." New branch `feat/glass-shimmer-pass` off
+`feat/restructuring-pass`. Swapped the four outer `<Paper>` containers (DemoView title +
+playback panels, ContentSelectionView header + grid) to `<GlassSection>` — which picks up the
+gradient shimmer-edge `::before` pseudo, 20 px backdrop blur, 16 px radius, and soft shadow
+from theme tokens automatically. Inner-panel `<Paper>` elements (the taxonomy/product/JSON
+panel cards) stay untouched because their treatment (`elevation={0}` + `panelPaperStyles`) is
+intentionally different. Build clean, 156/156 tests pass. Revert path is one command:
+`git switch feat/restructuring-pass`. The kit itself stays put in `_Temp-Files/` for the
+deferred full-migration session.
+
+**PauseProductDetail style guide.** After the polish iterations in Session 15 the
+PauseProductDetail card had accumulated a coherent scaling pattern that wasn't written down
+anywhere — every coordinate is a percentage of one of two reference frames (the outer
+1920×1080 player or the inner 1540×900 card), every shape is anchored by `aspectRatio`,
+every type size is `clamp(floor, cqw, ceiling)`. Drafted `PAUSE_PRODUCT_DETAIL_STYLE_GUIDE.md`
+explaining the methodology, the conversion formulas, and giving an element-by-element table
+of Figma-spec → code-value for everything on the card (sponsor logo, image, text stack, QR,
+scan-QR graphic, Exit button), plus a section of 6 pitfalls already hit by the code
+(`backgroundPosition: 'center'` ≠ left-aligned, fixed-height text clipping descenders,
+percentage-anchored gaps, etc.) and a 6-step "adding a new element" procedure. Moved into
+`handoff/` per user direction; relative links rewritten to resolve from there.
+
+All landings uncommitted; the shimmer pass is on `feat/glass-shimmer-pass`, the style guide
+is untracked under `handoff/`.
+
+---
+
 ## Future considerations
 
 These are user-flagged items that are **not** part of the current restructuring scope but that the structure should accommodate cleanly when the time comes.

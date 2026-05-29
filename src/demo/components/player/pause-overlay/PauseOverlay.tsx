@@ -2,17 +2,26 @@ import { Box } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { PauseProductCarousel } from './PauseProductCarousel'
 import { PauseProductDetail } from './PauseProductDetail'
-import type { PauseOverlayPayload } from './pauseOverlay.types'
+import type {
+  PauseOverlayPayload,
+  PauseProductDestinationTarget,
+} from './pauseOverlay.types'
 
 type PauseOverlayProps = {
   payload: PauseOverlayPayload
   // Forwarded down to the detail card. When the user clicks the
   // active product's detail surface, the demo opens its own
-  // desktop-aspect `ProductDestinationDialog` pointed at the
-  // per-product `qrDestinationUrl`. Deliberately separate from the
-  // Sync ad-break `CompanionDialog` (mobile-aspect) so the two
-  // playback experiences stay fully isolated.
-  onOpenProductDestination: (url: string) => void
+  // desktop-aspect `ProductDestinationDialog` with the product's full
+  // context. Deliberately separate from the Sync ad-break
+  // `CompanionDialog` (mobile-aspect) so the two playback experiences
+  // stay fully isolated.
+  onOpenProductDestination: (target: PauseProductDestinationTarget) => void
+  // Resume the underlying playback. Wired to VideoPlayer's
+  // `onToggleVideoPlaying` so clicking Exit on the detail card dismisses
+  // the overlay AND unpauses the video (the natural "I'm done shopping"
+  // semantic). Distinct from the Play button in the control bar only in
+  // location — they have the same effect.
+  onResumePlayback: () => void
 }
 
 // Top-level pause-overlay container. Routes between the carousel state
@@ -24,12 +33,17 @@ type PauseOverlayProps = {
 // Layout: position-absolute fill of the parent player container. The
 // parent has its own positioning context inside VideoPlayer.
 //
-// Dismissal: there is no "close the overlay" button here. The overlay
-// is unmounted when `isPauseOverlayActive` flips to false in
-// `useDemoPlayback` — which happens the moment the user clicks Play
-// in the bottom control bar. Detail-mode buttons (Exit, Browse) only
-// navigate within the overlay (back to the carousel).
-export function PauseOverlay({ payload, onOpenProductDestination }: PauseOverlayProps) {
+// Dismissal: the user has two equivalent ways to dismiss + resume —
+// the Play button in the bottom control bar (always-visible since
+// 2026-05-29) or the Exit button on the detail card. Both call
+// `onResumePlayback` which flips `isPauseOverlayActive` to false and
+// unmounts this component. There is no "back to carousel without
+// resuming" path anymore; Exit always means "I'm done here."
+export function PauseOverlay({
+  payload,
+  onOpenProductDestination,
+  onResumePlayback,
+}: PauseOverlayProps) {
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
 
   // If the payload changes underneath us (e.g. content swap), reset the
@@ -71,7 +85,15 @@ export function PauseOverlay({ payload, onOpenProductDestination }: PauseOverlay
           sponsorLogoSrc={payload.detailSponsorLogoSrc ?? payload.sponsorLogoSrc}
           cardBackgroundImageSrc={payload.detailBackgroundImageSrc}
           onOpenProductDestination={onOpenProductDestination}
-          onBackToCarousel={() => setSelectedTileId(null)}
+          // Exit on the detail card resumes playback (which unmounts the
+          // whole overlay). We also clear `selectedTileId` defensively so
+          // that if the overlay re-mounts in the same window (user pauses
+          // again immediately) it starts at the carousel rather than the
+          // last detail.
+          onExit={() => {
+            setSelectedTileId(null)
+            onResumePlayback()
+          }}
         />
       ) : (
         <PauseProductCarousel payload={payload} onSelectTile={setSelectedTileId} />
