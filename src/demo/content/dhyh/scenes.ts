@@ -1,9 +1,23 @@
+// DHYH scene-bundle entry point.
+//
+// Thin wrapper around `_shared/sceneBuilder.ts` that supplies the DHYH-
+// specific behaviours via callbacks: the curated editorial-location
+// timeline overlay, and (when `DHYH_TIER_TIME_BASE === 'source'`) the
+// two-segment source-time → clip-time remapper. With the current
+// clip-native DHYH data (`DB-DemoVid1`) the source-splice mapper is
+// inactive and the bundle is built from the scene's own clip-time
+// stamps; the constants stay in place so a future re-cut against the
+// 44-min source can flip the flag.
+//
+// Re-exports the shared types so existing consumers that import from
+// `'../content/dhyh/scenes'` keep compiling. New consumers should import
+// from `'../content/_shared/sceneBuilder'`.
+
 import {
   DHYH_CLIP_DURATION_SECONDS,
   DHYH_CONTENT_ID,
   DHYH_LOCATION_TIMELINE,
   DHYH_MIN_SCENE_CLIP_OVERLAP_SECONDS,
-  DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE,
   DHYH_SEGMENT_A_DURATION,
   DHYH_SEGMENT_A_SOURCE_END,
   DHYH_SEGMENT_A_SOURCE_START,
@@ -11,554 +25,49 @@ import {
   DHYH_SEGMENT_B_SOURCE_START,
   DHYH_TIER_TIME_BASE,
 } from './timeline'
-import { resolveProductImageUrl, resolveTierPayload } from '../../sources'
-import type {
-  SceneMetadata,
-  SceneProduct,
-  TaxonomyOption,
-  TaxonomySceneData,
-  TierOption,
-} from '../../types'
+import {
+  getScenesForContent as sharedGetScenesForContent,
+  type ClipRange,
+  type ResolvedLocation,
+  type SceneBundle,
+  type TierScene,
+} from '../_shared/sceneBuilder'
+import type { TierOption } from '../../types'
 
-// ---------- Raw JSON shape (trimmed to what we consume) ----------
+// Re-export shared types so existing consumers keep compiling.
+export type { SceneBundle as DhyhSceneBundle } from '../_shared/sceneBuilder'
+export { getScenesForContent } from '../_shared/sceneBuilder'
 
-type DhyhNamed = { name: string; confidence?: number; id?: string }
+// ───── DHYH editorial-location timeline overlay ─────────────────────────────
 
-type DhyhProductMatch = {
-  product_id?: string | number
-  loc_id?: string | number
-  name?: string
-  price?: string
-  image?: string
-  image_url?: string
-  link?: string
-  confidence?: number
-  // Optional override for the time-windowed product dedupe key. By default
-  // identical product_ids collapse if they appear inside
-  // PRODUCT_DEDUPE_WINDOW_SECONDS – set this to a unique string when you
-  // want a specific occurrence to render as its own card even though it
-  // resolves to the same SKU as another nearby match (e.g. the same Saw
-  // appearing in scene 3 and scene 26 of the spliced DHYH clip).
-  dedupe_key?: string
-}
-
-// Product images route through the shared `src/demo/sources/` resolver so the
-// same swap-point (bundled local vs S3-backed) applies to every content tile.
-// See src/demo/sources/README.md for the URL conventions.
-const resolveProductImage = (match: DhyhProductMatch): string =>
-  resolveProductImageUrl(DHYH_CONTENT_ID, match)
-
-type DhyhObject = {
-  name: string
-  confidence?: number
-  product_match?: DhyhProductMatch[]
-  // Marks product-matching scaffolding objects (derived, not detected). These
-  // power the Products panel but are filtered OUT of the Object taxonomy panel.
-  // See analysis/TIER-PREP-NOTES.md (synthetic-object rule).
-  synthetic?: boolean
-}
-
-type DhyhGarmCategory = {
-  id?: string
-  name: string
-  risk_level?: string
-  confidence?: number
-}
-
-type DhyhSentiment = { name: string; id?: string; confidence?: number }
-
-type DhyhMusicEmotion =
-  | { name: string; confidence?: number }
-  | Array<{ name: string; confidence?: number }>
-
-// Unified emotion taxonomy. `emotion` supersedes the legacy `music_emotion`
-// field (which was soundtrack-only); in the current clip-native data the music
-// moods are folded into `emotion` as additional categories. May be a single
-// object (older exports) or an array (merged exports). See
-// memory `emotion_supersedes_music_emotion`.
-type DhyhEmotionEntry = { name: string; id?: string; confidence?: number }
-type DhyhEmotion = DhyhEmotionEntry | DhyhEmotionEntry[]
-
-type DhyhFace = {
-  name?: string
-  confidence?: number
-  gender?: string
-  age_group?: string
-}
-
-type DhyhScene = {
-  scene: number
-  startTime: number
-  endTime: number
-  lengthInSeconds?: number
-  audio_transcript?: string
-  description?: string
-  iab_taxonomy?: DhyhNamed[]
-  garm_category?: DhyhGarmCategory[]
-  sentiment_analysis?: DhyhSentiment | DhyhSentiment[]
-  labels?: DhyhNamed[]
-  logos?: DhyhNamed[]
-  faces?: DhyhFace[]
-  text?: Array<{ value?: string; text?: string }>
-  locations?: DhyhNamed[]
-  objects?: DhyhObject[]
-  emotion?: DhyhEmotion
-  music_emotion?: DhyhMusicEmotion
-  shoppable_score?: number
-}
-
-type DhyhVideoLocation = {
-  id?: string
-  name: string
-  confidence?: number
-  count?: number
-  screen_time?: number
-  screen_time_percentage?: number
-}
-
-type DhyhVideoMetadata = {
-  locations?: DhyhVideoLocation[]
-}
-
-type DhyhPayload = {
-  duration_in_seconds: number
-  aspect_ratio: string
-  total_scenes: number
-  Scenes: DhyhScene[]
-  video_metadata?: DhyhVideoMetadata
-}
-
-// ---------- Public types ----------
-
-export type DhyhSceneBundle = {
-  scenes: SceneMetadata[]
-  duration: number
-  tier: TierOption
-  hasProductData: boolean
-}
-
-// ---------- Tier → JSON resolution ----------
-
-const bundleCache: Partial<Record<TierOption, Promise<DhyhSceneBundle>>> = {}
-
-export const getDhyhScenesForTier = (tier: TierOption): Promise<DhyhSceneBundle> => {
-  if (!bundleCache[tier]) {
-    // Resolution happens through the shared sources/ layer so the same
-    // bundled-local-vs-S3 swap-point applies to every content tile. See
-    // src/demo/sources/README.md.
-    bundleCache[tier] = resolveTierPayload(DHYH_CONTENT_ID, tier).then((payload) =>
-      buildBundle(payload as unknown as DhyhPayload, tier)
-    )
-  }
-  return bundleCache[tier] as Promise<DhyhSceneBundle>
-}
-
-// ---------- Builder helpers ----------
-
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
-
-const formatConfidence = (value?: number, fallback = 0.85) =>
-  (typeof value === 'number' ? clamp(value, 0, 1) : fallback).toFixed(2)
-
-const riskLevelToLabel = (level?: string) => {
-  switch ((level ?? '').toLowerCase()) {
-    case 'high':
-      return 'High Risk'
-    case 'medium':
-      return 'Medium Risk'
-    case 'low':
-      return 'Low Risk'
-    default:
-      return 'Suitable'
-  }
-}
-
-// Normalize a scene's emotion signal to a flat list of {name, confidence}.
-// Prefers the unified `emotion` field (array or single object); falls back to
-// the legacy `music_emotion` field so older 44-min exports still render.
-const sceneEmotions = (scene: DhyhScene): DhyhEmotionEntry[] => {
-  const emo = scene.emotion
-  if (Array.isArray(emo)) return emo.filter((e) => e && e.name)
-  if (emo && emo.name) return [emo]
-  const music = scene.music_emotion
-  if (Array.isArray(music)) return music.filter((m) => m && m.name)
-  if (music && music.name) return [music]
-  return []
-}
-
-const firstEmotion = (scene: DhyhScene): DhyhEmotionEntry | null => sceneEmotions(scene)[0] ?? null
-
-const TIER_HAS_PRODUCTS: Record<TierOption, boolean> = {
-  'Assets Summary': false,
-  'Basic Scene': false,
-  'Advanced Scene': false,
-  'Categorical Product Match': true,
-  'Exact Product Match': true,
-}
-
-const buildProducts = (scene: DhyhScene, tierHasProducts: boolean): SceneProduct[] => {
-  if (!tierHasProducts) return []
-  const products: SceneProduct[] = []
-  const seen = new Set<string>()
-  for (const obj of scene.objects ?? []) {
-    for (const match of obj.product_match ?? []) {
-      const baseId = String(match.product_id ?? match.loc_id ?? `${obj.name}-${match.name}`)
-      // `dedupe_key` (when present in the JSON) overrides the SKU-based key for
-      // the downstream time-windowed dedupe ONLY. The intra-scene `seen` set
-      // still uses the real SKU so a single scene that lists the same product
-      // twice still collapses to one card.
-      if (seen.has(baseId)) continue
-      seen.add(baseId)
-      const productKey = match.dedupe_key && match.dedupe_key.length > 0 ? match.dedupe_key : baseId
-      const description = [match.price, obj.name].filter(Boolean).join(' · ') || obj.name
-      products.push({
-        id: `dhyh-${scene.scene}-${baseId}`,
-        productKey,
-        name: match.name || obj.name,
-        description,
-        image: resolveProductImage(match),
-      })
-    }
-  }
-  return products
-}
-
-// Show-wide list of plausible locations, derived from `video_metadata.locations`
-// in the upstream JSON. We use this exclusively to populate the "Considered"
-// line in the Location taxonomy panel – it lets prospects see the AI's
-// runner-up guesses (e.g. Construction Site, Kitchen, Neighborhood) alongside
-// whatever the active headline is. Low-confidence noise (< 0.85) is filtered
-// out so misclassifications such as "Park" 0.79 don't resurface here.
-//
-// The headline itself is NOT taken from this list – it comes from the curated
-// `DHYH_LOCATION_TIMELINE` (or a high-confidence per-scene tag). Picking a
-// single show-wide primary by total screen-time turned out to be misleading
-// because total screen-time doesn't reflect *when* a location is on screen,
-// so e.g. "Bathroom" would dominate the entire demo even though the first
-// 2:30 of the clip is clearly construction-site content.
-// (Show-wide `video_metadata.locations` was previously surfaced as a per-scene
-// "Considered:" line in the Location panel — removed because it's
-// content-level data, not per-scene data, and the label was misleading. If we
-// want to re-introduce show-wide locations they belong in a panel-level
-// header. The `payload.video_metadata.locations` array is still available
-// from the upstream JSON when that work happens.)
-
-// Resolve which curated `DHYH_LOCATION_TIMELINE` entry is active at a given
-// clip-time. The active entry is the one with the largest `fromSec` that is
-// still ≤ `clipTime`. Returns null if the clip starts before any timeline
-// entry (shouldn't happen given fromSec=0 in the default config).
-const resolveTimelineLocation = (clipTime: number) => {
+/** Resolve which curated `DHYH_LOCATION_TIMELINE` entry is active at a given
+ *  clip-time. The active entry is the one with the largest `fromSec` that is
+ *  still ≤ `clipTime`. */
+const dhyhEditorialLocationOverlay = (clipStartSec: number): ResolvedLocation | null => {
   let active: (typeof DHYH_LOCATION_TIMELINE)[number] | null = null
   for (const entry of DHYH_LOCATION_TIMELINE) {
-    if (entry.fromSec <= clipTime) active = entry
+    if (entry.fromSec <= clipStartSec) active = entry
     else break
   }
-  return active
+  if (!active) return null
+  return {
+    name: active.location,
+    confidence: active.confidence,
+    source: 'editorial_timeline',
+  }
 }
 
-// Build the taxonomy display data straight from the upstream JSON for a single
-// scene. Important policy: every section we emit must be backed by a real field
-// in the JSON. We intentionally do *not* synthesize "Reasoning" copy from
-// `description`/`audio_transcript` (they belong to a different signal) and we
-// do not emit boilerplate "Considered" copy. If a row would have nothing to
-// show, we omit it instead of inventing one.
-const buildTaxonomyData = (
-  scene: DhyhScene,
-  clipStartSec: number
-): Partial<Record<TaxonomyOption, TaxonomySceneData>> => {
-  const data: Partial<Record<TaxonomyOption, TaxonomySceneData>> = {}
+// ───── DHYH source-time → clip-time remapper ────────────────────────────────
+//
+// The shipped video is a concat of two source ranges (Segment A + Segment B).
+// This helper maps a scene's source-time window onto the spliced clip
+// timeline, or returns null if the scene doesn't intersect either segment.
+// Only consulted when `DHYH_TIER_TIME_BASE === 'source'`; today's clip-native
+// data uses the default clip-native mapper inside `_shared/sceneBuilder.ts`.
 
-  const iab = scene.iab_taxonomy?.[0]
-  if (iab) {
-    // Considered = the runner-up IAB categories only. Slicing from index 1
-    // skips the primary so it doesn't double-up with "Primary Category:" above.
-    const considered = (scene.iab_taxonomy ?? [])
-      .slice(1, 5)
-      .map((item) => item.name)
-      .filter((name): name is string => Boolean(name) && name !== iab.name)
-      .join(', ')
-    const sections: TaxonomySceneData['sections'] = [
-      { label: 'Primary Category:', value: iab.name },
-    ]
-    if (considered) {
-      sections.push({ label: 'Considered:', value: considered })
-    }
-    sections.push({
-      label: 'Confidence:',
-      value: formatConfidence(iab.confidence, 0.85),
-    })
-    data.IAB = {
-      headline: iab.name,
-      chip: formatConfidence(iab.confidence, 0.85),
-      sections,
-    }
-  }
-
-  const sentimentRaw = Array.isArray(scene.sentiment_analysis)
-    ? scene.sentiment_analysis[0]
-    : scene.sentiment_analysis
-  if (sentimentRaw?.name) {
-    data.Sentiment = {
-      headline: sentimentRaw.name,
-      chip: formatConfidence(sentimentRaw.confidence, 0.88),
-      sections: [
-        { label: 'Sentiment:', value: sentimentRaw.name },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(sentimentRaw.confidence, 0.88),
-        },
-      ],
-    }
-  }
-
-  const garm = scene.garm_category?.[0]
-  if (garm) {
-    const sections: TaxonomySceneData['sections'] = [
-      { label: 'GARM Category:', value: garm.name },
-    ]
-    if (garm.risk_level) {
-      sections.push({ label: 'Risk Level:', value: garm.risk_level })
-    }
-    sections.push({
-      label: 'Confidence:',
-      value: formatConfidence(garm.confidence, 0.9),
-    })
-    data['Brand Safety'] = {
-      headline: riskLevelToLabel(garm.risk_level),
-      chip: formatConfidence(garm.confidence, 0.9),
-      sections,
-    }
-  }
-
-  const emotions = sceneEmotions(scene)
-  const topEmotion = emotions[0]
-  if (topEmotion?.name) {
-    // Unified Emotion taxonomy: lists all detected emotions for the scene
-    // (visual + the former music moods, now merged into `emotion`).
-    const allNames = emotions.map((e) => e.name).filter(Boolean).join(', ')
-    data.Emotion = {
-      headline: topEmotion.name,
-      chip: formatConfidence(topEmotion.confidence, 0.82),
-      sections: [
-        { label: 'Emotion:', value: allNames || topEmotion.name },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(topEmotion.confidence, 0.82),
-        },
-      ],
-    }
-  }
-
-  // Location resolution priority (most specific → least specific):
-  //   1. Per-scene `scene.locations[0]` IF its confidence is at or above
-  //      DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE. This honors the model's
-  //      own high-quality calls (e.g. Bathroom 0.95 in scene 718).
-  //   2. The curated DHYH_LOCATION_TIMELINE band that contains this scene's
-  //      clip-time. This is the editorial backbone — Construction Site for
-  //      the first 2:33, then Living Room through the home reveal, etc.
-  //   3. Nothing (panel renders empty) – shouldn't happen with the default
-  //      timeline whose first band starts at fromSec=0.
-  const resolvedLocation = resolveSceneLocation(scene, clipStartSec)
-  const resolvedName = resolvedLocation?.name ?? null
-  const resolvedConfidence = resolvedLocation?.confidence
-
-  if (resolvedName) {
-    // Per-scene Location card intentionally only surfaces fields backed by
-    // *per-scene* signal — the model's `scene.locations[0].name` and
-    // `confidence`, or the editorial timeline's value when the model didn't
-    // emit one. The previous "Considered:" row pulled from the show-wide
-    // `video_metadata.locations` list, which read as misleading: "Considered:
-    // Bathroom, Kitchen, Neighborhood" attached to a Construction Site scene
-    // implies the model considered those rooms for THIS scene, when it
-    // actually just detected them somewhere else in the clip. If we ever
-    // want to surface show-wide locations they belong in a panel-level
-    // header, not on every per-scene card.
-    const sections: TaxonomySceneData['sections'] = [
-      { label: 'Detected Location:', value: resolvedName },
-      { label: 'Confidence:', value: formatConfidence(resolvedConfidence, 0.9) },
-    ]
-    data.Location = {
-      headline: resolvedName,
-      chip: formatConfidence(resolvedConfidence, 0.9),
-      sections,
-    }
-  }
-
-  const faceCount = scene.faces?.length ?? 0
-  if (faceCount > 0) {
-    const sample = scene.faces?.[0]
-    const details = (scene.faces ?? [])
-      .slice(0, 3)
-      .map((face) => [face.name, face.gender, face.age_group].filter(Boolean).join(' · '))
-      .filter(Boolean)
-      .join('; ')
-    const sections: TaxonomySceneData['sections'] = [
-      { label: 'Face Count:', value: String(faceCount) },
-    ]
-    if (details) {
-      sections.push({ label: 'Details:', value: details })
-    }
-    sections.push({
-      label: 'Confidence:',
-      value: formatConfidence(sample?.confidence, 0.8),
-    })
-    data.Faces = {
-      headline: `${faceCount} face${faceCount === 1 ? '' : 's'} detected`,
-      chip: formatConfidence(sample?.confidence, 0.8),
-      sections,
-    }
-  }
-
-  // Object taxonomy shows DETECTED objects only — synthetic (product-matching
-  // scaffolding) objects are excluded here even though they remain in the data
-  // and power the Products panel. See analysis/TIER-PREP-NOTES.md.
-  const objectList = (scene.objects ?? []).filter((obj) => !obj.synthetic)
-  if (objectList.length > 0) {
-    const names = objectList
-      .slice(0, 6)
-      .map((obj) => obj.name)
-      .filter(Boolean)
-      .join(', ')
-    const top = objectList[0]
-    data.Object = {
-      headline: top?.name ?? 'Objects detected',
-      chip: formatConfidence(top?.confidence, 0.8),
-      sections: [
-        { label: 'Objects:', value: names },
-        {
-          label: 'Confidence:',
-          value: formatConfidence(top?.confidence, 0.8),
-        },
-      ],
-    }
-  }
-
-  // Logo taxonomy — only emitted when the scene actually carries `logos` data
-  // (none in the current DHYH content, so this never renders here). Data-gated
-  // exactly like Faces/Object so it stays out of the panel until data exists.
-  const logoList = scene.logos ?? []
-  if (logoList.length > 0) {
-    const names = logoList
-      .slice(0, 6)
-      .map((logo) => logo.name)
-      .filter(Boolean)
-      .join(', ')
-    const top = logoList[0]
-    data.Logo = {
-      headline: top?.name ?? 'Logos detected',
-      chip: formatConfidence(top?.confidence, 0.8),
-      sections: [
-        { label: 'Logos:', value: names },
-        { label: 'Confidence:', value: formatConfidence(top?.confidence, 0.8) },
-      ],
-    }
-  }
-
-  return data
-}
-
-// Resolved-location shape — what `resolveSceneLocation` returns. Threaded
-// from the bundle builder into both the Taxonomy panel's Location section
-// AND the displayed JSON, so the two views stay in sync (the editorial
-// timeline retrofit is reflected in both, with `source` marking which call
-// came from the upstream model vs. the timeline backbone).
-type LocationResolutionSource = 'model' | 'editorial_timeline'
-type ResolvedLocation = {
-  name: string
-  confidence: number
-  source: LocationResolutionSource
-}
-
-const resolveSceneLocation = (
-  scene: DhyhScene,
-  clipStartSec: number
-): ResolvedLocation | null => {
-  const sceneLocation = scene.locations?.[0]
-  if (
-    sceneLocation?.name &&
-    (sceneLocation.confidence ?? 0) >= DHYH_SCENE_LOCATION_OVERRIDE_CONFIDENCE
-  ) {
-    return {
-      name: sceneLocation.name,
-      confidence: sceneLocation.confidence ?? 0,
-      source: 'model',
-    }
-  }
-  const timelineEntry = resolveTimelineLocation(clipStartSec)
-  if (timelineEntry) {
-    return {
-      name: timelineEntry.location,
-      confidence: timelineEntry.confidence,
-      source: 'editorial_timeline',
-    }
-  }
-  return null
-}
-
-const buildRawJsonForScene = (scene: DhyhScene, resolvedLocation: ResolvedLocation | null) => {
-  // When the model didn't emit a `locations` field but the editorial
-  // timeline resolved one, surface that in the displayed JSON so it matches
-  // what the Location taxonomy panel shows. Tagged with `source` to make
-  // the provenance unambiguous in the demo (model emission vs. timeline
-  // backbone).
-  const synthesizedLocations =
-    !scene.locations?.length && resolvedLocation
-      ? [
-          {
-            name: resolvedLocation.name,
-            confidence: resolvedLocation.confidence,
-            source: resolvedLocation.source,
-          },
-        ]
-      : undefined
-
-  const raw: Record<string, unknown> = {
-    scene: scene.scene,
-    startTime: scene.startTime,
-    endTime: scene.endTime,
-    lengthInSeconds: scene.lengthInSeconds,
-    audio_transcript: scene.audio_transcript || undefined,
-    description: scene.description || undefined,
-    iab_taxonomy: scene.iab_taxonomy?.length ? scene.iab_taxonomy : undefined,
-    garm_category: scene.garm_category?.length ? scene.garm_category : undefined,
-    sentiment_analysis: scene.sentiment_analysis ?? undefined,
-    labels: scene.labels?.length ? scene.labels : undefined,
-    logos: scene.logos?.length ? scene.logos : undefined,
-    faces: scene.faces?.length ? scene.faces : undefined,
-    locations: scene.locations?.length ? scene.locations : synthesizedLocations,
-    objects: scene.objects?.length ? scene.objects : undefined,
-    emotion: scene.emotion ?? undefined,
-    music_emotion: scene.music_emotion ?? undefined,
-    shoppable_score: scene.shoppable_score,
-  }
-  // Drop undefined keys for cleaner display
-  Object.keys(raw).forEach((k) => raw[k] === undefined && delete raw[k])
-  return raw
-}
-
-// A scene is "meaningful" once any upstream analysis field has data. Production slates
-// (color bars, leaders, black frames) usually have all of these empty, and we use this
-// signal to keep panels blank during those moments.
-const isSceneMeaningful = (scene: DhyhScene) =>
-  Boolean(
-    scene.iab_taxonomy?.length ||
-      scene.objects?.length ||
-      scene.garm_category?.length ||
-      scene.sentiment_analysis ||
-      scene.locations?.length ||
-      scene.faces?.length ||
-      sceneEmotions(scene).length ||
-      scene.labels?.length ||
-      scene.logos?.length
-  )
-
-// ---------- Source → spliced-clip time remapping -----------------------------------
-// The shipped video is a concat of two source ranges (Segment A + Segment B). This
-// helper maps a scene's source-time window onto the spliced clip timeline, or
-// returns null if the scene doesn't intersect either segment and should be dropped.
-type ClipRange = { start: number; end: number }
-
-const remapSceneToClipTime = (sourceStart: number, sourceEnd: number): ClipRange | null => {
+const dhyhSourceSpliceMapper = (scene: TierScene): ClipRange | null => {
+  const sourceStart = scene.startTime
+  const sourceEnd = scene.endTime
   // Segment A: source [SEG_A_START, SEG_A_END] → clip [0, SEG_A_DURATION]
   if (sourceEnd > DHYH_SEGMENT_A_SOURCE_START && sourceStart < DHYH_SEGMENT_A_SOURCE_END) {
     const start = Math.max(0, sourceStart - DHYH_SEGMENT_A_SOURCE_START)
@@ -582,138 +91,15 @@ const remapSceneToClipTime = (sourceStart: number, sourceEnd: number): ClipRange
   return null
 }
 
-// Clip-native path (DHYH_TIER_TIME_BASE === 'clip'): the scene's start/end are
-// ALREADY clip-time (the JSON was processed directly from the spliced mp4), so
-// pass them through 1:1 — no source remap, no segment filtering. Clamp to the
-// clip window and drop only zero/negative-length scenes.
-const clipNativeRange = (start: number, end: number): ClipRange | null => {
-  const s = clamp(start, 0, DHYH_CLIP_DURATION_SECONDS)
-  const e = clamp(end, 0, DHYH_CLIP_DURATION_SECONDS)
-  if (e <= s) return null
-  return { start: s, end: e }
-}
+// ───── DHYH entry point ─────────────────────────────────────────────────────
 
-// Select the scene→clip-time mapping based on the configured tier time base.
-const sceneToClipRange = (scene: DhyhScene): ClipRange | null =>
-  DHYH_TIER_TIME_BASE === 'clip'
-    ? clipNativeRange(scene.startTime, scene.endTime)
-    : remapSceneToClipTime(scene.startTime, scene.endTime)
-
-const buildScene = (
-  scene: DhyhScene,
-  index: number,
-  tier: TierOption,
-  clipRange: ClipRange
-): SceneMetadata => {
-  const sentimentRaw = Array.isArray(scene.sentiment_analysis)
-    ? scene.sentiment_analysis[0]
-    : scene.sentiment_analysis
-  const music = firstEmotion(scene)
-  const iabConsidered =
-    (scene.iab_taxonomy ?? [])
-      .slice(0, 3)
-      .map((item) => item.name)
-      .join(', ') || sentimentRaw?.name || 'Unknown'
-
-  const meaningful = isSceneMeaningful(scene)
-  const taxonomyData = buildTaxonomyData(scene, clipRange.start)
-
-  return {
-    id: `dhyh-scene-${scene.scene}`,
-    start: clipRange.start,
-    end: clipRange.end,
-    sceneLabel: `Scene ${index + 1}`,
-    emotion: music?.name ?? sentimentRaw?.name ?? 'Neutral',
-    emotionScore: clamp(music?.confidence ?? sentimentRaw?.confidence ?? 0.75, 0, 1),
-    considered: iabConsidered,
-    reasoning:
-      scene.description?.slice(0, 240) ||
-      scene.audio_transcript?.slice(0, 240) ||
-      'Scene derived from upstream analysis pipeline.',
-    textData: scene.audio_transcript?.slice(0, 160) || scene.description?.slice(0, 160) || '—',
-    musicEmotion: music?.name ?? 'Ambient',
-    musicScore: clamp(music?.confidence ?? 0.8, 0, 1),
-    cta: 'In-Content-CTA',
-    products: buildProducts(scene, TIER_HAS_PRODUCTS[tier] ?? false),
-    taxonomyData,
-    rawJson: meaningful ? buildRawJsonForScene(scene, resolveSceneLocation(scene, clipRange.start)) : undefined,
-    isEmpty: !meaningful,
-  }
-}
-
-// Taxonomy options that are *content-wide* by nature – the classification is
-// stable across the whole clip even when the upstream analysis only emits a
-// value on some scenes. For these we bidirectionally fill gaps in
-// `scene.taxonomyData` from the nearest neighbor so the panel never goes blank
-// while valid data exists somewhere else in the clip. This fixes the common
-// case where, e.g., IAB is first emitted at scene 8 but the show is obviously
-// "Home Improvement" from scene 1 – the panel should reflect that continuity.
-//
-// Scenes marked `isEmpty` (production slates, color bars) are skipped – they
-// intentionally show nothing regardless of taxonomy.
-// Note: `Location` is intentionally excluded. Gap-filling caused per-scene
-// outlier labels (like a single "Cottage" tag at clip-time 74s) to propagate
-// across many unrelated scenes. Location is instead handled inside
-// `buildTaxonomyData` via a show-wide primary fallback derived from
-// `video_metadata.locations`.
-const GAP_FILL_TAXONOMIES: TaxonomyOption[] = [
-  'IAB',
-  'Sentiment',
-  'Brand Safety',
-  'Emotion',
-  'Faces',
-  'Object',
-]
-
-const fillTaxonomyGaps = (scenes: SceneMetadata[]): void => {
-  for (const tax of GAP_FILL_TAXONOMIES) {
-    // Forward-fill: carry the most recent value forward into any gap.
-    let lastSeen: TaxonomySceneData | null = null
-    for (const scene of scenes) {
-      if (scene.isEmpty || !scene.taxonomyData) continue
-      const current = scene.taxonomyData[tax]
-      if (current) {
-        lastSeen = current
-      } else if (lastSeen) {
-        scene.taxonomyData[tax] = lastSeen
-      }
-    }
-    // Back-fill: for scenes before the first occurrence, copy the nearest
-    // future value backward so the opening doesn't render blank.
-    let nextSeen: TaxonomySceneData | null = null
-    for (let i = scenes.length - 1; i >= 0; i--) {
-      const scene = scenes[i]
-      if (scene.isEmpty || !scene.taxonomyData) continue
-      const current = scene.taxonomyData[tax]
-      if (current) {
-        nextSeen = current
-      } else if (nextSeen) {
-        scene.taxonomyData[tax] = nextSeen
-      }
-    }
-  }
-}
-
-const buildBundle = (payload: DhyhPayload, tier: TierOption): DhyhSceneBundle => {
-  // Each source scene is either dropped (not inside either segment) or remapped onto
-  // the spliced clip timeline. After remapping we sort by clip start so Segment A
-  // scenes precede Segment B scenes and both sections advance monotonically as the
-  // video plays through the splice.
-  const remapped = payload.Scenes.map((scene) => ({
-    scene,
-    range: sceneToClipRange(scene),
-  })).filter(
-    (entry): entry is { scene: DhyhScene; range: ClipRange } => entry.range !== null
-  )
-  remapped.sort((a, b) => a.range.start - b.range.start)
-  const scenes = remapped.map(({ scene, range }, index) =>
-    buildScene(scene, index, tier, range)
-  )
-  fillTaxonomyGaps(scenes)
-  return {
-    tier,
-    duration: DHYH_CLIP_DURATION_SECONDS,
-    scenes,
-    hasProductData: TIER_HAS_PRODUCTS[tier] ?? false,
-  }
-}
+/** Tier loader for DHYH. Wraps the shared `getScenesForContent` with the
+ *  DHYH editorial-location overlay and (conditionally) the source-splice
+ *  range mapper. */
+export const getDhyhScenesForTier = (tier: TierOption): Promise<SceneBundle> =>
+  sharedGetScenesForContent(DHYH_CONTENT_ID, tier, {
+    clipDurationSeconds: DHYH_CLIP_DURATION_SECONDS,
+    editorialLocationOverlay: dhyhEditorialLocationOverlay,
+    sceneToClipRangeMapper:
+      DHYH_TIER_TIME_BASE === 'source' ? dhyhSourceSpliceMapper : undefined,
+  })
