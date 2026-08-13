@@ -106,6 +106,14 @@ export type TaxonomySceneData = {
   headline: string
   chip: string
   sections: TaxonomySceneSection[]
+  /**
+   * Additional primary entries for the same taxonomy on the same scene.
+   * Each renders as its own pill + sections block, identical in shape to the
+   * top-level one. The Object taxonomy uses this so a scene can surface
+   * several main objects (e.g. `Tape measure`, `Person`, `Saw`) instead of
+   * collapsing everything but the first into one flat list.
+   */
+  extraGroups?: Array<Omit<TaxonomySceneData, 'extraGroups'>>
 }
 
 export type PlayerControlTokens = {

@@ -53,37 +53,43 @@ export function TaxonomySceneCard({
       <Typography sx={sceneAnchorStyles}>
         {sceneLabel} · {formatTime(sceneStart)}
       </Typography>
-      {rows.map(({ taxonomy, data }, idx) => (
-        <Box
-          key={`${taxonomy}-${idx}`}
-          sx={isCollapsed ? undefined : { mb: 1.05 }}
-        >
-          <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-            {taxonomy}
-          </Typography>
-          <Chip
-            label={`${data.headline} (${data.chip})`}
-            size="small"
-            sx={{
-              height: 25.27,
-              borderRadius: '104.48px',
-              mt: 0.4,
-              mb: 0.8,
-              fontSize: 11.5,
-            }}
-          />
-          {data.sections.map((section) => (
-            <Box key={`${taxonomy}-${section.label}`}>
+      {rows.flatMap(({ taxonomy, data }, idx) =>
+        // A row may carry several primary entries (see `extraGroups`); each
+        // renders as the same heading + pill + sections unit, repeated.
+        [{ headline: data.headline, chip: data.chip, sections: data.sections }, ...(data.extraGroups ?? [])].map(
+          (group, groupIdx) => (
+            <Box
+              key={`${taxonomy}-${idx}-${groupIdx}`}
+              sx={isCollapsed ? undefined : { mb: 1.05 }}
+            >
               <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
-                {section.label}
+                {taxonomy}
               </Typography>
-              <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
-                {section.value}
-              </Typography>
+              <Chip
+                label={`${group.headline} (${group.chip})`}
+                size="small"
+                sx={{
+                  height: 25.27,
+                  borderRadius: '104.48px',
+                  mt: 0.4,
+                  mb: 0.8,
+                  fontSize: 11.5,
+                }}
+              />
+              {group.sections.map((section) => (
+                <Box key={`${taxonomy}-${idx}-${groupIdx}-${section.label}`}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, opacity: 0.87 }}>
+                    {section.label}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, mb: 0.7, lineHeight: 1.35, opacity: 0.87 }}>
+                    {section.value}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
-          ))}
-        </Box>
-      ))}
+          )
+        )
+      )}
     </Box>
   )
 }
