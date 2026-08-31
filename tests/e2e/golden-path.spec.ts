@@ -2,8 +2,15 @@ import { expect, test } from '@playwright/test'
 
 /**
  * Golden-path E2E (HANDOFF §14 — the canonical demo-works flow):
- * login → DHYH selection → Tier + Ad Mode picked → START → demo view
+ * login → content selection → Tier + Ad Mode picked → START → demo view
  * with the video player and panel rail visible.
+ *
+ * NOTE: the tile this test clicks MUST be one that `ENABLED_CONTENT_IDS`
+ * in src/demo/data/contentItems.ts actually exposes. Hidden tiles are
+ * filtered out of the grid entirely, so pointing this test at one fails
+ * with a bare 5s visibility timeout that reads like a broken app rather
+ * than a stale test. If you change which content the build exposes,
+ * update EXPECTED_TILE below to match.
  *
  * The login form pre-fills the demo credentials (DEMO_LOGIN_EMAIL +
  * DEMO_LOGIN_PASSWORD) on mount, so the login step is just a click —
@@ -26,18 +33,23 @@ test.beforeEach(async ({ context }) => {
   await context.clearCookies()
 })
 
-test('golden path: login → DHYH → demo view loads', async ({ page }) => {
+// Kept in sync by hand with ENABLED_CONTENT_IDS (see note above). The spec
+// deliberately does not import contentItems.ts: that module reaches
+// `import.meta.env` via the per-content timeline files, which is a Vite-only
+// global and throws under Playwright's transform.
+const EXPECTED_TILE = 'Abbott Elementary'
+
+test('golden path: login → content tile → demo view loads', async ({ page }) => {
   await page.goto('/')
 
   // Login screen has a pre-filled email + password; just click LOG IN.
   await expect(page.getByRole('button', { name: 'LOG IN' })).toBeVisible()
   await page.getByRole('button', { name: 'LOG IN' }).click()
 
-  // Content selection screen — DHYH should be visible (it's the only
-  // enabled tile per ENABLED_CONTENT_IDS in contentItems.ts).
-  const dhyhTile = page.getByRole('button', { name: "Don't Hate Your House" })
-  await expect(dhyhTile).toBeVisible()
-  await dhyhTile.click()
+  // Content selection screen — the enabled tile should be visible.
+  const contentTile = page.getByRole('button', { name: EXPECTED_TILE })
+  await expect(contentTile).toBeVisible()
+  await contentTile.click()
 
   // Selector dialog opens with Tier + Ad Mode dropdowns pre-populated.
   // Verify the dialog rendered, then START the demo.
