@@ -58,11 +58,22 @@ export function PauseToShopCta({ visible, imageSrc, onPause }: PauseToShopCtaPro
         // any player size.
         bottom: '7.59%',
         right: '5.05%',
-        // Sized via a viewport clamp so the CTA scales with the
-        // player without making the image artwork too tall on big
-        // displays. Image's intrinsic aspect ratio is preserved by
-        // `height: auto`.
-        width: 'clamp(140px, 14vw, 260px)',
+        // Sized as a percentage of the PLAYER, not the viewport.
+        //
+        // This was `clamp(140px, 14vw, 260px)`, which does not do what its
+        // comment claimed: `vw` is the browser viewport, so the CTA ignored the
+        // player entirely. With both side panels open the player is only ~47% of
+        // the window, making 14vw ≈ 30% of the player — roughly double the
+        // intended size. It looked correct only when the panels were closed and
+        // the player happened to fill the window.
+        //
+        // A percentage resolves against the containing block, which is the
+        // player (the same basis as the `right`/`bottom` offsets above), so the
+        // CTA now holds its proportion at any player size. 19% matches the
+        // Figma reference: 363 / 1920 ≈ 18.9%. The px clamp keeps it legible on
+        // a very small player and stops the artwork ballooning on a very large
+        // one. `height: auto` preserves the image's aspect ratio.
+        width: 'clamp(110px, 19%, 300px)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 320ms ease, transform 320ms ease',
