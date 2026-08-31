@@ -1,24 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { adDecisionPayload, adDecisioningTail } from '../data/adFixtures'
 import { AD_MODE_REGISTRY, isSyncAdBreakMode } from '../ad-modes'
-import { getAvailableAdModes, getContentConfig } from '../content'
+import {
+  BUNDLED_CONTENT_IDS,
+  getAvailableAdModes,
+  getContentConfig,
+  getPauseMomentsForContent,
+} from '../content'
 import {
   DHYH_AD_BREAK_CLIP_SECONDS,
   DHYH_CLIP_DURATION_SECONDS,
   DHYH_CONTENT_ID,
-  DHYH_CTA_PAUSE_WINDOWS,
   DHYH_IMPULSE_AD_COMPANION_URL,
-  DHYH_ORGANIC_PAUSE_CTA_END_SECONDS,
   DHYH_VIDEO_SOURCE_OFFSET_SECONDS,
 } from '../content/dhyh/timeline'
 import { isInPauseWindow } from '../utils/pauseWindows'
-import {
-  getActiveOrganicMomentScene,
-  getActiveOrganicOverlayPayload,
-  getActivePauseMomentScene,
-  getActivePauseOverlayPayload,
-  type PauseMomentScene,
-} from '../content/dhyh/pauseMoments'
+import type { PauseMomentScene } from '../content/_shared/pauseMoments'
 import { PAUSE_OVERLAY_PLACEHOLDER } from '../components/player/pause-overlay'
 import {
   AD_BREAK_1_IMAGE,
@@ -61,7 +58,27 @@ import {
   resolveTaxonomyAvailability,
 } from '../utils/sceneState'
 import { getTaxonomySceneData } from '../data/taxonomySceneData'
-import { getDhyhScenesForTier, type DhyhSceneBundle } from '../content/dhyh/scenes'
+import { getDhyhScenesForTier } from '../content/dhyh/scenes'
+import { getMasterchefScenesForTier } from '../content/masterchef/scenes'
+import { getRhwScenesForTier } from '../content/rhw/scenes'
+import { getShScenesForTier } from '../content/sh/scenes'
+import { getBbScenesForTier } from '../content/bb/scenes'
+import { getAbbotScenesForTier } from '../content/abbot/scenes'
+import { type SceneBundle } from '../content/_shared/sceneBuilder'
+
+// Per-content scene-loader registry. Each content tile's `scenes.ts`
+// wrapper plugs into here so the hook stays content-agnostic — adding a
+// new bundled content is a new entry, not a new branch in the effect
+// below. Returning `undefined` for an unknown content id lets the
+// `hasBundledContent` guard upstream short-circuit cleanly.
+const SCENE_LOADERS: Record<string, ((tier: TierOption) => Promise<SceneBundle>) | undefined> = {
+  [DHYH_CONTENT_ID]: getDhyhScenesForTier,
+  masterchef: getMasterchefScenesForTier,
+  rhw: getRhwScenesForTier,
+  sh: getShScenesForTier,
+  bb: getBbScenesForTier,
+  abbot: getAbbotScenesForTier,
+}
 import { buildOriginalJsonString, buildSummaryJsonString } from '../utils/jsonExport'
 import { SCENE_METADATA } from '../data/sceneMetadata'
 import { getPlayerControlTokens } from '../styles'
@@ -129,8 +146,38 @@ export function useDemoPlayback({
   const visiblePanelsKey = visiblePanels.join(',')
 
   const isDhyhContent = selectedContent?.id === DHYH_CONTENT_ID
+  // Any content registered in `CONTENT_REGISTRY` with bundled tier JSONs
+  // drives the Taxonomy / Product / JSON panels from real data. Derived
+  // from the registry so adding a new content does NOT require editing
+  // this hook — just register the config + tier loader.
+  const hasBundledContent =
+    !!selectedContent?.id && BUNDLED_CONTENT_IDS.has(selectedContent.id)
 
-  const [dhyhBundle, setDhyhBundle] = useState<DhyhSceneBundle | null>(null)
+  // Per-content clip + ad-break geometry. Sourced from the active content's
+  // `ContentConfig` so the ad-break math below stays generic across DHYH's
+  // mid-clip splice and MasterChef's tail-anchored ad. Falls back to DHYH's
+  // constants when no content is selected (preserves the original behavior
+  // for the pre-selection / placeholder code path).
+  const activeContentConfig = selectedContent?.id
+    ? getContentConfig(selectedContent.id)
+    : null
+  const activeClipDurationSeconds =
+    activeContentConfig?.clipDurationSeconds ?? DHYH_CLIP_DURATION_SECONDS
+  const activeAdBreakClipSeconds =
+    activeContentConfig?.adBreakClipSeconds ?? DHYH_AD_BREAK_CLIP_SECONDS
+  // True when the active content's ad break sits at the very end of the
+  // clip (Content → Ad), false for mid-clip splices (Content → Ad → Content).
+  // Drives small behavior differences below (no post-ad scene flipping,
+  // playback ends after the ad, the trailing content segment collapses).
+  const isTailAnchoredAdBreak =
+    activeAdBreakClipSeconds >= activeClipDurationSeconds - 0.001
+  // Per-content pause-moments module (CTA + Organic resolvers + the editorial
+  // CTA windows). Null when the active content has no pause-moments wiring.
+  // Routed via the registry so adding a new content with pause moments is a
+  // PAUSE_MOMENTS_REGISTRY entry, not a hook change.
+  const pauseMomentsModule = getPauseMomentsForContent(selectedContent?.id)
+
+  const [dhyhBundle, setDhyhBundle] = useState<SceneBundle | null>(null)
 
   // Tracks whether the user has clicked Play at least once during the
   // current demo session. The pause-overlay surfaces and the
@@ -149,56 +196,79 @@ export function useDemoPlayback({
 
   useEffect(() => {
     let cancelled = false
-    if (!isDhyhContent) {
+    const contentId = selectedContent?.id
+    if (!hasBundledContent || !contentId) {
       setDhyhBundle(null)
       return
     }
-    getDhyhScenesForTier(selectedTier).then((bundle) => {
+    // Per-content scene-loader: each content tile owns a thin wrapper
+    // (`<id>/scenes.ts`) around the shared `_shared/sceneBuilder` engine.
+    // The wrappers register themselves in `SCENE_LOADERS` (above), so
+    // adding a new bundled content tile is a single entry + a new
+    // wrapper file — no edit needed in this effect.
+    const loadScenes = SCENE_LOADERS[contentId]
+    if (!loadScenes) {
+      setDhyhBundle(null)
+      return
+    }
+    loadScenes(selectedTier).then((bundle) => {
       if (!cancelled) setDhyhBundle(bundle)
     })
     return () => {
       cancelled = true
     }
-  }, [isDhyhContent, selectedTier])
+  }, [hasBundledContent, selectedContent?.id, selectedTier])
 
-  // Sync-style ad breaks (colored scrubber + ad creative overlay) fire for any mode
-  // that supplies a `dhyhAdDurationSeconds` in the registry — currently `Sync`,
-  // `Sync: L-Bar`, and `Sync: Impulse`. Each registry entry owns its own creative,
-  // duration, and ad-compliance JSON; see src/demo/ad-modes/.
+  // Sync-style ad breaks (colored scrubber + ad creative overlay) fire for any
+  // mode classified as `kind: 'sync-ad-break'` AND for which the active content
+  // ships per-mode `adAssets` (video + duration). The per-content `ContentConfig.
+  // adAssets[mode]` map is the single source of truth as of 2026-06-15 — ad-mode
+  // configs themselves are pure metadata now.
   //
-  // Placeholder content retains the legacy tier-gated `Sync: Impulse`-only behavior
-  // because no other mode has a placeholder code path.
+  // Placeholder content retains the legacy tier-gated `Sync: Impulse`-only
+  // behavior because no other mode has a placeholder code path.
   const isExactProductMatch = selectedTier === 'Exact Product Match'
-  const activeMode = AD_MODE_REGISTRY[selectedAdPlayback]
   const isSyncImpulseModeSelected = selectedAdPlayback === 'Sync: Impulse'
+
+  // Per-content ad-mode assets for the currently selected mode. `undefined`
+  // when (a) no content is selected, (b) the active content doesn't have
+  // this mode wired in its `adAssets`, or (c) the active mode hasn't been
+  // wired for any content yet. Downstream code reads creative URLs,
+  // compliance payloads, durations, and labels from here — never from
+  // mode-level configs.
+  const contentAdAssets = selectedContent?.id
+    ? getContentConfig(selectedContent.id)?.adAssets?.[selectedAdPlayback]
+    : undefined
 
   // Broadened sync-ad-break flag used pervasively below. Historically named
   // `isSyncImpulseMode`; kept to minimize churn in downstream files.
-  const isSyncImpulseMode = isDhyhContent
-    ? isSyncAdBreakMode(selectedAdPlayback)
+  const isSyncImpulseMode = hasBundledContent
+    ? isSyncAdBreakMode(selectedAdPlayback) && Boolean(contentAdAssets?.videoUrl)
     : isExactProductMatch && isSyncImpulseModeSelected
 
   const titlePanelSummary = `VOD: ${selectedTier.toUpperCase()} - ${selectedAdPlayback.toUpperCase()}`
 
-  // Per-mode DHYH ad-break duration sourced from the registry (30s for Impulse/L-Bar,
-  // 45s for Sync). Placeholder content always falls back to Impulse's duration.
-  const dhyhAdBreakDurationSeconds = useMemo(() => {
-    const fallback = AD_MODE_REGISTRY['Sync: Impulse'].dhyhAdDurationSeconds ?? 30
-    if (!isDhyhContent) return fallback
-    return activeMode.dhyhAdDurationSeconds ?? fallback
-  }, [isDhyhContent, activeMode])
+  // Per-mode ad-break duration sourced from the active content's adAssets.
+  // Falls back to 30s (legacy Impulse default) for placeholder content or
+  // when the active content+mode pair has no duration wired.
+  const dhyhAdBreakDurationSeconds = useMemo(
+    () => contentAdAssets?.durationSeconds ?? 30,
+    [contentAdAssets]
+  )
 
-  // DHYH scrubber segments are recomputed per-mode so the cyan ad slot matches the
-  // actual ad duration (Impulse/L-Bar = 30s, Sync = 45s). All three use a single break
-  // anchored at the splice point of the clip. See `utils/adBreakMath.ts`.
+  // Scrubber segments are recomputed per-mode so the cyan ad slot matches the
+  // actual ad duration (Impulse/L-Bar = 30s, Sync = 45s). DHYH has a single
+  // break at the mid-clip splice point; MasterChef has a single break at the
+  // tail. The builder collapses the trailing zero-length segment automatically
+  // for tail-anchored content. See `utils/adBreakMath.ts`.
   const dhyhImpulseSegments = useMemo(
     () =>
       buildDhyhImpulseSegments({
-        adBreakClipSeconds: DHYH_AD_BREAK_CLIP_SECONDS,
+        adBreakClipSeconds: activeAdBreakClipSeconds,
         adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
-        clipDurationSeconds: DHYH_CLIP_DURATION_SECONDS,
+        clipDurationSeconds: activeClipDurationSeconds,
       }),
-    [dhyhAdBreakDurationSeconds]
+    [activeAdBreakClipSeconds, activeClipDurationSeconds, dhyhAdBreakDurationSeconds]
   )
 
   // Pause-window markers shown on the scrubber while CTA Pause is the
@@ -208,10 +278,10 @@ export function useDemoPlayback({
   // clip-time axis as the impulse segments (no ad-break splicing
   // applies to CTA Pause).
   const dhyhCtaPauseSegments = useMemo(() => {
-    if (!isDhyhContent) return []
     if (selectedAdPlayback !== 'CTA Pause') return []
-    return DHYH_CTA_PAUSE_WINDOWS
-  }, [isDhyhContent, selectedAdPlayback])
+    if (!pauseMomentsModule) return []
+    return pauseMomentsModule.ctaPauseWindows
+  }, [pauseMomentsModule, selectedAdPlayback])
 
   // `playbackDurationSeconds` is the *internal* scrubber length used by the MUI slider.
   // For DHYH sync-ad-break modes this includes the per-mode ad block (30-45s) so the
@@ -219,18 +289,19 @@ export function useDemoPlayback({
   // time readout in the player chrome uses a separate clip-adjusted value
   // (displayedCurrentSeconds / displayedDurationSeconds) so the content still "feels"
   // like a 7-minute clip.
-  const playbackDurationSeconds =
-    isDhyhContent && dhyhBundle
-      ? isSyncImpulseMode
-        ? DHYH_CLIP_DURATION_SECONDS + dhyhAdBreakDurationSeconds
-        : DHYH_CLIP_DURATION_SECONDS
-      : isSyncImpulseMode
-        ? SYNC_IMPULSE_DURATION_SECONDS
-        : TOTAL_DURATION_SECONDS
+  const playbackDurationSeconds = hasBundledContent && dhyhBundle
+    ? isSyncImpulseMode
+      ? activeClipDurationSeconds + dhyhAdBreakDurationSeconds
+      : activeClipDurationSeconds
+    : isSyncImpulseMode
+      ? SYNC_IMPULSE_DURATION_SECONDS
+      : TOTAL_DURATION_SECONDS
 
-  // DHYH plays the real MP4 in all modes, so the <video> element's currentTime drives state.
-  // The synthetic tick is only used for placeholder content or to walk through ad breaks.
-  const usesNativeTimeline = isDhyhContent
+  // Real-mp4-playback content uses <video>.currentTime as the source of truth.
+  // The synthetic tick is only for placeholder content; both DHYH (with ad-
+  // break math layered on top) and MasterChef (clip-native, no ad break)
+  // qualify.
+  const usesNativeTimeline = hasBundledContent
 
   const nonImpulsePanelProgress = useMemo(() => {
     if (isSyncImpulseMode) return 0
@@ -250,21 +321,27 @@ export function useDemoPlayback({
   ])
 
   // Player-time → clip-time mapping (HANDOFF §6). See utils/adBreakMath.ts.
+  // Works generically for any bundled content with a sync-style ad break —
+  // DHYH (mid-clip splice) and MC (tail-anchored) both flow through here.
   const dhyhClipSeconds = useMemo(
     () =>
       mapPlayerToClipSeconds(videoCurrentSeconds, {
-        isDhyhContent,
         isAdBreakMode: isSyncImpulseMode,
-        adBreakClipSeconds: DHYH_AD_BREAK_CLIP_SECONDS,
+        adBreakClipSeconds: activeAdBreakClipSeconds,
         adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
       }),
-    [isDhyhContent, isSyncImpulseMode, videoCurrentSeconds, dhyhAdBreakDurationSeconds]
+    [
+      isSyncImpulseMode,
+      videoCurrentSeconds,
+      activeAdBreakClipSeconds,
+      dhyhAdBreakDurationSeconds,
+    ]
   )
 
-  const panelTimelineSeconds = isDhyhContent
+  const panelTimelineSeconds = hasBundledContent
     ? dhyhClipSeconds
-    : usesNativeTimeline || isSyncImpulseMode
-      ? videoCurrentSeconds
+    : isSyncImpulseMode
+      ? videoCurrentSeconds // sync-impulse placeholder content
       : nonImpulsePanelProgress * TOTAL_DURATION_SECONDS
 
   // ---------- Pause-mode visibility (CTA + overlay) ----------------------
@@ -281,14 +358,16 @@ export function useDemoPlayback({
   // they're mutually exclusive and one transitions to the other.
   //
   // CTA Pause windows are also enforced on the *overlay* side: pausing
-  // outside one of `DHYH_CTA_PAUSE_WINDOWS` leaves the player in normal
-  // (carousel-less) paused state, matching the editorial intent that
-  // pause-to-shop is only available during specific moments.
-  const isInDhyhCtaPauseWindow = isDhyhContent
-    ? isInPauseWindow(panelTimelineSeconds, DHYH_CTA_PAUSE_WINDOWS)
+  // outside one of the active content's `ctaPauseWindows` leaves the player
+  // in normal (carousel-less) paused state, matching the editorial intent
+  // that pause-to-shop is only available during specific moments.
+  // (Variable names keep their "Dhyh" prefix as a legacy artifact — they're
+  //  now content-agnostic, driven by the routed `pauseMomentsModule`.)
+  const isInDhyhCtaPauseWindow = pauseMomentsModule
+    ? isInPauseWindow(panelTimelineSeconds, pauseMomentsModule.ctaPauseWindows)
     : false
-  const isInDhyhOrganicCtaWindow = isDhyhContent
-    ? panelTimelineSeconds < DHYH_ORGANIC_PAUSE_CTA_END_SECONDS
+  const isInDhyhOrganicCtaWindow = pauseMomentsModule
+    ? panelTimelineSeconds < pauseMomentsModule.organicPauseCtaEndSeconds
     : false
 
   const isPauseToShopCtaVisible =
@@ -317,16 +396,16 @@ export function useDemoPlayback({
   // `PAUSE_OVERLAY_PLACEHOLDER` only as a last-resort safeguard
   // (e.g. mode-flag mismatch — shouldn't happen in practice).
   const dhyhCtaPausePayload = useMemo(() => {
-    if (!isDhyhContent) return null
     if (selectedAdPlayback !== 'CTA Pause') return null
-    return getActivePauseOverlayPayload(panelTimelineSeconds)
-  }, [isDhyhContent, selectedAdPlayback, panelTimelineSeconds])
+    if (!pauseMomentsModule) return null
+    return pauseMomentsModule.getActivePauseOverlayPayload(panelTimelineSeconds)
+  }, [pauseMomentsModule, selectedAdPlayback, panelTimelineSeconds])
 
   const dhyhOrganicPausePayload = useMemo(() => {
-    if (!isDhyhContent) return null
     if (selectedAdPlayback !== 'Organic Pause') return null
-    return getActiveOrganicOverlayPayload(panelTimelineSeconds)
-  }, [isDhyhContent, selectedAdPlayback, panelTimelineSeconds])
+    if (!pauseMomentsModule) return null
+    return pauseMomentsModule.getActiveOrganicOverlayPayload(panelTimelineSeconds)
+  }, [pauseMomentsModule, selectedAdPlayback, panelTimelineSeconds])
 
   const activePauseOverlayPayload =
     dhyhCtaPausePayload ?? dhyhOrganicPausePayload ?? PAUSE_OVERLAY_PLACEHOLDER
@@ -340,16 +419,16 @@ export function useDemoPlayback({
   // outside any moment so the panel auto-falls-back to the normal
   // per-scene JSON cards.
   const activePauseMomentScene = useMemo<PauseMomentScene | null>(() => {
-    if (!isDhyhContent) return null
+    if (!pauseMomentsModule) return null
     if (!isPauseOverlayActive) return null
     if (selectedAdPlayback === 'CTA Pause') {
-      return getActivePauseMomentScene(panelTimelineSeconds)?.scene ?? null
+      return pauseMomentsModule.getActivePauseMomentScene(panelTimelineSeconds)?.scene ?? null
     }
     if (selectedAdPlayback === 'Organic Pause') {
-      return getActiveOrganicMomentScene(panelTimelineSeconds)?.scene ?? null
+      return pauseMomentsModule.getActiveOrganicMomentScene(panelTimelineSeconds)?.scene ?? null
     }
     return null
-  }, [isDhyhContent, selectedAdPlayback, isPauseOverlayActive, panelTimelineSeconds])
+  }, [pauseMomentsModule, selectedAdPlayback, isPauseOverlayActive, panelTimelineSeconds])
 
   // ─── Pause Ad mode ────────────────────────────────────────────────
   //
@@ -366,29 +445,23 @@ export function useDemoPlayback({
   const isPauseAdMode = selectedAdPlayback === 'Pause Ad'
   const isPauseAdActive = hasStartedPlayback && !isVideoPlaying && isPauseAdMode
 
-  // Image URL for the current Pause Ad creative. Sourced from the
-  // active mode's registry entry — content-agnostic indirection so a
-  // future Content #2 just supplies its own URL via its own
-  // `pause-ad/config.ts` import.
-  const pauseAdImageSrc = isPauseAdMode
-    ? activeMode.dhyhPauseAdImageUrl ?? null
-    : null
-
-  // Compliance JSON injected into the JSON panel while the Pause Ad
-  // overlay is up. Mirrors how the Sync ad-break injects its own
-  // compliance payload — the panel branch in DemoView checks
-  // `isPauseAdActive` first and falls through to the existing
-  // CTA/Organic Pause moment branch if not in Pause Ad mode.
+  // Pause Ad creative image, compliance payload, and JSON-panel response
+  // label all flow from the active content's `adAssets['Pause Ad']`. No
+  // cross-content references; if the active content doesn't have Pause Ad
+  // wired, these stay null and the overlay is suppressed by `isPauseAdActive`.
+  const pauseAdImageSrc = isPauseAdMode ? contentAdAssets?.imageUrl ?? null : null
   const pauseAdCompliancePayload = isPauseAdMode
-    ? activeMode.dhyhCompliancePayload ?? null
+    ? contentAdAssets?.compliancePayload ?? null
     : null
   const pauseAdResponseLabel = isPauseAdMode
-    ? activeMode.dhyhAdResponseLabel ?? '_PauseAd Response'
+    ? contentAdAssets?.responseLabel ?? '_PauseAd Response'
     : '_PauseAd Response'
 
   const playbackScenes = useMemo(() => {
-    if (isDhyhContent && dhyhBundle) {
-      // Real DHYH scenes are used across all modes, including Sync: Impulse.
+    // Any tier-bundled content (DHYH, MasterChef, …) uses its real scenes
+    // across every ad mode. Placeholder content keeps the synthetic
+    // SCENE_METADATA + the legacy Sync:Impulse-only branch below.
+    if (hasBundledContent && dhyhBundle) {
       return dhyhBundle.scenes
     }
     if (!isSyncImpulseMode) return SCENE_METADATA
@@ -407,44 +480,52 @@ export function useDemoPlayback({
         })),
       }
     })
-  }, [isDhyhContent, dhyhBundle, isSyncImpulseMode])
+  }, [hasBundledContent, dhyhBundle, isSyncImpulseMode])
 
   const activeImpulseSegment = useMemo(() => {
     if (!isSyncImpulseMode) return null
-    const segments = isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS
+    // Bundled content uses its own per-content segments (built from
+    // `adBreakClipSeconds` + `clipDurationSeconds`). Placeholder content
+    // falls back to the legacy static `SYNC_IMPULSE_SEGMENTS` layout.
+    const segments = hasBundledContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS
     return findActiveImpulseSegment(segments, videoCurrentSeconds)
-  }, [isSyncImpulseMode, isDhyhContent, videoCurrentSeconds, dhyhImpulseSegments])
+  }, [isSyncImpulseMode, hasBundledContent, videoCurrentSeconds, dhyhImpulseSegments])
 
   const isAdBreakPlayback = isSyncImpulseMode && isAdBreakSegment(activeImpulseSegment)
 
-  // For DHYH, both ad breaks share the new ad creative + the same companion URL.
-  const activeAdBreakImage = isDhyhContent
-    ? '' // DHYH uses a video ad; no static image is rendered
+  // Bundled content (DHYH, MC) uses video creatives — no static image / QR
+  // overlay layer is rendered. Placeholder content keeps the legacy
+  // image + QR-card path keyed to which of the two ad-break-N segments is
+  // active. (DHYH/MC each have a SINGLE break, so only `ad-break-1` ever
+  // surfaces for bundled content; the legacy placeholder keeps both.)
+  const activeAdBreakImage = hasBundledContent
+    ? ''
     : activeImpulseSegment?.kind === 'ad-break-1'
       ? AD_BREAK_1_IMAGE
       : AD_BREAK_2_IMAGE
-  const activeAdQrDestination = isDhyhContent
+  const activeAdQrDestination = hasBundledContent
     ? DHYH_IMPULSE_AD_COMPANION_URL
     : activeImpulseSegment?.kind === 'ad-break-1'
       ? AD_QR_DESTINATION_1
       : AD_QR_DESTINATION_2
-  const activeAdQrImage = isDhyhContent
+  const activeAdQrImage = hasBundledContent
     ? ''
     : activeImpulseSegment?.kind === 'ad-break-1'
       ? AD_QR_IMAGE_1
       : AD_QR_IMAGE_2
   // Default label is derived from the active impulse segment kind
   // (`'_AdBreak-1 Response' | '_AdBreak-2 Response'`). Per-mode override
-  // via `activeMode.dhyhAdResponseLabel` lets future ad formats supply
-  // their own response label without touching the core hook (Phase 9d
-  // ad-break-response future-proofing).
+  // via the active content's `adAssets[mode].responseLabel` lets future
+  // ad formats supply their own response label without touching the core
+  // hook.
   const defaultAdBreakLabel =
     activeImpulseSegment?.kind === 'ad-break-1' ? '_AdBreak-1 Response' : '_AdBreak-2 Response'
-  const activeAdBreakLabel = activeMode.dhyhAdResponseLabel ?? defaultAdBreakLabel
+  const activeAdBreakLabel = contentAdAssets?.responseLabel ?? defaultAdBreakLabel
 
-  // DHYH ad creative + compliance JSON come from the active mode's registry entry.
-  // Placeholder content still runs with no video ad and the legacy compliance payload.
-  const activeAdVideoUrl = isDhyhContent ? activeMode.dhyhAdVideoUrl ?? null : null
+  // Sync-style ad creative URL — sourced from the active content's adAssets.
+  // Null when no content/mode pair has a creative wired (e.g. MasterChef
+  // hasn't wired Sync modes yet → null → no ad video plays during the break).
+  const activeAdVideoUrl = contentAdAssets?.videoUrl ?? null
 
   // When the user switches ad mode WHILE an ad break is playing, the new
   // <video src=…> element re-mounts (its `key` is the URL) and starts from 0s,
@@ -458,14 +539,23 @@ export function useDemoPlayback({
     const previous = previousAdVideoUrlRef.current
     previousAdVideoUrlRef.current = activeAdVideoUrl
     if (previous === activeAdVideoUrl) return
-    if (!isDhyhContent || !isAdBreakPlayback) return
+    if (!hasBundledContent || !isAdBreakPlayback) return
     if (previous === null || activeAdVideoUrl === null) return
-    setVideoCurrentSeconds(DHYH_AD_BREAK_CLIP_SECONDS)
-  }, [activeAdVideoUrl, isAdBreakPlayback, isDhyhContent, setVideoCurrentSeconds])
+    setVideoCurrentSeconds(activeAdBreakClipSeconds)
+  }, [
+    activeAdVideoUrl,
+    isAdBreakPlayback,
+    hasBundledContent,
+    activeAdBreakClipSeconds,
+    setVideoCurrentSeconds,
+  ])
 
+  // Sync-style ad-break compliance JSON from the active content's adAssets.
+  // Placeholder content (no adAssets) still gets the legacy `adDecisionPayload`
+  // fixture so the JSON panel renders something during the synthetic break.
   const activeAdDecisionPayload: Record<string, unknown> =
-    isDhyhContent && isSyncImpulseMode
-      ? activeMode.dhyhCompliancePayload ?? adDecisionPayload
+    isSyncImpulseMode
+      ? contentAdAssets?.compliancePayload ?? adDecisionPayload
       : adDecisionPayload
 
   const hasPlaybackEnded = videoCurrentSeconds >= playbackDurationSeconds
@@ -548,12 +638,12 @@ export function useDemoPlayback({
   }, [preAdProductEntries, postAdProductEntries, isDhyhContent, isSyncImpulseMode, isPostAdSegment])
 
   const productsUnavailableMessage =
-    isDhyhContent && dhyhBundle && !dhyhBundle.hasProductData
+    hasBundledContent && dhyhBundle && !dhyhBundle.hasProductData
       ? 'No product match data is associated with this Tier'
       : null
 
   // Three-layer taxonomy gating (per-content hides → per-tier whitelist →
-  // per-scene data presence for DHYH-style content). See `utils/sceneState.ts`.
+  // per-scene data presence for tier-bundled content). See `utils/sceneState.ts`.
   const taxonomyAvailability = useMemo(
     () =>
       resolveTaxonomyAvailability({
@@ -562,13 +652,13 @@ export function useDemoPlayback({
           : [],
         tierWhitelist: TAXONOMIES_AVAILABLE_BY_TIER[selectedTier] ?? [],
         allTaxonomies: taxonomyOptions,
-        isContentDataDriven: isDhyhContent,
+        isContentDataDriven: hasBundledContent,
         hasDataForOption: (option) =>
           playbackScenes.some(
             (scene, index) => getTaxonomySceneData(scene, index, option) !== null
           ),
       }),
-    [isDhyhContent, playbackScenes, selectedContent, selectedTier]
+    [hasBundledContent, playbackScenes, selectedContent, selectedTier]
   )
 
   // Taxonomy options filtered down to only those that actually have data for
@@ -1060,7 +1150,7 @@ export function useDemoPlayback({
     if (!isAdBreakPlayback) return
     const adEl = adVideoRef.current
     if (!adEl) return
-    const target = Math.max(0, videoCurrentSeconds - DHYH_AD_BREAK_CLIP_SECONDS)
+    const target = Math.max(0, videoCurrentSeconds - activeAdBreakClipSeconds)
     if (Math.abs(adEl.currentTime - target) > 0.75) {
       try {
         adEl.currentTime = Math.min(target, (adEl.duration || target) - 0.05)
@@ -1070,7 +1160,7 @@ export function useDemoPlayback({
     }
     // activeAdVideoUrl in deps so this re-runs when mode switches mid-break
     // and re-anchors the (now-different) active element to the scrubber.
-  }, [currentView, isAdBreakPlayback, videoCurrentSeconds, activeAdVideoUrl])
+  }, [currentView, isAdBreakPlayback, videoCurrentSeconds, activeAdVideoUrl, activeAdBreakClipSeconds])
 
   // Keep the native <video> aligned with the scrubber. For DHYH the scrubber spans the
   // 7-minute clip (0..420s) and maps 1:1 onto the 18:00 – 25:00 window of the source.
@@ -1119,12 +1209,12 @@ export function useDemoPlayback({
       if (isDhyhContent) {
         const clipPos = Math.max(
           0,
-          Math.min(DHYH_CLIP_DURATION_SECONDS, t - DHYH_VIDEO_SOURCE_OFFSET_SECONDS)
+          Math.min(activeClipDurationSeconds, t - DHYH_VIDEO_SOURCE_OFFSET_SECONDS)
         )
         if (isSyncImpulseMode) {
-          const adStart = DHYH_AD_BREAK_CLIP_SECONDS
+          const adStart = activeAdBreakClipSeconds
           const adEnd = adStart + dhyhAdBreakDurationSeconds
-          const internalTotal = DHYH_CLIP_DURATION_SECONDS + dhyhAdBreakDurationSeconds
+          const internalTotal = activeClipDurationSeconds + dhyhAdBreakDurationSeconds
           // Use the functional setter so we can branch on the live scrubber value and
           // distinguish "content reaching the break for the first time" from "content
           // resuming after the break". Three outcomes:
@@ -1151,7 +1241,28 @@ export function useDemoPlayback({
         } else {
           setVideoCurrentSeconds(clipPos)
         }
-        if (t >= DHYH_VIDEO_SOURCE_OFFSET_SECONDS + DHYH_CLIP_DURATION_SECONDS) videoEl.pause()
+        if (t >= DHYH_VIDEO_SOURCE_OFFSET_SECONDS + activeClipDurationSeconds) videoEl.pause()
+      } else if (hasBundledContent && isSyncImpulseMode && isTailAnchoredAdBreak) {
+        // Tail-anchored ad-break content (MasterChef): the MP4 plays
+        // through `[0, clipDuration]` and the ad block runs after. The
+        // <video> element's time is the clip-time directly (no source
+        // offset, no segment splice). Two cases:
+        //  1. Content still playing → forward t to the scrubber.
+        //  2. Content reached the end → snap scrubber into the ad block
+        //     and pause the content element so the synthetic ad timer
+        //     can take over for the duration of the break.
+        const adStart = activeAdBreakClipSeconds
+        const adEnd = adStart + dhyhAdBreakDurationSeconds
+        setVideoCurrentSeconds((prev) => {
+          if (prev >= adStart && prev < adEnd) return prev
+          if (t < adStart - 0.05) return t
+          if (prev < adStart) {
+            videoEl.pause()
+            return adStart
+          }
+          return Math.min(adEnd, prev)
+        })
+        if (t >= activeClipDurationSeconds) videoEl.pause()
       } else {
         setVideoCurrentSeconds(t)
       }
@@ -1162,18 +1273,28 @@ export function useDemoPlayback({
     usesNativeTimeline,
     currentView,
     isDhyhContent,
+    hasBundledContent,
     isSyncImpulseMode,
+    isTailAnchoredAdBreak,
+    activeAdBreakClipSeconds,
+    activeClipDurationSeconds,
     dhyhAdBreakDurationSeconds,
     setVideoCurrentSeconds,
   ])
 
   const mainVideoSrc = selectedContent?.videoUrl ?? PLACEHOLDER_VIDEO_URL
 
-  // Values used by the time readout in the player chrome. For DHYH the display should
-  // always read "X:XX / 7:00" even though the internal slider is 7:30 long when in
-  // Sync:Impulse, so subtract ad time from the displayed current/total.
-  const displayedCurrentSeconds = isDhyhContent ? dhyhClipSeconds : videoCurrentSeconds
-  const displayedDurationSeconds = isDhyhContent ? DHYH_CLIP_DURATION_SECONDS : playbackDurationSeconds
+  // Values used by the time readout in the player chrome. Bundled content
+  // (DHYH, MasterChef) always reads as `"X:XX / clipDuration"` even when the
+  // internal slider is longer (it includes the ad block for sync modes), so
+  // we surface the clip-time / clip-duration values directly. Placeholder
+  // content shows the raw scrubber position / its own internal length.
+  const displayedCurrentSeconds = hasBundledContent
+    ? dhyhClipSeconds
+    : videoCurrentSeconds
+  const displayedDurationSeconds = hasBundledContent
+    ? activeClipDurationSeconds
+    : playbackDurationSeconds
 
   return {
     contentVideoRef,
@@ -1200,6 +1321,23 @@ export function useDemoPlayback({
     activeAdQrDestination,
     activeAdQrImage,
     activeAdVideoUrl,
+    // List of all sync-style ad creatives the active content has wired,
+    // used by VideoPlayer to mount + buffer every video concurrently
+    // (so switching ad mode mid-break is a pure opacity flip instead of
+    // a fresh load). Derived from the content's `adAssets` map — no
+    // cross-content references.
+    syncAdCreatives: (() => {
+      const config = selectedContent?.id ? getContentConfig(selectedContent.id) : null
+      if (!config?.adAssets) return [] as Array<{ modeId: AdPlaybackOption; videoUrl: string }>
+      return (Object.entries(config.adAssets) as Array<
+        [AdPlaybackOption, NonNullable<typeof config.adAssets>[AdPlaybackOption]]
+      >)
+        .filter(([modeId, assets]) => {
+          const mode = AD_MODE_REGISTRY[modeId]
+          return mode?.enabled && mode.kind === 'sync-ad-break' && !!assets?.videoUrl
+        })
+        .map(([modeId, assets]) => ({ modeId, videoUrl: assets!.videoUrl! }))
+    })(),
     activeAdBreakLabel,
     hasPlaybackEnded,
     adBreakSegmentProgress,
@@ -1222,7 +1360,11 @@ export function useDemoPlayback({
     scrubVersion,
     displayedCurrentSeconds,
     displayedDurationSeconds,
-    impulseSegments: isDhyhContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,
+    // Bundled content (DHYH, MC) gets its per-content scrubber layout —
+    // a single ad break sized to the active mode's duration, anchored at
+    // the content's `adBreakClipSeconds`. Placeholder content keeps the
+    // legacy two-break demo layout.
+    impulseSegments: hasBundledContent ? dhyhImpulseSegments : SYNC_IMPULSE_SEGMENTS,
     ctaPauseSegments: dhyhCtaPauseSegments,
     isPauseAdActive,
     pauseAdImageSrc,

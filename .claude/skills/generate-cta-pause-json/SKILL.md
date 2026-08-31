@@ -30,7 +30,37 @@ nothing.
 1. **Confirm the content id** (default DHYH = `src/demo/content/dhyh/`). For another tile, the recipe applies but paths + windows swap.
 2. **Read the script** `scripts/generate-cta-pause-moments.mjs` and the shared core `scripts/lib/pause-moments-core.mjs`. The scripts are the source of truth; this skill is the companion. If they've drifted, trust the script and update this skill.
 3. **Check the knobs** at the top of the script (below): `TIME_BASE`, `IMAGE_SOURCE`, `CTA_PAUSE_WINDOWS`, dedupe window, max products.
-4. **Run** `node scripts/generate-cta-pause-moments.mjs` from the project root.
+4. **Run** the generator from the project root:
+   - DHYH (default — windows hardcoded): `node scripts/generate-cta-pause-moments.mjs`
+   - Any other content: `node scripts/generate-cta-pause-moments.mjs --content <id> --windows <a-b>,<c-d>` (e.g. `--content masterchef --windows 30-75,135-195`)
+   - For a fresh content tile, **seed `src/demo/content/<id>/ads/cta-pause.json`** first with a minimal `{ campaign: [{ campaign_id, pause_to_shop_screen, product_detail_screen, scenes: [] }] }` document — the script reuses the theme block from the existing file, so it needs something to read from.
+
+## Per-content theme assets (2026-06-15 convention)
+
+Each content tile **owns its own pause-overlay theme assets** — MasterChef must never reference `dhyh/`-prefixed files, and vice versa. The split is enforced by the JSON theme URLs:
+
+| Theme field | Convention | Example (MasterChef) |
+|---|---|---|
+| `pause_to_shop_screen.cta_url` | Per-content PAUSE TO SHOP image (or tracker URL). Local path under `public/assets/pause-overlay/<id>/`, OR an absolute partner CDN URL whose path is unambiguously "owned" by that content. | `/assets/pause-overlay/masterchef/pause-to-shop.png` |
+| `pause_to_shop_screen.selected_product_background_image` | Per-content focused-tile background image. Same per-content asset rule. | (Wayfair: `selected_product_background_color: #7B189F` is set instead, so this field is unused.) |
+| `pause_to_shop_screen.selected_product_background_color` | Optional hex; overrides the image when both are set. Lets a campaign brand the focused tile with a solid color (e.g. Wayfair `#7B189F`). | `#7B189F` |
+| `product_detail_screen.background_image` | Per-content detail-card background. Same per-content asset rule. | (Wayfair: replaced by the color field below.) |
+| `product_detail_screen.background_color` | Optional hex; overrides the image when both are set. | `#7B189F` |
+| `pause_to_shop_screen.sponsored_by_logo_url` | Per-content sponsor logo. Empty string → render nothing. | `""` |
+| `product_detail_screen.shop_logo_url` | Per-content detail sponsor logo. Empty string → render nothing. | `""` |
+
+**Directory layout:**
+```
+public/assets/pause-overlay/
+├── exit.svg                 # shared (overlay chrome)
+├── scan-qr-message.svg      # shared (overlay chrome)
+├── product-detail-bg.svg    # shared default; per-content backgrounds can override
+├── dhyh/                    # (DHYH uses partner CDN URLs; this folder may be empty)
+└── masterchef/
+    └── pause-to-shop.png    # placeholder until the per-content purple version arrives
+```
+
+Future content tiles should create their own `<id>/` subfolder and drop the per-content theme assets in. Adding a Wayfair-purple `pause-to-shop.png` for MasterChef later is a one-file swap — overwrite the placeholder.
 5. **Verify** with `npm run build` (the JSON is bundled at compile time) and `npx vitest run tests/unit/pauseMoments.test.ts tests/unit/pauseWindows.test.ts --reporter=dot`.
 6. **Diff + report** moment count, total tiles, and that every CTA window is fully tiled (no dead pause-time inside a window).
 

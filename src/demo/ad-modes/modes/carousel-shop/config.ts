@@ -6,4 +6,5 @@ export const carouselShopMode: AdModeDefinition = {
   id: 'Carousel Shop',
   label: 'Carousel Shop',
   enabled: false,
+  kind: 'companion',
 }

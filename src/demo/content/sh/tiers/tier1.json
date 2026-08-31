@@ -1,0 +1,1895 @@
+{
+    "video_id": "DemoClip_SH-1006",
+    "duration_in_seconds": 191.68,
+    "aspect_ratio": "16:9",
+    "video_metadata": {
+        "garm_category": [
+            {
+                "id": "G7",
+                "name": "Obscenity & Profanity",
+                "risk_level": "Medium",
+                "confidence": 0.95,
+                "count": 28,
+                "screen_time": 124.957,
+                "screen_time_percentage": 0.652
+            },
+            {
+                "id": "G1",
+                "name": "Adult & Explicit Sexual Content",
+                "risk_level": "Medium",
+                "confidence": 0.84,
+                "count": 18,
+                "screen_time": 77.036,
+                "screen_time_percentage": 0.402
+            },
+            {
+                "id": "G7",
+                "name": "Obscenity & Profanity",
+                "risk_level": "High",
+                "confidence": 0.95,
+                "count": 20,
+                "screen_time": 66.692,
+                "screen_time_percentage": 0.348
+            }
+        ],
+        "iab_taxonomy": [
+            {
+                "id": "274",
+                "name": "Home & Garden",
+                "confidence": 0.78,
+                "count": 10,
+                "screen_time": 32.573,
+                "screen_time_percentage": 0.17
+            },
+            {
+                "id": "579",
+                "name": "Men's Fashion",
+                "confidence": 0.88,
+                "count": 4,
+                "screen_time": 28.445,
+                "screen_time_percentage": 0.148
+            },
+            {
+                "id": "201",
+                "name": "Fine Art",
+                "confidence": 0.74,
+                "count": 1,
+                "screen_time": 15.807,
+                "screen_time_percentage": 0.082
+            },
+            {
+                "id": "186",
+                "name": "Family and Relationships",
+                "confidence": 0.85,
+                "count": 3,
+                "screen_time": 15.265,
+                "screen_time_percentage": 0.08
+            },
+            {
+                "id": "552",
+                "name": "Style & Fashion",
+                "confidence": 0.85,
+                "count": 6,
+                "screen_time": 14.306,
+                "screen_time_percentage": 0.075
+            },
+            {
+                "id": "560",
+                "name": "Women's Fashion",
+                "confidence": 0.85,
+                "count": 5,
+                "screen_time": 12.012,
+                "screen_time_percentage": 0.063
+            },
+            {
+                "id": "211",
+                "name": "Alcoholic Beverages",
+                "confidence": 0.73,
+                "count": 2,
+                "screen_time": 9.301,
+                "screen_time_percentage": 0.049
+            },
+            {
+                "id": "590",
+                "name": "Personal Care",
+                "confidence": 0.73,
+                "count": 1,
+                "screen_time": 5.923,
+                "screen_time_percentage": 0.031
+            },
+            {
+                "id": "640",
+                "name": "Television",
+                "confidence": 0.72,
+                "count": 1,
+                "screen_time": 2.377,
+                "screen_time_percentage": 0.012
+            },
+            {
+                "id": "574",
+                "name": "Body Art",
+                "confidence": 0.75,
+                "count": 1,
+                "screen_time": 1.919,
+                "screen_time_percentage": 0.01
+            }
+        ],
+        "sentiment_analysis": [
+            {
+                "id": "S4",
+                "name": "Mixed",
+                "confidence": 0.9,
+                "count": 21,
+                "screen_time": 100.892,
+                "screen_time_percentage": 0.526
+            },
+            {
+                "id": "S3",
+                "name": "Neutral",
+                "confidence": 0.9,
+                "count": 15,
+                "screen_time": 42.417,
+                "screen_time_percentage": 0.221
+            },
+            {
+                "id": "S5",
+                "name": "Somewhat Negative",
+                "confidence": 0.9,
+                "count": 11,
+                "screen_time": 36.745,
+                "screen_time_percentage": 0.192
+            },
+            {
+                "id": "S2",
+                "name": "Somewhat Positive",
+                "confidence": 0.9,
+                "count": 1,
+                "screen_time": 11.595,
+                "screen_time_percentage": 0.06
+            }
+        ]
+    },
+    "total_scenes": 48,
+    "Scenes": [
+        {
+            "scene": 0,
+            "startFrame": 0,
+            "startTimecode": "00:00:00.000",
+            "startTime": 0,
+            "midFrame": 139,
+            "midTimecode": "00:00:05.797",
+            "midTime": 5.797,
+            "endFrame": 278,
+            "endTimecode": "00:00:11.595",
+            "endTime": 11.595,
+            "lengthInFrames": 278,
+            "lengthInTimecode": "00:00:11.595",
+            "lengthInSeconds": 11.595,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.85,
+                    "id": "186"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.75,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "That comment today, I was like, oh no. But like, obviously she's joking and it's like a lighthearted thing, but it's not a good way to flirt. I tell her this to her face all the time.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 1,
+            "startFrame": 278,
+            "startTimecode": "00:00:11.595",
+            "startTime": 11.595,
+            "midFrame": 331,
+            "midTimecode": "00:00:13.805",
+            "midTime": 13.805,
+            "endFrame": 384,
+            "endTimecode": "00:00:16.016",
+            "endTime": 16.016,
+            "lengthInFrames": 106,
+            "lengthInTimecode": "00:00:04.421",
+            "lengthInSeconds": 4.421,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Women's Fashion",
+                    "confidence": 0.77,
+                    "id": "560"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I tell her this to her face all the time. No, I think Ben was like a little perturbed. Yeah. Why does it upset you so much though? It's the second time. Ben is hitting on you. You're being snardy at the top. No. Yes you are. I think that's the problem. Ben wants you. That's the issue. That's the problem. If you keep saying it, there's obviously something going on. And don't talk over the top of me. I just don't like when people talk over the top of me anyway. But everyone's saying something and talk over the top of me and saying they want to fuck my mate's mrs.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 2,
+            "startFrame": 384,
+            "startTimecode": "00:00:16.016",
+            "startTime": 16.016,
+            "midFrame": 412,
+            "midTimecode": "00:00:17.184",
+            "midTime": 17.184,
+            "endFrame": 441,
+            "endTimecode": "00:00:18.393",
+            "endTime": 18.393,
+            "lengthInFrames": 57,
+            "lengthInTimecode": "00:00:02.377",
+            "lengthInSeconds": 2.377,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.82,
+                    "id": "186"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.74,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "No, I think Ben was like a little perturbed. Yeah. Why does it upset you so much though? It's the second time. Ben is hitting on you. You're being snardy at the top. No. Yes you are. I think that's the problem. Ben wants you. That's the issue. That's the problem. If you keep saying it, there's obviously something going on. And don't talk over the top of me. I just don't like when people talk over the top of me anyway. But everyone's saying something and talk over the top of me and saying they want to fuck my mate's mrs.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 3,
+            "startFrame": 441,
+            "startTimecode": "00:00:18.393",
+            "startTime": 18.393,
+            "midFrame": 512,
+            "midTimecode": "00:00:21.355",
+            "midTime": 21.355,
+            "endFrame": 583,
+            "endTimecode": "00:00:24.316",
+            "endTime": 24.316,
+            "lengthInFrames": 142,
+            "lengthInTimecode": "00:00:05.923",
+            "lengthInSeconds": 5.923,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Men's Fashion",
+                    "confidence": 0.85,
+                    "id": "579"
+                },
+                {
+                    "name": "Personal Care",
+                    "confidence": 0.73,
+                    "id": "590"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "No, I think Ben was like a little perturbed. Yeah. Why does it upset you so much though? It's the second time. Ben is hitting on you. You're being snardy at the top. No. Yes you are. I think that's the problem. Ben wants you. That's the issue. That's the problem. If you keep saying it, there's obviously something going on. And don't talk over the top of me. I just don't like when people talk over the top of me anyway. But everyone's saying something and talk over the top of me and saying they want to fuck my mate's mrs.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 4,
+            "startFrame": 583,
+            "startTimecode": "00:00:24.316",
+            "startTime": 24.316,
+            "midFrame": 611,
+            "midTimecode": "00:00:25.484",
+            "midTime": 25.484,
+            "endFrame": 640,
+            "endTimecode": "00:00:26.693",
+            "endTime": 26.693,
+            "lengthInFrames": 57,
+            "lengthInTimecode": "00:00:02.377",
+            "lengthInSeconds": 2.377,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Television",
+                    "confidence": 0.72,
+                    "id": "640"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "No, I think Ben was like a little perturbed. Yeah. Why does it upset you so much though? It's the second time. Ben is hitting on you. You're being snardy at the top. No. Yes you are. I think that's the problem. Ben wants you. That's the issue. That's the problem. If you keep saying it, there's obviously something going on. And don't talk over the top of me. I just don't like when people talk over the top of me anyway. But everyone's saying something and talk over the top of me and saying they want to fuck my mate's mrs.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 5,
+            "startFrame": 640,
+            "startTimecode": "00:00:26.693",
+            "startTime": 26.693,
+            "midFrame": 829,
+            "midTimecode": "00:00:34.576",
+            "midTime": 34.576,
+            "endFrame": 1019,
+            "endTimecode": "00:00:42.501",
+            "endTime": 42.501,
+            "lengthInFrames": 379,
+            "lengthInTimecode": "00:00:15.807",
+            "lengthInSeconds": 15.807,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Fine Art",
+                    "confidence": 0.74,
+                    "id": "201"
+                },
+                {
+                    "name": "Men's Fashion",
+                    "confidence": 0.88,
+                    "id": "579"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "No, I think Ben was like a little perturbed. Yeah. Why does it upset you so much though? It's the second time. Ben is hitting on you. You're being snardy at the top. No. Yes you are. I think that's the problem. Ben wants you. That's the issue. That's the problem. If you keep saying it, there's obviously something going on. And don't talk over the top of me. I just don't like when people talk over the top of me anyway. But everyone's saying something and talk over the top of me and saying they want to fuck my mate's mrs.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 6,
+            "startFrame": 1019,
+            "startTimecode": "00:00:42.501",
+            "startTime": 42.501,
+            "midFrame": 1083,
+            "midTimecode": "00:00:45.170",
+            "midTime": 45.17,
+            "endFrame": 1147,
+            "endTimecode": "00:00:47.839",
+            "endTime": 47.839,
+            "lengthInFrames": 128,
+            "lengthInTimecode": "00:00:05.339",
+            "lengthInSeconds": 5.339,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 7,
+            "startFrame": 1147,
+            "startTimecode": "00:00:47.839",
+            "startTime": 47.839,
+            "midFrame": 1177,
+            "midTimecode": "00:00:49.091",
+            "midTime": 49.091,
+            "endFrame": 1208,
+            "endTimecode": "00:00:50.384",
+            "endTime": 50.384,
+            "lengthInFrames": 61,
+            "lengthInTimecode": "00:00:02.544",
+            "lengthInSeconds": 2.544,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 8,
+            "startFrame": 1208,
+            "startTimecode": "00:00:50.384",
+            "startTime": 50.384,
+            "midFrame": 1309,
+            "midTimecode": "00:00:54.596",
+            "midTime": 54.596,
+            "endFrame": 1411,
+            "endTimecode": "00:00:58.850",
+            "endTime": 58.85,
+            "lengthInFrames": 203,
+            "lengthInTimecode": "00:00:08.467",
+            "lengthInSeconds": 8.467,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 9,
+            "startFrame": 1411,
+            "startTimecode": "00:00:58.850",
+            "startTime": 58.85,
+            "midFrame": 1443,
+            "midTimecode": "00:01:00.185",
+            "midTime": 60.185,
+            "endFrame": 1475,
+            "endTimecode": "00:01:01.520",
+            "endTime": 61.52,
+            "lengthInFrames": 64,
+            "lengthInTimecode": "00:00:02.669",
+            "lengthInSeconds": 2.669,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 10,
+            "startFrame": 1475,
+            "startTimecode": "00:01:01.520",
+            "startTime": 61.52,
+            "midFrame": 1491,
+            "midTimecode": "00:01:02.187",
+            "midTime": 62.187,
+            "endFrame": 1508,
+            "endTimecode": "00:01:02.896",
+            "endTime": 62.896,
+            "lengthInFrames": 33,
+            "lengthInTimecode": "00:00:01.376",
+            "lengthInSeconds": 1.376,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.71,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 11,
+            "startFrame": 1508,
+            "startTimecode": "00:01:02.896",
+            "startTime": 62.896,
+            "midFrame": 1521,
+            "midTimecode": "00:01:03.438",
+            "midTime": 63.438,
+            "endFrame": 1535,
+            "endTimecode": "00:01:04.022",
+            "endTime": 64.022,
+            "lengthInFrames": 27,
+            "lengthInTimecode": "00:00:01.126",
+            "lengthInSeconds": 1.126,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.7,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 12,
+            "startFrame": 1535,
+            "startTimecode": "00:01:04.022",
+            "startTime": 64.022,
+            "midFrame": 1570,
+            "midTimecode": "00:01:05.482",
+            "midTime": 65.482,
+            "endFrame": 1605,
+            "endTimecode": "00:01:06.942",
+            "endTime": 66.942,
+            "lengthInFrames": 70,
+            "lengthInTimecode": "00:00:02.920",
+            "lengthInSeconds": 2.92,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 13,
+            "startFrame": 1605,
+            "startTimecode": "00:01:06.942",
+            "startTime": 66.942,
+            "midFrame": 1635,
+            "midTimecode": "00:01:08.193",
+            "midTime": 68.193,
+            "endFrame": 1666,
+            "endTimecode": "00:01:09.486",
+            "endTime": 69.486,
+            "lengthInFrames": 61,
+            "lengthInTimecode": "00:00:02.544",
+            "lengthInSeconds": 2.544,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Alcoholic Beverages",
+                    "confidence": 0.73,
+                    "id": "211"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I can't believe that's how you talk for serious. I can't fucking deal with you guys. Wow. I know that I've been treating Amanda differently to everybody else, but that's because she's in the friend zone and I can be myself.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 14,
+            "startFrame": 1666,
+            "startTimecode": "00:01:09.486",
+            "startTime": 69.486,
+            "midFrame": 1682,
+            "midTimecode": "00:01:10.153",
+            "midTime": 70.153,
+            "endFrame": 1699,
+            "endTimecode": "00:01:10.862",
+            "endTime": 70.862,
+            "lengthInFrames": 33,
+            "lengthInTimecode": "00:00:01.376",
+            "lengthInSeconds": 1.376,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.7,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 15,
+            "startFrame": 1699,
+            "startTimecode": "00:01:10.862",
+            "startTime": 70.862,
+            "midFrame": 1716,
+            "midTimecode": "00:01:11.572",
+            "midTime": 71.572,
+            "endFrame": 1733,
+            "endTimecode": "00:01:12.281",
+            "endTime": 72.281,
+            "lengthInFrames": 34,
+            "lengthInTimecode": "00:00:01.418",
+            "lengthInSeconds": 1.418,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 16,
+            "startFrame": 1733,
+            "startTimecode": "00:01:12.281",
+            "startTime": 72.281,
+            "midFrame": 1755,
+            "midTimecode": "00:01:13.198",
+            "midTime": 73.198,
+            "endFrame": 1778,
+            "endTimecode": "00:01:14.157",
+            "endTime": 74.157,
+            "lengthInFrames": 45,
+            "lengthInTimecode": "00:00:01.877",
+            "lengthInSeconds": 1.877,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 17,
+            "startFrame": 1778,
+            "startTimecode": "00:01:14.157",
+            "startTime": 74.157,
+            "midFrame": 1825,
+            "midTimecode": "00:01:16.118",
+            "midTime": 76.118,
+            "endFrame": 1873,
+            "endTimecode": "00:01:18.120",
+            "endTime": 78.12,
+            "lengthInFrames": 95,
+            "lengthInTimecode": "00:00:03.962",
+            "lengthInSeconds": 3.962,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.78,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "So when she said that kind of threw me off a bit like oh shit does it look like that?",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 18,
+            "startFrame": 1873,
+            "startTimecode": "00:01:18.120",
+            "startTime": 78.12,
+            "midFrame": 1897,
+            "midTimecode": "00:01:19.121",
+            "midTime": 79.121,
+            "endFrame": 1921,
+            "endTimecode": "00:01:20.122",
+            "endTime": 80.122,
+            "lengthInFrames": 48,
+            "lengthInTimecode": "00:00:02.002",
+            "lengthInSeconds": 2.002,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.72,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "So when she said that kind of threw me off a bit like oh shit does it look like that? I have to get to the bottom of this now so if I'm doing something which everyone's thinking",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 19,
+            "startFrame": 1921,
+            "startTimecode": "00:01:20.122",
+            "startTime": 80.122,
+            "midFrame": 1936,
+            "midTimecode": "00:01:20.747",
+            "midTime": 80.747,
+            "endFrame": 1952,
+            "endTimecode": "00:01:21.415",
+            "endTime": 81.415,
+            "lengthInFrames": 31,
+            "lengthInTimecode": "00:00:01.293",
+            "lengthInSeconds": 1.293,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.76,
+                    "id": "186"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.71,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I have to get to the bottom of this now so if I'm doing something which everyone's thinking",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 20,
+            "startFrame": 1952,
+            "startTimecode": "00:01:21.415",
+            "startTime": 81.415,
+            "midFrame": 2011,
+            "midTimecode": "00:01:23.875",
+            "midTime": 83.875,
+            "endFrame": 2070,
+            "endTimecode": "00:01:26.336",
+            "endTime": 86.336,
+            "lengthInFrames": 118,
+            "lengthInTimecode": "00:00:04.922",
+            "lengthInSeconds": 4.922,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.69,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I have to get to the bottom of this now so if I'm doing something which everyone's thinking",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 21,
+            "startFrame": 2070,
+            "startTimecode": "00:01:26.336",
+            "startTime": 86.336,
+            "midFrame": 2151,
+            "midTimecode": "00:01:29.715",
+            "midTime": 89.715,
+            "endFrame": 2232,
+            "endTimecode": "00:01:33.093",
+            "endTime": 93.093,
+            "lengthInFrames": 162,
+            "lengthInTimecode": "00:00:06.757",
+            "lengthInSeconds": 6.757,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Alcoholic Beverages",
+                    "confidence": 0.72,
+                    "id": "211"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "What the, uh, what the fuck do you do? Oh man.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 22,
+            "startFrame": 2232,
+            "startTimecode": "00:01:33.093",
+            "startTime": 93.093,
+            "midFrame": 2254,
+            "midTimecode": "00:01:34.011",
+            "midTime": 94.011,
+            "endFrame": 2277,
+            "endTimecode": "00:01:34.970",
+            "endTime": 94.97,
+            "lengthInFrames": 45,
+            "lengthInTimecode": "00:00:01.877",
+            "lengthInSeconds": 1.877,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "What the, uh, what the fuck do you do? Oh man.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 23,
+            "startFrame": 2277,
+            "startTimecode": "00:01:34.970",
+            "startTime": 94.97,
+            "midFrame": 2289,
+            "midTimecode": "00:01:35.470",
+            "midTime": 95.47,
+            "endFrame": 2301,
+            "endTimecode": "00:01:35.971",
+            "endTime": 95.971,
+            "lengthInFrames": 24,
+            "lengthInTimecode": "00:00:01.001",
+            "lengthInSeconds": 1.001,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "What the, uh, what the fuck do you do? Oh man.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 24,
+            "startFrame": 2301,
+            "startTimecode": "00:01:35.971",
+            "startTime": 95.971,
+            "midFrame": 2348,
+            "midTimecode": "00:01:37.931",
+            "midTime": 97.931,
+            "endFrame": 2395,
+            "endTimecode": "00:01:39.891",
+            "endTime": 99.891,
+            "lengthInFrames": 94,
+            "lengthInTimecode": "00:00:03.921",
+            "lengthInSeconds": 3.921,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "What the, uh, what the fuck do you do? Oh man.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 25,
+            "startFrame": 2395,
+            "startTimecode": "00:01:39.891",
+            "startTime": 99.891,
+            "midFrame": 2415,
+            "midTimecode": "00:01:40.726",
+            "midTime": 100.726,
+            "endFrame": 2435,
+            "endTimecode": "00:01:41.560",
+            "endTime": 101.56,
+            "lengthInFrames": 40,
+            "lengthInTimecode": "00:00:01.668",
+            "lengthInSeconds": 1.668,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "He goes, I can't believe you're going to say that.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 26,
+            "startFrame": 2435,
+            "startTimecode": "00:01:41.560",
+            "startTime": 101.56,
+            "midFrame": 2460,
+            "midTimecode": "00:01:42.602",
+            "midTime": 102.602,
+            "endFrame": 2485,
+            "endTimecode": "00:01:43.645",
+            "endTime": 103.645,
+            "lengthInFrames": 50,
+            "lengthInTimecode": "00:00:02.085",
+            "lengthInSeconds": 2.085,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.88,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "He goes, I can't believe you're going to say that.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 27,
+            "startFrame": 2485,
+            "startTimecode": "00:01:43.645",
+            "startTime": 103.645,
+            "midFrame": 2521,
+            "midTimecode": "00:01:45.147",
+            "midTime": 105.147,
+            "endFrame": 2557,
+            "endTimecode": "00:01:46.648",
+            "endTime": 106.648,
+            "lengthInFrames": 72,
+            "lengthInTimecode": "00:00:03.003",
+            "lengthInSeconds": 3.003,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh, good. Bailey. Oh, geez. Yep. What? Yep. What? Go ahead. What? Um, what's going on? In life? Oh, I'm just trying to figure out where your head's at, because at dinner, saying that I wanted to fuck Amanda.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 28,
+            "startFrame": 2557,
+            "startTimecode": "00:01:46.648",
+            "startTime": 106.648,
+            "midFrame": 2632,
+            "midTimecode": "00:01:49.776",
+            "midTime": 109.776,
+            "endFrame": 2707,
+            "endTimecode": "00:01:52.904",
+            "endTime": 112.904,
+            "lengthInFrames": 150,
+            "lengthInTimecode": "00:00:06.256",
+            "lengthInSeconds": 6.256,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh, good. Bailey. Oh, geez. Yep. What? Yep. What? Go ahead. What? Um, what's going on? In life? Oh, I'm just trying to figure out where your head's at, because at dinner, saying that I wanted to fuck Amanda.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 29,
+            "startFrame": 2707,
+            "startTimecode": "00:01:52.904",
+            "startTime": 112.904,
+            "midFrame": 2727,
+            "midTimecode": "00:01:53.739",
+            "midTime": 113.739,
+            "endFrame": 2748,
+            "endTimecode": "00:01:54.614",
+            "endTime": 114.614,
+            "lengthInFrames": 41,
+            "lengthInTimecode": "00:00:01.710",
+            "lengthInSeconds": 1.71,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh, good. Bailey. Oh, geez. Yep. What? Yep. What? Go ahead. What? Um, what's going on? In life? Oh, I'm just trying to figure out where your head's at, because at dinner, saying that I wanted to fuck Amanda.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 30,
+            "startFrame": 2748,
+            "startTimecode": "00:01:54.614",
+            "startTime": 114.614,
+            "midFrame": 2799,
+            "midTimecode": "00:01:56.742",
+            "midTime": 116.742,
+            "endFrame": 2850,
+            "endTimecode": "00:01:58.869",
+            "endTime": 118.869,
+            "lengthInFrames": 102,
+            "lengthInTimecode": "00:00:04.254",
+            "lengthInSeconds": 4.254,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                },
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                }
+            ],
+            "audio_transcript": "Oh, good. Bailey. Oh, geez. Yep. What? Yep. What? Go ahead. What? Um, what's going on? In life? Oh, I'm just trying to figure out where your head's at, because at dinner, saying that I wanted to fuck Amanda.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 31,
+            "startFrame": 2850,
+            "startTimecode": "00:01:58.869",
+            "startTime": 118.869,
+            "midFrame": 3114,
+            "midTimecode": "00:02:09.880",
+            "midTime": 129.88,
+            "endFrame": 3378,
+            "endTimecode": "00:02:20.891",
+            "endTime": 140.891,
+            "lengthInFrames": 528,
+            "lengthInTimecode": "00:00:22.022",
+            "lengthInSeconds": 22.022,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.95,
+                    "id": "G7"
+                },
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                }
+            ],
+            "audio_transcript": "Oh, good. Bailey. Oh, geez. Yep. What? Yep. What? Go ahead. What? Um, what's going on? In life? Oh, I'm just trying to figure out where your head's at, because at dinner, saying that I wanted to fuck Amanda. You met you both were naked skinny dipping and then you always joke about how like you would if you could I was totally teasing Never joked about what if I could",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 32,
+            "startFrame": 3378,
+            "startTimecode": "00:02:20.891",
+            "startTime": 140.891,
+            "midFrame": 3393,
+            "midTimecode": "00:02:21.516",
+            "midTime": 141.516,
+            "endFrame": 3409,
+            "endTimecode": "00:02:22.184",
+            "endTime": 142.184,
+            "lengthInFrames": 31,
+            "lengthInTimecode": "00:00:01.293",
+            "lengthInSeconds": 1.293,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.86,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "You met you both were naked skinny dipping and then you always joke about how like you would if you could I was totally teasing Never joked about what if I could",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 33,
+            "startFrame": 3409,
+            "startTimecode": "00:02:22.184",
+            "startTime": 142.184,
+            "midFrame": 3432,
+            "midTimecode": "00:02:23.143",
+            "midTime": 143.143,
+            "endFrame": 3455,
+            "endTimecode": "00:02:24.102",
+            "endTime": 144.102,
+            "lengthInFrames": 46,
+            "lengthInTimecode": "00:00:01.919",
+            "lengthInSeconds": 1.919,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Body Art",
+                    "confidence": 0.75,
+                    "id": "574"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "You met you both were naked skinny dipping and then you always joke about how like you would if you could I was totally teasing Never joked about what if I could I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 34,
+            "startFrame": 3455,
+            "startTimecode": "00:02:24.102",
+            "startTime": 144.102,
+            "midFrame": 3474,
+            "midTimecode": "00:02:24.895",
+            "midTime": 144.895,
+            "endFrame": 3493,
+            "endTimecode": "00:02:25.687",
+            "endTime": 145.687,
+            "lengthInFrames": 38,
+            "lengthInTimecode": "00:00:01.585",
+            "lengthInSeconds": 1.585,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 35,
+            "startFrame": 3493,
+            "startTimecode": "00:02:25.687",
+            "startTime": 145.687,
+            "midFrame": 3535,
+            "midTimecode": "00:02:27.439",
+            "midTime": 147.439,
+            "endFrame": 3577,
+            "endTimecode": "00:02:29.191",
+            "endTime": 149.191,
+            "lengthInFrames": 84,
+            "lengthInTimecode": "00:00:03.503",
+            "lengthInSeconds": 3.503,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 36,
+            "startFrame": 3577,
+            "startTimecode": "00:02:29.191",
+            "startTime": 149.191,
+            "midFrame": 3649,
+            "midTimecode": "00:02:32.194",
+            "midTime": 152.194,
+            "endFrame": 3722,
+            "endTimecode": "00:02:35.238",
+            "endTime": 155.238,
+            "lengthInFrames": 145,
+            "lengthInTimecode": "00:00:06.048",
+            "lengthInSeconds": 6.048,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 37,
+            "startFrame": 3722,
+            "startTimecode": "00:02:35.238",
+            "startTime": 155.238,
+            "midFrame": 3757,
+            "midTimecode": "00:02:36.698",
+            "midTime": 156.698,
+            "endFrame": 3792,
+            "endTimecode": "00:02:38.158",
+            "endTime": 158.158,
+            "lengthInFrames": 70,
+            "lengthInTimecode": "00:00:02.920",
+            "lengthInSeconds": 2.92,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 38,
+            "startFrame": 3792,
+            "startTimecode": "00:02:38.158",
+            "startTime": 158.158,
+            "midFrame": 3907,
+            "midTimecode": "00:02:42.954",
+            "midTime": 162.954,
+            "endFrame": 4023,
+            "endTimecode": "00:02:47.793",
+            "endTime": 167.793,
+            "lengthInFrames": 231,
+            "lengthInTimecode": "00:00:09.635",
+            "lengthInSeconds": 9.635,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 39,
+            "startFrame": 4023,
+            "startTimecode": "00:02:47.793",
+            "startTime": 167.793,
+            "midFrame": 4079,
+            "midTimecode": "00:02:50.128",
+            "midTime": 170.128,
+            "endFrame": 4135,
+            "endTimecode": "00:02:52.464",
+            "endTime": 172.464,
+            "lengthInFrames": 112,
+            "lengthInTimecode": "00:00:04.671",
+            "lengthInSeconds": 4.671,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 40,
+            "startFrame": 4135,
+            "startTimecode": "00:02:52.464",
+            "startTime": 172.464,
+            "midFrame": 4155,
+            "midTimecode": "00:02:53.298",
+            "midTime": 173.298,
+            "endFrame": 4176,
+            "endTimecode": "00:02:54.174",
+            "endTime": 174.174,
+            "lengthInFrames": 41,
+            "lengthInTimecode": "00:00:01.710",
+            "lengthInSeconds": 1.71,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 41,
+            "startFrame": 4176,
+            "startTimecode": "00:02:54.174",
+            "startTime": 174.174,
+            "midFrame": 4193,
+            "midTimecode": "00:02:54.883",
+            "midTime": 174.883,
+            "endFrame": 4211,
+            "endTimecode": "00:02:55.634",
+            "endTime": 175.634,
+            "lengthInFrames": 35,
+            "lengthInTimecode": "00:00:01.460",
+            "lengthInSeconds": 1.46,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Women's Fashion",
+                    "confidence": 0.85,
+                    "id": "560"
+                },
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 42,
+            "startFrame": 4211,
+            "startTimecode": "00:02:55.634",
+            "startTime": 175.634,
+            "midFrame": 4240,
+            "midTimecode": "00:02:56.843",
+            "midTime": 176.843,
+            "endFrame": 4269,
+            "endTimecode": "00:02:58.053",
+            "endTime": 178.053,
+            "lengthInFrames": 58,
+            "lengthInTimecode": "00:00:02.419",
+            "lengthInSeconds": 2.419,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Men's Fashion",
+                    "confidence": 0.85,
+                    "id": "579"
+                },
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 43,
+            "startFrame": 4269,
+            "startTimecode": "00:02:58.053",
+            "startTime": 178.053,
+            "midFrame": 4284,
+            "midTimecode": "00:02:58.678",
+            "midTime": 178.678,
+            "endFrame": 4300,
+            "endTimecode": "00:02:59.346",
+            "endTime": 179.346,
+            "lengthInFrames": 31,
+            "lengthInTimecode": "00:00:01.293",
+            "lengthInSeconds": 1.293,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                },
+                {
+                    "name": "Women's Fashion",
+                    "confidence": 0.75,
+                    "id": "560"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 44,
+            "startFrame": 4300,
+            "startTimecode": "00:02:59.346",
+            "startTime": 179.346,
+            "midFrame": 4330,
+            "midTimecode": "00:03:00.597",
+            "midTime": 180.597,
+            "endFrame": 4361,
+            "endTimecode": "00:03:01.890",
+            "endTime": 181.89,
+            "lengthInFrames": 61,
+            "lengthInTimecode": "00:00:02.544",
+            "lengthInSeconds": 2.544,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.85,
+                    "id": "552"
+                },
+                {
+                    "name": "Women's Fashion",
+                    "confidence": 0.8,
+                    "id": "560"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.7,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "I just think it was rude Okay, I apologize if it's not my joke for me Okay What's going on? This is the second time, so you're just saying it as a... as a joke. Joke? I... I... You guys joke about it a lot. I'm not gonna pretend I wasn't popping it. So did you think that it was appropriate, when we're all saying something nice about it for a birthday, to fucking yell that out and say... I didn't know... Ben wants to fuck Amanda at the table. I didn't say Ben wants to fuck Amanda. I didn't say the F word. It didn't come out of my mouth. Okay, we'll just stay asleep with it. We'll move it to sleep with it. Yes. Okay. You guys make that joke a lot. Okay, no we don't. How would I know about it? No, we're skipping it. We're all sleeping.",
+            "sentiment_analysis": {
+                "name": "Mixed",
+                "id": "S4"
+            }
+        },
+        {
+            "scene": 45,
+            "startFrame": 4361,
+            "startTimecode": "00:03:01.890",
+            "startTime": 181.89,
+            "midFrame": 4399,
+            "midTimecode": "00:03:03.475",
+            "midTime": 183.475,
+            "endFrame": 4437,
+            "endTimecode": "00:03:05.060",
+            "endTime": 185.06,
+            "lengthInFrames": 76,
+            "lengthInTimecode": "00:00:03.170",
+            "lengthInSeconds": 3.17,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.86,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 46,
+            "startFrame": 4437,
+            "startTimecode": "00:03:05.060",
+            "startTime": 185.06,
+            "midFrame": 4488,
+            "midTimecode": "00:03:07.187",
+            "midTime": 187.187,
+            "endFrame": 4540,
+            "endTimecode": "00:03:09.356",
+            "endTime": 189.356,
+            "lengthInFrames": 103,
+            "lengthInTimecode": "00:00:04.296",
+            "lengthInSeconds": 4.296,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Men's Fashion",
+                    "confidence": 0.85,
+                    "id": "579"
+                },
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.86,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 47,
+            "startFrame": 4540,
+            "startTimecode": "00:03:09.356",
+            "startTime": 189.356,
+            "midFrame": 4567,
+            "midTimecode": "00:03:10.482",
+            "midTime": 190.482,
+            "endFrame": 4595,
+            "endTimecode": "00:03:11.650",
+            "endTime": 191.65,
+            "lengthInFrames": 55,
+            "lengthInTimecode": "00:00:02.294",
+            "lengthInSeconds": 2.294,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Women's Fashion",
+                    "confidence": 0.85,
+                    "id": "560"
+                },
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.84,
+                    "id": "G1"
+                },
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.86,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        }
+    ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "summerhouse-macys-fashion-ad_970x250",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: summerhouse-macys-fashion-ad_970x250",
+    "data": {
+      "id": "7nwgrKUga9Kx4oENwErvLP47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/summerhouse-macys-fashion-ad_970x250.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "5.000000",
+      "fps": "30.0",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "154",
+          "name": "Malls & Shopping Centers",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Macy's",
+        "adomain": "macys.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Macy's"
+        ],
+        "object_labels": [
+          {
+            "Name": "Figurine",
+            "Confidence": 1
+          },
+          {
+            "Name": "Advertisement",
+            "Confidence": 1
+          },
+          {
+            "Name": "Adult",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Male",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Man",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Person",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Shoe",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "People",
+            "Confidence": 0.93
+          }
+        ]
+      }
+    }
+  }
+}

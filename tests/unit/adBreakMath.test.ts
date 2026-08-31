@@ -8,29 +8,23 @@ import {
 } from '../../src/demo/utils/adBreakMath'
 import type { SyncImpulseSegment } from '../../src/demo/types'
 
-// HANDOFF §6 — protected behavior: DHYH plays a two-segment splice
-// (`Segment A → Ad → Segment B`) where the shipped MP4 contains only
-// the content segments and the ad break is a synthetic duration on
-// the scrubber. The math below is the boundary between player-time
-// (scrubber, includes ad-break duration) and clip-time (panels, ignores
-// ad-break duration). Pinning these tests so a future refactor can't
-// silently re-introduce the "products from Segment B leak into Segment
-// A" or "panel sticks at scene 1 during the ad break" bugs.
+// HANDOFF §6 — protected behavior: sync-style ad-break content has two
+// timelines — the scrubber (player-time, includes ad-break duration) and
+// the panels (clip-time, ignores ad-break duration). DHYH inserts the
+// break at the mid-clip splice point (Segment A → Ad → Segment B);
+// MasterChef anchors it at the tail (Content → Ad). The math below is
+// the boundary between the two timelines for either layout. Pinning these
+// tests so a future refactor can't silently re-introduce the "products
+// from Segment B leak into Segment A" or "panel sticks at scene 1 during
+// the ad break" bugs.
 
 const dhyhDefaults = {
-  isDhyhContent: true,
   isAdBreakMode: true,
   adBreakClipSeconds: 107, // DHYH splice point
   adBreakDurationSeconds: 30, // Sync: Impulse / L-Bar default
 }
 
 describe('mapPlayerToClipSeconds (player ↔ clip time conversion)', () => {
-  it('returns playerSeconds unchanged for non-DHYH content', () => {
-    expect(
-      mapPlayerToClipSeconds(50, { ...dhyhDefaults, isDhyhContent: false })
-    ).toBe(50)
-  })
-
   it('returns playerSeconds unchanged for non-ad-break modes', () => {
     expect(
       mapPlayerToClipSeconds(50, { ...dhyhDefaults, isAdBreakMode: false })
@@ -75,6 +69,34 @@ describe('mapPlayerToClipSeconds (player ↔ clip time conversion)', () => {
         adBreakClipSeconds: 0,
       })
     ).toBe(0)
+  })
+
+  // MasterChef pattern: ad break sits at the END of the clip (no Segment B).
+  // The same math applies: pre-ad is 1:1, in-break pins just below the
+  // splice point, post-break subtracts the duration. There's nothing
+  // *visible* past the ad for MC, but the math must still terminate cleanly.
+  describe('tail-anchored break (MasterChef pattern)', () => {
+    const mcDefaults = {
+      isAdBreakMode: true,
+      adBreakClipSeconds: 241.42, // = clip duration
+      adBreakDurationSeconds: 45,
+    }
+
+    it('pre-ad: 1:1 mapping through the entire content', () => {
+      expect(mapPlayerToClipSeconds(0, mcDefaults)).toBe(0)
+      expect(mapPlayerToClipSeconds(100, mcDefaults)).toBe(100)
+      expect(mapPlayerToClipSeconds(241.41, mcDefaults)).toBe(241.41)
+    })
+
+    it('in-break: pins clip-time just below the tail anchor', () => {
+      expect(mapPlayerToClipSeconds(241.42, mcDefaults)).toBeCloseTo(241.419, 3)
+      expect(mapPlayerToClipSeconds(260, mcDefaults)).toBeCloseTo(241.419, 3)
+      expect(mapPlayerToClipSeconds(286.41, mcDefaults)).toBeCloseTo(241.419, 3)
+    })
+
+    it('post-break: clip-time lands at the tail anchor (where playback ends)', () => {
+      expect(mapPlayerToClipSeconds(286.42, mcDefaults)).toBeCloseTo(241.42, 3)
+    })
   })
 })
 
@@ -126,6 +148,22 @@ describe('buildDhyhImpulseSegments', () => {
     })
     expect(segments[1]).toEqual({ start: 107, end: 152, kind: 'ad-break-1' })
     expect(segments[2]).toEqual({ start: 152, end: 647, kind: 'content' })
+  })
+
+  // Tail-anchored content (MasterChef): adBreakClipSeconds === clipDuration,
+  // so the trailing content segment would be zero-length — the builder must
+  // collapse it so the scrubber renders as [content, ad-break-1] only.
+  it('collapses the trailing zero-length content segment for tail-anchored breaks', () => {
+    const segments = buildDhyhImpulseSegments({
+      adBreakClipSeconds: 241.42,
+      adBreakDurationSeconds: 45,
+      clipDurationSeconds: 241.42,
+    })
+    expect(segments).toHaveLength(2)
+    expect(segments[0]).toEqual({ start: 0, end: 241.42, kind: 'content' })
+    expect(segments[1].kind).toBe('ad-break-1')
+    expect(segments[1].start).toBe(241.42)
+    expect(segments[1].end).toBeCloseTo(286.42, 5)
   })
 })
 

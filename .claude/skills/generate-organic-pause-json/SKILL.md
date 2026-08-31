@@ -29,7 +29,10 @@ product-scene, tiled to the next, so any pause resolves.
 1. **Confirm the content id** (default DHYH = `src/demo/content/dhyh/`). For another tile the recipe applies but paths swap.
 2. **Read** `scripts/generate-organic-pause-moments.mjs` + the shared core `scripts/lib/pause-moments-core.mjs`. The scripts are the source of truth; if they've drifted from this skill, trust them and update the skill.
 3. **Check the knobs** at the top of the script: `TIME_BASE`, `IMAGE_SOURCE`, dedupe window, max products.
-4. **Run** `node scripts/generate-organic-pause-moments.mjs` from the project root. (Run the CTA generator first if the shared theme block needs refreshing — organic reuses `cta-pause.json`'s theme.)
+4. **Run** the generator from the project root:
+   - DHYH (default): `node scripts/generate-organic-pause-moments.mjs`
+   - Any other content: `node scripts/generate-organic-pause-moments.mjs --content <id>` (e.g. `--content masterchef`)
+   - **Run the CTA generator FIRST** so the shared theme block in `ads/cta-pause.json` exists for organic to read. For a fresh content tile this means seeding `cta-pause.json` per the CTA skill, running the CTA generator, then running organic.
 5. **Verify** `npm run build` + `npx vitest run tests/unit/pauseMoments.test.ts --reporter=dot`.
 6. **Diff + report** moment count, total tiles, and any drift from the prior output (e.g. "moments 52 → 111 because the new Tier 3 has far more product-scenes").
 

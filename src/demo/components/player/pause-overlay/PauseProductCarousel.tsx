@@ -166,6 +166,7 @@ export function PauseProductCarousel({ payload, onSelectTile }: PauseProductCaro
                 tile={tile}
                 isFocused={focusedTileId === tile.id}
                 focusedBackgroundImageSrc={payload.tileBackgroundImageSrc}
+                focusedBackgroundColor={payload.tileBackgroundColor}
                 onSelect={() => onSelectTile(tile.id)}
                 onFocus={() => setFocusedTileId(tile.id)}
                 onBlur={() =>

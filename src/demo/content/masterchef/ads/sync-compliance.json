@@ -1,0 +1,311 @@
+{
+  "id": "wayfair-fagioli-tv-commercial",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: wayfair-fagioli-tv-commercial",
+    "data": {
+      "id": "6TeZdHhW8ZFxunv9koACa347KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/wayfair-fagioli-tv-commercial.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "30.094000",
+      "fps": "23.976023976023978",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "216",
+          "name": "Cooking",
+          "confidence": 0.8
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Wayfair",
+        "adomain": "wayfair.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Wayfair"
+        ],
+        "object_labels": [
+          {
+            "Name": "Indoors",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Interior_Design",
+            "Confidence": 1
+          },
+          {
+            "Name": "Adult",
+            "Confidence": 1
+          },
+          {
+            "Name": "Male",
+            "Confidence": 1
+          },
+          {
+            "Name": "Man",
+            "Confidence": 1
+          },
+          {
+            "Name": "Person",
+            "Confidence": 1
+          },
+          {
+            "Name": "Face",
+            "Confidence": 1
+          },
+          {
+            "Name": "Head",
+            "Confidence": 1
+          },
+          {
+            "Name": "Animal",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Cat",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Kitten",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Mammal",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Pet",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Abyssinian",
+            "Confidence": 0.87
+          },
+          {
+            "Name": "Microwave",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Cooking",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Sprinkling",
+            "Confidence": 0.71
+          },
+          {
+            "Name": "Food",
+            "Confidence": 1
+          },
+          {
+            "Name": "Stirring_Food",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Shaker",
+            "Confidence": 0.73
+          },
+          {
+            "Name": "Boiling",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Cooking_Pan",
+            "Confidence": 0.91
+          },
+          {
+            "Name": "Cookware",
+            "Confidence": 0.91
+          },
+          {
+            "Name": "Pot",
+            "Confidence": 0.56
+          },
+          {
+            "Name": "Meal",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Dish",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Pill",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Blending_Ingredients",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Cream",
+            "Confidence": 1
+          },
+          {
+            "Name": "Ice_Cream",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Cooking_Batter",
+            "Confidence": 0.52
+          },
+          {
+            "Name": "Mixer",
+            "Confidence": 0.52
+          },
+          {
+            "Name": "People",
+            "Confidence": 1
+          },
+          {
+            "Name": "Birthday_Cake",
+            "Confidence": 1
+          },
+          {
+            "Name": "Cake",
+            "Confidence": 1
+          },
+          {
+            "Name": "Dessert",
+            "Confidence": 1
+          },
+          {
+            "Name": "Child",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Female",
+            "Confidence": 1
+          },
+          {
+            "Name": "Woman",
+            "Confidence": 1
+          },
+          {
+            "Name": "Perfume",
+            "Confidence": 0.75
+          },
+          {
+            "Name": "Sea_Waves",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Water",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Bbq",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Boy",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Crying",
+            "Confidence": 1
+          },
+          {
+            "Name": "Sad",
+            "Confidence": 1
+          },
+          {
+            "Name": "Throat",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Neck",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Smile",
+            "Confidence": 1
+          },
+          {
+            "Name": "Smoke",
+            "Confidence": 0.53
+          },
+          {
+            "Name": "Cutlery",
+            "Confidence": 1
+          },
+          {
+            "Name": "Table",
+            "Confidence": 1
+          },
+          {
+            "Name": "Dining_Table",
+            "Confidence": 1
+          },
+          {
+            "Name": "Tabletop",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Fork",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Food_Presentation",
+            "Confidence": 1
+          },
+          {
+            "Name": "Candle",
+            "Confidence": 0.65
+          },
+          {
+            "Name": "Brunch",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Baton",
+            "Confidence": 0.71
+          },
+          {
+            "Name": "Cafeteria",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Eating",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Happy",
+            "Confidence": 1
+          },
+          {
+            "Name": "Laughing",
+            "Confidence": 1
+          },
+          {
+            "Name": "Bowl",
+            "Confidence": 0.57
+          },
+          {
+            "Name": "Spoon",
+            "Confidence": 0.93
+          },
+          {
+            "Name": "Portrait",
+            "Confidence": 0.91
+          },
+          {
+            "Name": "Restaurant",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "Dining_Room",
+            "Confidence": 1
+          },
+          {
+            "Name": "Romantic",
+            "Confidence": 0.94
+          }
+        ]
+      }
+    }
+  }
+}

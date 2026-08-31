@@ -46,12 +46,11 @@ export const getAdMode = (id: AdPlaybackOption): AdModeDefinition => AD_MODE_REG
 
 /**
  * Behavior signal for "this mode triggers a sync-style video ad break"
- * (currently true for `Sync`, `Sync: L-Bar`, `Sync: Impulse`). The audit
- * for this is whether the mode supplies a DHYH duration; modes without
- * a duration can't trigger the break. Useful in the playback hook to
- * collapse the trio of `isSync*ModeSelected` flags into one check.
+ * (currently true for `Sync`, `Sync: L-Bar`, `Sync: Impulse`). Checks the
+ * mode's `kind` classification — purely content-agnostic since the move
+ * to per-content `adAssets` on 2026-06-15.
  */
 export const isSyncAdBreakMode = (id: AdPlaybackOption): boolean => {
   const mode = AD_MODE_REGISTRY[id]
-  return mode.enabled && typeof mode.dhyhAdDurationSeconds === 'number'
+  return mode.enabled && mode.kind === 'sync-ad-break'
 }

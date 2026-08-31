@@ -9,4 +9,5 @@ export const ctaPauseMode: AdModeDefinition = {
   id: 'CTA Pause',
   label: 'CTA Pause',
   enabled: true,
+  kind: 'pause-overlay',
 }

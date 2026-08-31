@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import { useEffect, useRef, useState, type MutableRefObject } from 'react'
-import { AD_MODE_REGISTRY, ENABLED_AD_MODE_IDS } from '../../ad-modes'
+import type { AdPlaybackOption } from '../../types'
 import { PlayerControls } from './PlayerControls'
 import { PauseOverlay, PauseToShopCta } from './pause-overlay'
 import type { PauseOverlayPayload, PauseProductDestinationTarget } from './pause-overlay'
@@ -19,6 +19,10 @@ type VideoPlayerProps = {
   // Sources / state
   mainVideoSrc: string
   activeAdVideoUrl: string | null
+  /** All sync-style ad-mode creatives the active content has wired,
+   *  preloaded concurrently so switching mode mid-break is a pure
+   *  opacity flip instead of a fresh `<video src>` load. */
+  syncAdCreatives: ReadonlyArray<{ modeId: AdPlaybackOption; videoUrl: string }>
   activeAdBreakImage: string
   activeAdQrImage: string
   isVideoPlaying: boolean
@@ -97,6 +101,7 @@ export function VideoPlayer({
   adVideoRef,
   mainVideoSrc,
   activeAdVideoUrl,
+  syncAdCreatives,
   activeAdBreakImage,
   activeAdQrImage,
   isVideoPlaying,
@@ -239,13 +244,14 @@ export function VideoPlayer({
             transition: 'opacity 320ms ease-in-out',
           }}
         >
-          {/* Render every enabled DHYH ad creative concurrently in the same
-              absolute frame; switch which one is visible via opacity, not src.
-              Inactive videos remain mounted, buffered, and playing (muted) so
-              switching ad mode mid-break is a pure opacity flip. */}
-          {ENABLED_AD_MODE_IDS.map((modeId) => {
-            const modeUrl = AD_MODE_REGISTRY[modeId].dhyhAdVideoUrl
-            if (!modeUrl) return null
+          {/* Render every sync-style ad creative wired for the active content
+              concurrently in the same absolute frame; switch which one is
+              visible via opacity, not src. Inactive videos remain mounted,
+              buffered, and playing (muted) so switching ad mode mid-break is
+              a pure opacity flip. Sourced from the active content's
+              `adAssets` via the `syncAdCreatives` prop — no cross-content
+              creatives ever preload. */}
+          {syncAdCreatives.map(({ modeId, videoUrl: modeUrl }) => {
             const isActive = modeUrl === activeAdVideoUrl
             return (
               <Box
@@ -478,17 +484,26 @@ export function VideoPlayer({
             content frame for the creative. */}
         {pauseAdImageSrc && (
           <>
-            <Box
-              sx={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: `${playerControlTokens.controlBarHeight}px`,
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                zIndex: 4,
-              }}
-            />
+            {/* Dim-wash strip — gated on `isPauseAdActive`, not on the
+                presence of `pauseAdImageSrc`. The wrapper stays mounted
+                whenever the mode is selected (so the inner overlay can
+                fade via opacity), but the dim strip MUST disappear during
+                playback — otherwise a dark horizontal band sits along the
+                bottom of the player at all times when Pause Ad is the
+                active mode (see bug report 2026-06-15). */}
+            {isPauseAdActive && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: `${playerControlTokens.controlBarHeight}px`,
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  zIndex: 4,
+                }}
+              />
+            )}
             <Box
               sx={{
                 position: 'absolute',

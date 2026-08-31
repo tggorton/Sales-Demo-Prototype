@@ -67,12 +67,25 @@ export type PauseOverlayPayload = {
   sponsorLabel: string
   // Background image painted on the focused/selected tile (behind the
   // tile's content). `null` falls back to the solid white background
-  // per Figma.
+  // per Figma. **`tileBackgroundColor` (below) takes precedence** when
+  // both are set — color wins, image is ignored.
   tileBackgroundImageSrc: string | null
+  // Hex / CSS color painted on the focused/selected tile when no
+  // image is supplied (or instead of the image — see precedence note
+  // above). Lets a campaign brand the focus state with a brand color
+  // (e.g. Wayfair purple `#7b189f`) without producing an image asset.
+  // `null` → use image-or-Figma-white fallback.
+  tileBackgroundColor: string | null
   // Background image painted behind the detail card content (replaces
   // the solid white card body when supplied). `null` falls back to
-  // the existing opaque white card.
+  // the existing opaque white card. **`cardBackgroundColor` (below)
+  // takes precedence** when both are set.
   detailBackgroundImageSrc: string | null
+  // Hex / CSS color painted behind the detail card content. Same
+  // precedence as `tileBackgroundColor`: color > image > white default.
+  // Used by Wayfair-style campaigns to swap the card body to a brand
+  // colour without needing a bg image.
+  cardBackgroundColor: string | null
   // Up to ~5 tiles per the spec; the carousel scrolls horizontally if
   // more are provided, but the demo design assumes 3 visible at once.
   tiles: PauseProductTile[]

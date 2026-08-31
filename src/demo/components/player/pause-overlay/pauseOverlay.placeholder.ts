@@ -35,7 +35,9 @@ export const PAUSE_OVERLAY_PLACEHOLDER: PauseOverlayPayload = {
   pauseToShopCtaImageSrc: null,
   sponsorLabel: 'Sponsored by',
   tileBackgroundImageSrc: null,
+  tileBackgroundColor: null,
   detailBackgroundImageSrc: null,
+  cardBackgroundColor: null,
   tiles: placeholderTiles,
   detailsById: placeholderDetails,
 }

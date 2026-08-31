@@ -1,7 +1,11 @@
-// Generate `src/demo/content/dhyh/ads/organic-pause.json` from the Tier 3
-// product source. Run whenever Tier 3 changes:
+// Generate `src/demo/content/<id>/ads/organic-pause.json` from the Tier 3
+// product source.
 //
+//   DHYH (default):
 //     node scripts/generate-organic-pause-moments.mjs
+//
+//   Any other content tile (e.g. MasterChef):
+//     node scripts/generate-organic-pause-moments.mjs --content masterchef
 //
 // Organic Pause lets the user pause at ANY point and see the time-accurate
 // top-5 products (no editorial windows — the CTA hint only shows in the first
@@ -11,10 +15,10 @@
 //
 // The campaign THEME block is shared with CTA Pause (reused verbatim from
 // `ads/cta-pause.json`) so both modes use the same designer/client CTA + sponsor
-// assets.
+// assets. **Run the CTA generator FIRST so the shared theme is present.**
 //
 // Knobs (see scripts/lib/pause-moments-core.mjs for full docs):
-//   TIME_BASE    — 'clip' (DB-DemoVid1, native clip-time, any length) | 'source-splice'
+//   TIME_BASE    — 'clip' (clip-native timestamps, any length) | 'source-splice'
 //   IMAGE_SOURCE — { mode: 'cdn' | 'local' | 's3', s3Base? }  (local↔CDN↔S3 swap)
 
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -29,9 +33,19 @@ import {
 } from './lib/pause-moments-core.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const TIER3_PATH = join(ROOT, 'src/demo/content/dhyh/tiers/tier3.json')
-const CTA_PATH = join(ROOT, 'src/demo/content/dhyh/ads/cta-pause.json')
-const OUT_PATH = join(ROOT, 'src/demo/content/dhyh/ads/organic-pause.json')
+
+// ── CLI args ───────────────────────────────────────────────────────────────
+// --content <id>  (default: 'dhyh')
+const args = process.argv.slice(2)
+const argValue = (name) => {
+  const i = args.indexOf(name)
+  return i >= 0 ? args[i + 1] : null
+}
+const CONTENT_ID = argValue('--content') ?? 'dhyh'
+
+const TIER3_PATH = join(ROOT, `src/demo/content/${CONTENT_ID}/tiers/tier3.json`)
+const CTA_PATH = join(ROOT, `src/demo/content/${CONTENT_ID}/ads/cta-pause.json`)
+const OUT_PATH = join(ROOT, `src/demo/content/${CONTENT_ID}/ads/organic-pause.json`)
 
 // ── Knobs ──────────────────────────────────────────────────────────────────
 const TIME_BASE = 'clip'
@@ -67,7 +81,7 @@ const output = buildDocument({
     'product-scene; each shows the trailing-5 products at that clip-time. Theme block ' +
     'is reused verbatim from `ads/cta-pause.json` so both pause modes share campaign ' +
     `assets. Image source: ${IMAGE_SOURCE.mode}.`,
-  campaignId: 'dhyh-organic-pause',
+  campaignId: `${CONTENT_ID}-organic-pause`,
   theme,
   scenes,
 })

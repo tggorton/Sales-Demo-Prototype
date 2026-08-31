@@ -51,6 +51,66 @@ const bundledTierLoaders: Record<ContentId, Record<TierOption, () => Promise<unk
     'Categorical Product Match': () =>
       import('../content/dhyh/tiers/tier3.json').then((m) => m.default ?? m),
   },
+  masterchef: {
+    'Basic Scene': () =>
+      import('../content/masterchef/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () =>
+      import('../content/masterchef/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () =>
+      import('../content/masterchef/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/masterchef/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/masterchef/tiers/tier3.json').then((m) => m.default ?? m),
+  },
+  'rhw': {
+    'Basic Scene': () =>
+      import('../content/rhw/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () =>
+      import('../content/rhw/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () =>
+      import('../content/rhw/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/rhw/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/rhw/tiers/tier3.json').then((m) => m.default ?? m),
+  },
+  'sh': {
+    'Basic Scene': () =>
+      import('../content/sh/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () =>
+      import('../content/sh/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () =>
+      import('../content/sh/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/sh/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/sh/tiers/tier3.json').then((m) => m.default ?? m),
+  },
+  'bb': {
+    'Basic Scene': () =>
+      import('../content/bb/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () =>
+      import('../content/bb/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () =>
+      import('../content/bb/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/bb/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/bb/tiers/tier3.json').then((m) => m.default ?? m),
+  },
+  'abbot': {
+    'Basic Scene': () =>
+      import('../content/abbot/tiers/tier1.json').then((m) => m.default ?? m),
+    'Assets Summary': () =>
+      import('../content/abbot/tiers/tier1.json').then((m) => m.default ?? m),
+    'Advanced Scene': () =>
+      import('../content/abbot/tiers/tier2.json').then((m) => m.default ?? m),
+    'Exact Product Match': () =>
+      import('../content/abbot/tiers/tier3.json').then((m) => m.default ?? m),
+    'Categorical Product Match': () =>
+      import('../content/abbot/tiers/tier3.json').then((m) => m.default ?? m),
+  },
 }
 
 /**

@@ -1,0 +1,65 @@
+{
+  "id": "wayfair-kitchen-ad_pause-ad",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: wayfair-kitchen-ad_pause-ad",
+    "data": {
+      "id": "6N3pIfm9PGi4j1dscaI7Bt47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/wayfair-kitchen-ad_pause-ad.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "5.000000",
+      "fps": "30.0",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "274",
+          "name": "Home & Garden",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Wayfair",
+        "adomain": "wayfair.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [],
+        "object_labels": [
+          {
+            "Name": "Meal",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Candle",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Adult",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Male",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Man",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Person",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Cup",
+            "Confidence": 0.94
+          },
+          {
+            "Name": "Dish",
+            "Confidence": 0.89
+          }
+        ]
+      }
+    }
+  }
+}

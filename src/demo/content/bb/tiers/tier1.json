@@ -1,0 +1,1846 @@
+{
+    "video_id": "DemoClip_BigBrother",
+    "duration_in_seconds": 271.051667,
+    "aspect_ratio": "16:9",
+    "video_metadata": {
+        "garm_category": [
+            {
+                "id": "G7",
+                "name": "Obscenity & Profanity",
+                "risk_level": "Medium",
+                "confidence": 0.9,
+                "count": 21,
+                "screen_time": 74.64,
+                "screen_time_percentage": 0.275
+            },
+            {
+                "id": "G7",
+                "name": "Obscenity & Profanity",
+                "risk_level": "Low",
+                "confidence": 0.95,
+                "count": 1,
+                "screen_time": 3.24,
+                "screen_time_percentage": 0.012
+            }
+        ],
+        "iab_taxonomy": [
+            {
+                "id": "274",
+                "name": "Home & Garden",
+                "confidence": 0.8,
+                "count": 8,
+                "screen_time": 48.8,
+                "screen_time_percentage": 0.18
+            },
+            {
+                "id": "163",
+                "name": "Personal Celebrations & Life Events",
+                "confidence": 0.8,
+                "count": 5,
+                "screen_time": 34.96,
+                "screen_time_percentage": 0.129
+            },
+            {
+                "id": "552",
+                "name": "Style & Fashion",
+                "confidence": 0.8,
+                "count": 5,
+                "screen_time": 30.48,
+                "screen_time_percentage": 0.112
+            },
+            {
+                "id": "186",
+                "name": "Family and Relationships",
+                "confidence": 0.85,
+                "count": 1,
+                "screen_time": 9.32,
+                "screen_time_percentage": 0.034
+            },
+            {
+                "id": "283",
+                "name": "Interior Decorating",
+                "confidence": 0.82,
+                "count": 2,
+                "screen_time": 5.4,
+                "screen_time_percentage": 0.02
+            },
+            {
+                "id": "150",
+                "name": "Events and Attractions",
+                "confidence": 0.85,
+                "count": 2,
+                "screen_time": 4.64,
+                "screen_time_percentage": 0.017
+            },
+            {
+                "id": "218",
+                "name": "Dining Out",
+                "confidence": 0.85,
+                "count": 1,
+                "screen_time": 3.64,
+                "screen_time_percentage": 0.013
+            },
+            {
+                "id": "280",
+                "name": "Home Improvement",
+                "confidence": 0.71,
+                "count": 1,
+                "screen_time": 2.12,
+                "screen_time_percentage": 0.008
+            }
+        ],
+        "sentiment_analysis": [
+            {
+                "id": "S2",
+                "name": "Somewhat Positive",
+                "confidence": 0.9,
+                "count": 24,
+                "screen_time": 127,
+                "screen_time_percentage": 0.469
+            },
+            {
+                "id": "S3",
+                "name": "Neutral",
+                "confidence": 0.9,
+                "count": 16,
+                "screen_time": 51.96,
+                "screen_time_percentage": 0.192
+            },
+            {
+                "id": "S1",
+                "name": "Mostly Positive",
+                "confidence": 0.9,
+                "count": 8,
+                "screen_time": 47.52,
+                "screen_time_percentage": 0.175
+            },
+            {
+                "id": "S5",
+                "name": "Somewhat Negative",
+                "confidence": 0.9,
+                "count": 13,
+                "screen_time": 44.6,
+                "screen_time_percentage": 0.165
+            }
+        ]
+    },
+    "total_scenes": 61,
+    "Scenes": [
+        {
+            "scene": 0,
+            "startFrame": 0,
+            "startTimecode": "00:00:00.000",
+            "startTime": 0,
+            "midFrame": 116,
+            "midTimecode": "00:00:04.640",
+            "midTime": 4.64,
+            "endFrame": 233,
+            "endTimecode": "00:00:09.320",
+            "endTime": 9.32,
+            "lengthInFrames": 233,
+            "lengthInTimecode": "00:00:09.320",
+            "lengthInSeconds": 9.32,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.85,
+                    "id": "186"
+                },
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.75,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Tobacco, E-cigarettes, Vaping",
+                    "risk_level": "High",
+                    "confidence": 0.75,
+                    "id": "G8-2"
+                }
+            ],
+            "audio_transcript": "Complete your tasks and you may just win the money and the comforts you crave. Oh yes please. You'll come together as a family and just like a family you'll support each other and settle conflicts and you'll have your differences but in the end you are all alike. This is shared living at its purest form. Who here has never shared a house with a complete group of strangers?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 1,
+            "startFrame": 233,
+            "startTimecode": "00:00:09.320",
+            "startTime": 9.32,
+            "midFrame": 269,
+            "midTimecode": "00:00:10.760",
+            "midTime": 10.76,
+            "endFrame": 305,
+            "endTimecode": "00:00:12.200",
+            "endTime": 12.2,
+            "lengthInFrames": 72,
+            "lengthInTimecode": "00:00:02.880",
+            "lengthInSeconds": 2.88,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Complete your tasks and you may just win the money and the comforts you crave. Oh yes please. You'll come together as a family and just like a family you'll support each other and settle conflicts and you'll have your differences but in the end you are all alike. This is shared living at its purest form. Who here has never shared a house with a complete group of strangers?",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 2,
+            "startFrame": 305,
+            "startTimecode": "00:00:12.200",
+            "startTime": 12.2,
+            "midFrame": 389,
+            "midTimecode": "00:00:15.560",
+            "midTime": 15.56,
+            "endFrame": 474,
+            "endTimecode": "00:00:18.960",
+            "endTime": 18.96,
+            "lengthInFrames": 169,
+            "lengthInTimecode": "00:00:06.760",
+            "lengthInSeconds": 6.76,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.8,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Complete your tasks and you may just win the money and the comforts you crave. Oh yes please. You'll come together as a family and just like a family you'll support each other and settle conflicts and you'll have your differences but in the end you are all alike. This is shared living at its purest form. Who here has never shared a house with a complete group of strangers?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 3,
+            "startFrame": 474,
+            "startTimecode": "00:00:18.960",
+            "startTime": 18.96,
+            "midFrame": 539,
+            "midTimecode": "00:00:21.560",
+            "midTime": 21.56,
+            "endFrame": 604,
+            "endTimecode": "00:00:24.160",
+            "endTime": 24.16,
+            "lengthInFrames": 130,
+            "lengthInTimecode": "00:00:05.200",
+            "lengthInSeconds": 5.2,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Complete your tasks and you may just win the money and the comforts you crave. Oh yes please. You'll come together as a family and just like a family you'll support each other and settle conflicts and you'll have your differences but in the end you are all alike. This is shared living at its purest form. Who here has never shared a house with a complete group of strangers?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 4,
+            "startFrame": 604,
+            "startTimecode": "00:00:24.160",
+            "startTime": 24.16,
+            "midFrame": 675,
+            "midTimecode": "00:00:27.000",
+            "midTime": 27,
+            "endFrame": 747,
+            "endTimecode": "00:00:29.880",
+            "endTime": 29.88,
+            "lengthInFrames": 143,
+            "lengthInTimecode": "00:00:05.720",
+            "lengthInSeconds": 5.72,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.75,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Complete your tasks and you may just win the money and the comforts you crave. Oh yes please. You'll come together as a family and just like a family you'll support each other and settle conflicts and you'll have your differences but in the end you are all alike. This is shared living at its purest form. Who here has never shared a house with a complete group of strangers?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 5,
+            "startFrame": 747,
+            "startTimecode": "00:00:29.880",
+            "startTime": 29.88,
+            "midFrame": 784,
+            "midTimecode": "00:00:31.360",
+            "midTime": 31.36,
+            "endFrame": 821,
+            "endTimecode": "00:00:32.840",
+            "endTime": 32.84,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:02.960",
+            "lengthInSeconds": 2.96,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Well housemates, this should be interesting.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 6,
+            "startFrame": 821,
+            "startTimecode": "00:00:32.840",
+            "startTime": 32.84,
+            "midFrame": 973,
+            "midTimecode": "00:00:38.920",
+            "midTime": 38.92,
+            "endFrame": 1126,
+            "endTimecode": "00:00:45.040",
+            "endTime": 45.04,
+            "lengthInFrames": 305,
+            "lengthInTimecode": "00:00:12.200",
+            "lengthInSeconds": 12.2,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Well housemates, this should be interesting. During your time here, you will nominate each other for eviction and one by one your time in this house will come to an end. But for one lucky housemate, this experience will be lifechanging. Loved by Australia, you will leave Big Brother's house 100,000 richer.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 7,
+            "startFrame": 1126,
+            "startTimecode": "00:00:45.040",
+            "startTime": 45.04,
+            "midFrame": 1202,
+            "midTimecode": "00:00:48.081",
+            "midTime": 48.081,
+            "endFrame": 1278,
+            "endTimecode": "00:00:51.121",
+            "endTime": 51.121,
+            "lengthInFrames": 152,
+            "lengthInTimecode": "00:00:06.080",
+            "lengthInSeconds": 6.08,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.72,
+                    "id": "552"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.8,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "But for one lucky housemate, this experience will be lifechanging. Loved by Australia, you will leave Big Brother's house 100,000 richer.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 8,
+            "startFrame": 1278,
+            "startTimecode": "00:00:51.121",
+            "startTime": 51.121,
+            "midFrame": 1360,
+            "midTimecode": "00:00:54.401",
+            "midTime": 54.401,
+            "endFrame": 1443,
+            "endTimecode": "00:00:57.721",
+            "endTime": 57.721,
+            "lengthInFrames": 165,
+            "lengthInTimecode": "00:00:06.600",
+            "lengthInSeconds": 6.6,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.75,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "But for one lucky housemate, this experience will be lifechanging. Loved by Australia, you will leave Big Brother's house 100,000 richer.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 9,
+            "startFrame": 1443,
+            "startTimecode": "00:00:57.721",
+            "startTime": 57.721,
+            "midFrame": 1536,
+            "midTimecode": "00:01:01.441",
+            "midTime": 61.441,
+            "endFrame": 1630,
+            "endTimecode": "00:01:05.201",
+            "endTime": 65.201,
+            "lengthInFrames": 187,
+            "lengthInTimecode": "00:00:07.480",
+            "lengthInSeconds": 7.48,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.68,
+                    "id": "552"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.7,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "I don't have a lot of money. With no distractions from the outside world, this experience is about revealing your most authentic self.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 10,
+            "startFrame": 1630,
+            "startTimecode": "00:01:05.201",
+            "startTime": 65.201,
+            "midFrame": 1667,
+            "midTimecode": "00:01:06.681",
+            "midTime": 66.681,
+            "endFrame": 1704,
+            "endTimecode": "00:01:08.161",
+            "endTime": 68.161,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:02.960",
+            "lengthInSeconds": 2.96,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "With no distractions from the outside world, this experience is about revealing your most authentic self.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 11,
+            "startFrame": 1704,
+            "startTimecode": "00:01:08.161",
+            "startTime": 68.161,
+            "midFrame": 1778,
+            "midTimecode": "00:01:11.121",
+            "midTime": 71.121,
+            "endFrame": 1852,
+            "endTimecode": "00:01:14.081",
+            "endTime": 74.081,
+            "lengthInFrames": 148,
+            "lengthInTimecode": "00:00:05.920",
+            "lengthInSeconds": 5.92,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.8,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "With no distractions from the outside world, this experience is about revealing your most authentic self.",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 12,
+            "startFrame": 1852,
+            "startTimecode": "00:01:14.081",
+            "startTime": 74.081,
+            "midFrame": 1999,
+            "midTimecode": "00:01:19.961",
+            "midTime": 79.961,
+            "endFrame": 2147,
+            "endTimecode": "00:01:25.881",
+            "endTime": 85.881,
+            "lengthInFrames": 295,
+            "lengthInTimecode": "00:00:11.800",
+            "lengthInSeconds": 11.8,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "You will be stretched bare until only the real you remains, allowing Australia to see who each of you truly are.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 13,
+            "startFrame": 2147,
+            "startTimecode": "00:01:25.881",
+            "startTime": 85.881,
+            "midFrame": 2200,
+            "midTimecode": "00:01:28.001",
+            "midTime": 88.001,
+            "endFrame": 2253,
+            "endTimecode": "00:01:30.121",
+            "endTime": 90.121,
+            "lengthInFrames": 106,
+            "lengthInTimecode": "00:00:04.240",
+            "lengthInSeconds": 4.24,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.75,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "You will be stretched bare until only the real you remains, allowing Australia to see who each of you truly are. Housemates, this is going to be a lot of fun. Oh yeah, oh yeah, oh yeah. And remember, Big Brother will be right there with you through the good, the bad and the ugly.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 14,
+            "startFrame": 2253,
+            "startTimecode": "00:01:30.121",
+            "startTime": 90.121,
+            "midFrame": 2290,
+            "midTimecode": "00:01:31.601",
+            "midTime": 91.601,
+            "endFrame": 2327,
+            "endTimecode": "00:01:33.081",
+            "endTime": 93.081,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:02.960",
+            "lengthInSeconds": 2.96,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Housemates, this is going to be a lot of fun. Oh yeah, oh yeah, oh yeah. And remember, Big Brother will be right there with you through the good, the bad and the ugly.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 15,
+            "startFrame": 2327,
+            "startTimecode": "00:01:33.081",
+            "startTime": 93.081,
+            "midFrame": 2389,
+            "midTimecode": "00:01:35.561",
+            "midTime": 95.561,
+            "endFrame": 2451,
+            "endTimecode": "00:01:38.041",
+            "endTime": 98.041,
+            "lengthInFrames": 124,
+            "lengthInTimecode": "00:00:04.960",
+            "lengthInSeconds": 4.96,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.73,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Housemates, this is going to be a lot of fun. Oh yeah, oh yeah, oh yeah. And remember, Big Brother will be right there with you through the good, the bad and the ugly.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 16,
+            "startFrame": 2451,
+            "startTimecode": "00:01:38.041",
+            "startTime": 98.041,
+            "midFrame": 2537,
+            "midTimecode": "00:01:41.481",
+            "midTime": 101.481,
+            "endFrame": 2623,
+            "endTimecode": "00:01:44.921",
+            "endTime": 104.921,
+            "lengthInFrames": 172,
+            "lengthInTimecode": "00:00:06.880",
+            "lengthInSeconds": 6.88,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.76,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Housemates, this is going to be a lot of fun. Oh yeah, oh yeah, oh yeah. And remember, Big Brother will be right there with you through the good, the bad and the ugly.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 17,
+            "startFrame": 2623,
+            "startTimecode": "00:01:44.921",
+            "startTime": 104.921,
+            "midFrame": 2692,
+            "midTimecode": "00:01:47.681",
+            "midTime": 107.681,
+            "endFrame": 2762,
+            "endTimecode": "00:01:50.481",
+            "endTime": 110.481,
+            "lengthInFrames": 139,
+            "lengthInTimecode": "00:00:05.560",
+            "lengthInSeconds": 5.56,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.8,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "My door to the Dyer Room is always open. Thank you. Congratulations, you are the housemates of 2025.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 18,
+            "startFrame": 2762,
+            "startTimecode": "00:01:50.481",
+            "startTime": 110.481,
+            "midFrame": 2799,
+            "midTimecode": "00:01:51.961",
+            "midTime": 111.961,
+            "endFrame": 2836,
+            "endTimecode": "00:01:53.441",
+            "endTime": 113.441,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:02.960",
+            "lengthInSeconds": 2.96,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "My door to the Dyer Room is always open. Thank you. Congratulations, you are the housemates of 2025.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 19,
+            "startFrame": 2836,
+            "startTimecode": "00:01:53.441",
+            "startTime": 113.441,
+            "midFrame": 2964,
+            "midTimecode": "00:01:58.561",
+            "midTime": 118.561,
+            "endFrame": 3092,
+            "endTimecode": "00:02:03.681",
+            "endTime": 123.681,
+            "lengthInFrames": 256,
+            "lengthInTimecode": "00:00:10.240",
+            "lengthInSeconds": 10.24,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "My door to the Dyer Room is always open. Thank you. Congratulations, you are the housemates of 2025. The Big Brother house is now open.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 20,
+            "startFrame": 3092,
+            "startTimecode": "00:02:03.681",
+            "startTime": 123.681,
+            "midFrame": 3114,
+            "midTimecode": "00:02:04.561",
+            "midTime": 124.561,
+            "endFrame": 3136,
+            "endTimecode": "00:02:05.441",
+            "endTime": 125.441,
+            "lengthInFrames": 44,
+            "lengthInTimecode": "00:00:01.760",
+            "lengthInSeconds": 1.76,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 21,
+            "startFrame": 3136,
+            "startTimecode": "00:02:05.441",
+            "startTime": 125.441,
+            "midFrame": 3171,
+            "midTimecode": "00:02:06.841",
+            "midTime": 126.841,
+            "endFrame": 3207,
+            "endTimecode": "00:02:08.281",
+            "endTime": 128.281,
+            "lengthInFrames": 71,
+            "lengthInTimecode": "00:00:02.840",
+            "lengthInSeconds": 2.84,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 22,
+            "startFrame": 3207,
+            "startTimecode": "00:02:08.281",
+            "startTime": 128.281,
+            "midFrame": 3236,
+            "midTimecode": "00:02:09.441",
+            "midTime": 129.441,
+            "endFrame": 3265,
+            "endTimecode": "00:02:10.601",
+            "endTime": 130.601,
+            "lengthInFrames": 58,
+            "lengthInTimecode": "00:00:02.320",
+            "lengthInSeconds": 2.32,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 23,
+            "startFrame": 3265,
+            "startTimecode": "00:02:10.601",
+            "startTime": 130.601,
+            "midFrame": 3294,
+            "midTimecode": "00:02:11.761",
+            "midTime": 131.761,
+            "endFrame": 3323,
+            "endTimecode": "00:02:12.921",
+            "endTime": 132.921,
+            "lengthInFrames": 58,
+            "lengthInTimecode": "00:00:02.320",
+            "lengthInSeconds": 2.32,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 24,
+            "startFrame": 3323,
+            "startTimecode": "00:02:12.921",
+            "startTime": 132.921,
+            "midFrame": 3363,
+            "midTimecode": "00:02:14.521",
+            "midTime": 134.521,
+            "endFrame": 3404,
+            "endTimecode": "00:02:16.161",
+            "endTime": 136.161,
+            "lengthInFrames": 81,
+            "lengthInTimecode": "00:00:03.240",
+            "lengthInSeconds": 3.24,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Events and Attractions",
+                    "confidence": 0.85,
+                    "id": "150"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Low",
+                    "confidence": 0.95,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 25,
+            "startFrame": 3404,
+            "startTimecode": "00:02:16.161",
+            "startTime": 136.161,
+            "midFrame": 3429,
+            "midTimecode": "00:02:17.161",
+            "midTime": 137.161,
+            "endFrame": 3455,
+            "endTimecode": "00:02:18.201",
+            "endTime": 138.201,
+            "lengthInFrames": 51,
+            "lengthInTimecode": "00:00:02.040",
+            "lengthInSeconds": 2.04,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 26,
+            "startFrame": 3455,
+            "startTimecode": "00:02:18.201",
+            "startTime": 138.201,
+            "midFrame": 3478,
+            "midTimecode": "00:02:19.121",
+            "midTime": 139.121,
+            "endFrame": 3502,
+            "endTimecode": "00:02:20.081",
+            "endTime": 140.081,
+            "lengthInFrames": 47,
+            "lengthInTimecode": "00:00:01.880",
+            "lengthInSeconds": 1.88,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 27,
+            "startFrame": 3502,
+            "startTimecode": "00:02:20.081",
+            "startTime": 140.081,
+            "midFrame": 3567,
+            "midTimecode": "00:02:22.681",
+            "midTime": 142.681,
+            "endFrame": 3632,
+            "endTimecode": "00:02:25.282",
+            "endTime": 145.282,
+            "lengthInFrames": 130,
+            "lengthInTimecode": "00:00:05.200",
+            "lengthInSeconds": 5.2,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 28,
+            "startFrame": 3632,
+            "startTimecode": "00:02:25.282",
+            "startTime": 145.282,
+            "midFrame": 3702,
+            "midTimecode": "00:02:28.082",
+            "midTime": 148.082,
+            "endFrame": 3773,
+            "endTimecode": "00:02:30.922",
+            "endTime": 150.922,
+            "lengthInFrames": 141,
+            "lengthInTimecode": "00:00:05.640",
+            "lengthInSeconds": 5.64,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 29,
+            "startFrame": 3773,
+            "startTimecode": "00:02:30.922",
+            "startTime": 150.922,
+            "midFrame": 3790,
+            "midTimecode": "00:02:31.602",
+            "midTime": 151.602,
+            "endFrame": 3808,
+            "endTimecode": "00:02:32.322",
+            "endTime": 152.322,
+            "lengthInFrames": 35,
+            "lengthInTimecode": "00:00:01.400",
+            "lengthInSeconds": 1.4,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Events and Attractions",
+                    "confidence": 0.8,
+                    "id": "150"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 30,
+            "startFrame": 3808,
+            "startTimecode": "00:02:32.322",
+            "startTime": 152.322,
+            "midFrame": 3841,
+            "midTimecode": "00:02:33.642",
+            "midTime": 153.642,
+            "endFrame": 3875,
+            "endTimecode": "00:02:35.002",
+            "endTime": 155.002,
+            "lengthInFrames": 67,
+            "lengthInTimecode": "00:00:02.680",
+            "lengthInSeconds": 2.68,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 31,
+            "startFrame": 3875,
+            "startTimecode": "00:02:35.002",
+            "startTime": 155.002,
+            "midFrame": 3899,
+            "midTimecode": "00:02:35.962",
+            "midTime": 155.962,
+            "endFrame": 3923,
+            "endTimecode": "00:02:36.922",
+            "endTime": 156.922,
+            "lengthInFrames": 48,
+            "lengthInTimecode": "00:00:01.920",
+            "lengthInSeconds": 1.92,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 32,
+            "startFrame": 3923,
+            "startTimecode": "00:02:36.922",
+            "startTime": 156.922,
+            "midFrame": 3992,
+            "midTimecode": "00:02:39.682",
+            "midTime": 159.682,
+            "endFrame": 4062,
+            "endTimecode": "00:02:42.482",
+            "endTime": 162.482,
+            "lengthInFrames": 139,
+            "lengthInTimecode": "00:00:05.560",
+            "lengthInSeconds": 5.56,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.9,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 33,
+            "startFrame": 4062,
+            "startTimecode": "00:02:42.482",
+            "startTime": 162.482,
+            "midFrame": 4083,
+            "midTimecode": "00:02:43.322",
+            "midTime": 163.322,
+            "endFrame": 4105,
+            "endTimecode": "00:02:44.202",
+            "endTime": 164.202,
+            "lengthInFrames": 43,
+            "lengthInTimecode": "00:00:01.720",
+            "lengthInSeconds": 1.72,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.85,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Oh my god. God damn. No one else died, don't he? I'll go next to you. No, no, no, I'll go here. I'll look over here. You've already dipped that bed. Okay. Okay. I see how it is. I see how it is. Bro, this is so annoying. There's the barbeque chair. Right there, as if, right there. Oh, this is the barbeque chair. This is my station.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 34,
+            "startFrame": 4105,
+            "startTimecode": "00:02:44.202",
+            "startTime": 164.202,
+            "midFrame": 4125,
+            "midTimecode": "00:02:45.002",
+            "midTime": 165.002,
+            "endFrame": 4146,
+            "endTimecode": "00:02:45.842",
+            "endTime": 165.842,
+            "lengthInFrames": 41,
+            "lengthInTimecode": "00:00:01.640",
+            "lengthInSeconds": 1.64,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 35,
+            "startFrame": 4146,
+            "startTimecode": "00:02:45.842",
+            "startTime": 165.842,
+            "midFrame": 4174,
+            "midTimecode": "00:02:46.962",
+            "midTime": 166.962,
+            "endFrame": 4203,
+            "endTimecode": "00:02:48.122",
+            "endTime": 168.122,
+            "lengthInFrames": 57,
+            "lengthInTimecode": "00:00:02.280",
+            "lengthInSeconds": 2.28,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 36,
+            "startFrame": 4203,
+            "startTimecode": "00:02:48.122",
+            "startTime": 168.122,
+            "midFrame": 4256,
+            "midTimecode": "00:02:50.242",
+            "midTime": 170.242,
+            "endFrame": 4310,
+            "endTimecode": "00:02:52.402",
+            "endTime": 172.402,
+            "lengthInFrames": 107,
+            "lengthInTimecode": "00:00:04.280",
+            "lengthInSeconds": 4.28,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "No you can see everything",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 37,
+            "startFrame": 4310,
+            "startTimecode": "00:02:52.402",
+            "startTime": 172.402,
+            "midFrame": 4353,
+            "midTimecode": "00:02:54.122",
+            "midTime": 174.122,
+            "endFrame": 4397,
+            "endTimecode": "00:02:55.882",
+            "endTime": 175.882,
+            "lengthInFrames": 87,
+            "lengthInTimecode": "00:00:03.480",
+            "lengthInSeconds": 3.48,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "No you can see everything I think it's one of the girls",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 38,
+            "startFrame": 4397,
+            "startTimecode": "00:02:55.882",
+            "startTime": 175.882,
+            "midFrame": 4469,
+            "midTimecode": "00:02:58.762",
+            "midTime": 178.762,
+            "endFrame": 4542,
+            "endTimecode": "00:03:01.682",
+            "endTime": 181.682,
+            "lengthInFrames": 145,
+            "lengthInTimecode": "00:00:05.800",
+            "lengthInSeconds": 5.8,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "I think it's one of the girls Oi! Who shows that?",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 39,
+            "startFrame": 4542,
+            "startTimecode": "00:03:01.682",
+            "startTime": 181.682,
+            "midFrame": 4569,
+            "midTimecode": "00:03:02.762",
+            "midTime": 182.762,
+            "endFrame": 4597,
+            "endTimecode": "00:03:03.882",
+            "endTime": 183.882,
+            "lengthInFrames": 55,
+            "lengthInTimecode": "00:00:02.200",
+            "lengthInSeconds": 2.2,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Who chose this bed bro?",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 40,
+            "startFrame": 4597,
+            "startTimecode": "00:03:03.882",
+            "startTime": 183.882,
+            "midFrame": 4625,
+            "midTimecode": "00:03:05.002",
+            "midTime": 185.002,
+            "endFrame": 4653,
+            "endTimecode": "00:03:06.122",
+            "endTime": 186.122,
+            "lengthInFrames": 56,
+            "lengthInTimecode": "00:00:02.240",
+            "lengthInSeconds": 2.24,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Who chose this bed bro?",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 41,
+            "startFrame": 4653,
+            "startTimecode": "00:03:06.122",
+            "startTime": 186.122,
+            "midFrame": 4721,
+            "midTimecode": "00:03:08.842",
+            "midTime": 188.842,
+            "endFrame": 4789,
+            "endTimecode": "00:03:11.562",
+            "endTime": 191.562,
+            "lengthInFrames": 136,
+            "lengthInTimecode": "00:00:05.440",
+            "lengthInSeconds": 5.44,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.75,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "What are you up to hard, mate?",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 42,
+            "startFrame": 4789,
+            "startTimecode": "00:03:11.562",
+            "startTime": 191.562,
+            "midFrame": 4846,
+            "midTimecode": "00:03:13.842",
+            "midTime": 193.842,
+            "endFrame": 4903,
+            "endTimecode": "00:03:16.122",
+            "endTime": 196.122,
+            "lengthInFrames": 114,
+            "lengthInTimecode": "00:00:04.560",
+            "lengthInSeconds": 4.56,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.83,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "What are you up to hard, mate? Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 43,
+            "startFrame": 4903,
+            "startTimecode": "00:03:16.122",
+            "startTime": 196.122,
+            "midFrame": 4928,
+            "midTimecode": "00:03:17.122",
+            "midTime": 197.122,
+            "endFrame": 4953,
+            "endTimecode": "00:03:18.122",
+            "endTime": 198.122,
+            "lengthInFrames": 50,
+            "lengthInTimecode": "00:00:02.000",
+            "lengthInSeconds": 2,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.82,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 44,
+            "startFrame": 4953,
+            "startTimecode": "00:03:18.122",
+            "startTime": 198.122,
+            "midFrame": 4999,
+            "midTimecode": "00:03:19.962",
+            "midTime": 199.962,
+            "endFrame": 5045,
+            "endTimecode": "00:03:21.802",
+            "endTime": 201.802,
+            "lengthInFrames": 92,
+            "lengthInTimecode": "00:00:03.680",
+            "lengthInSeconds": 3.68,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.82,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 45,
+            "startFrame": 5045,
+            "startTimecode": "00:03:21.802",
+            "startTime": 201.802,
+            "midFrame": 5102,
+            "midTimecode": "00:03:24.082",
+            "midTime": 204.082,
+            "endFrame": 5160,
+            "endTimecode": "00:03:26.402",
+            "endTime": 206.402,
+            "lengthInFrames": 115,
+            "lengthInTimecode": "00:00:04.600",
+            "lengthInSeconds": 4.6,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.7,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.8,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 46,
+            "startFrame": 5160,
+            "startTimecode": "00:03:26.402",
+            "startTime": 206.402,
+            "midFrame": 5246,
+            "midTimecode": "00:03:29.842",
+            "midTime": 209.842,
+            "endFrame": 5332,
+            "endTimecode": "00:03:33.282",
+            "endTime": 213.282,
+            "lengthInFrames": 172,
+            "lengthInTimecode": "00:00:06.880",
+            "lengthInSeconds": 6.88,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.76,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.8,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 47,
+            "startFrame": 5332,
+            "startTimecode": "00:03:33.282",
+            "startTime": 213.282,
+            "midFrame": 5377,
+            "midTimecode": "00:03:35.082",
+            "midTime": 215.082,
+            "endFrame": 5423,
+            "endTimecode": "00:03:36.922",
+            "endTime": 216.922,
+            "lengthInFrames": 91,
+            "lengthInTimecode": "00:00:03.640",
+            "lengthInSeconds": 3.64,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Dining Out",
+                    "confidence": 0.85,
+                    "id": "218"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.82,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 48,
+            "startFrame": 5423,
+            "startTimecode": "00:03:36.922",
+            "startTime": 216.922,
+            "midFrame": 5448,
+            "midTimecode": "00:03:37.922",
+            "midTime": 217.922,
+            "endFrame": 5474,
+            "endTimecode": "00:03:38.962",
+            "endTime": 218.962,
+            "lengthInFrames": 51,
+            "lengthInTimecode": "00:00:02.040",
+            "lengthInSeconds": 2.04,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Style & Fashion",
+                    "confidence": 0.74,
+                    "id": "552"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.81,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 49,
+            "startFrame": 5474,
+            "startTimecode": "00:03:38.962",
+            "startTime": 218.962,
+            "midFrame": 5504,
+            "midTimecode": "00:03:40.162",
+            "midTime": 220.162,
+            "endFrame": 5535,
+            "endTimecode": "00:03:41.402",
+            "endTime": 221.402,
+            "lengthInFrames": 61,
+            "lengthInTimecode": "00:00:02.440",
+            "lengthInSeconds": 2.44,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.81,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 50,
+            "startFrame": 5535,
+            "startTimecode": "00:03:41.402",
+            "startTime": 221.402,
+            "midFrame": 5561,
+            "midTimecode": "00:03:42.442",
+            "midTime": 222.442,
+            "endFrame": 5588,
+            "endTimecode": "00:03:43.522",
+            "endTime": 223.522,
+            "lengthInFrames": 53,
+            "lengthInTimecode": "00:00:02.120",
+            "lengthInSeconds": 2.12,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Interior Decorating",
+                    "confidence": 0.82,
+                    "id": "283"
+                },
+                {
+                    "name": "Home Improvement",
+                    "confidence": 0.71,
+                    "id": "280"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 51,
+            "startFrame": 5588,
+            "startTimecode": "00:03:43.522",
+            "startTime": 223.522,
+            "midFrame": 5629,
+            "midTimecode": "00:03:45.162",
+            "midTime": 225.162,
+            "endFrame": 5670,
+            "endTimecode": "00:03:46.802",
+            "endTime": 226.802,
+            "lengthInFrames": 82,
+            "lengthInTimecode": "00:00:03.280",
+            "lengthInSeconds": 3.28,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Interior Decorating",
+                    "confidence": 0.78,
+                    "id": "283"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.82,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 52,
+            "startFrame": 5670,
+            "startTimecode": "00:03:46.802",
+            "startTime": 226.802,
+            "midFrame": 5719,
+            "midTimecode": "00:03:48.762",
+            "midTime": 228.762,
+            "endFrame": 5769,
+            "endTimecode": "00:03:50.762",
+            "endTime": 230.762,
+            "lengthInFrames": 99,
+            "lengthInTimecode": "00:00:03.960",
+            "lengthInSeconds": 3.96,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 53,
+            "startFrame": 5769,
+            "startTimecode": "00:03:50.762",
+            "startTime": 230.762,
+            "midFrame": 5796,
+            "midTimecode": "00:03:51.842",
+            "midTime": 231.842,
+            "endFrame": 5823,
+            "endTimecode": "00:03:52.922",
+            "endTime": 232.922,
+            "lengthInFrames": 54,
+            "lengthInTimecode": "00:00:02.160",
+            "lengthInSeconds": 2.16,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.79,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 54,
+            "startFrame": 5823,
+            "startTimecode": "00:03:52.922",
+            "startTime": 232.922,
+            "midFrame": 5868,
+            "midTimecode": "00:03:54.722",
+            "midTime": 234.722,
+            "endFrame": 5913,
+            "endTimecode": "00:03:56.522",
+            "endTime": 236.522,
+            "lengthInFrames": 90,
+            "lengthInTimecode": "00:00:03.600",
+            "lengthInSeconds": 3.6,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 55,
+            "startFrame": 5913,
+            "startTimecode": "00:03:56.522",
+            "startTime": 236.522,
+            "midFrame": 6049,
+            "midTimecode": "00:04:01.963",
+            "midTime": 241.963,
+            "endFrame": 6186,
+            "endTimecode": "00:04:07.443",
+            "endTime": 247.443,
+            "lengthInFrames": 273,
+            "lengthInTimecode": "00:00:10.920",
+            "lengthInSeconds": 10.92,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 56,
+            "startFrame": 6186,
+            "startTimecode": "00:04:07.443",
+            "startTime": 247.443,
+            "midFrame": 6247,
+            "midTimecode": "00:04:09.883",
+            "midTime": 249.883,
+            "endFrame": 6308,
+            "endTimecode": "00:04:12.323",
+            "endTime": 252.323,
+            "lengthInFrames": 122,
+            "lengthInTimecode": "00:00:04.880",
+            "lengthInSeconds": 4.88,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 57,
+            "startFrame": 6308,
+            "startTimecode": "00:04:12.323",
+            "startTime": 252.323,
+            "midFrame": 6386,
+            "midTimecode": "00:04:15.443",
+            "midTime": 255.443,
+            "endFrame": 6465,
+            "endTimecode": "00:04:18.603",
+            "endTime": 258.603,
+            "lengthInFrames": 157,
+            "lengthInTimecode": "00:00:06.280",
+            "lengthInSeconds": 6.28,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Can I dip this bed? Whoever is the most disabled gets that bed actually, is what I heard. Oh we've got a BBQ. How do you fancy it? You look like a BBQ man. I don't mind a BBQ. Oh this is cool man. Yeah it's nice. Lots of colour. There's more room inside than out though. Interesting. Having explored every nook and cranny of their new digs, the housemates have been unable to locate their bags, unaware that Big Brother has confiscated them. How much room is it? Wait, there's only eight. Oh my god, that means we only get a side each. Anybody? I'm out of wet my knickers so I've got to leave. I think I need two. How much do you think? I feel like I need two. How much did you buy? I was... 23 kilos. Bit over. I'll be sharing your stuff too. What were you? I don't know. Oh, you can share my clothes. I don't care. Yeah, I've got so much stuff. I like this. Look at these two. Look at ourselves. Oh yeah. No, no, no. You mean Yang? Oh my god, we actually are! Do you see what I mean? Let's go somewhere. But I really want to get comfy. Big brother.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 58,
+            "startFrame": 6465,
+            "startTimecode": "00:04:18.603",
+            "startTime": 258.603,
+            "midFrame": 6493,
+            "midTimecode": "00:04:19.723",
+            "midTime": 259.723,
+            "endFrame": 6522,
+            "endTimecode": "00:04:20.883",
+            "endTime": 260.883,
+            "lengthInFrames": 57,
+            "lengthInTimecode": "00:00:02.280",
+            "lengthInSeconds": 2.28,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "You mean Yang? Oh my god, we actually are! Do you see what I mean? Let's go somewhere. But I really want to get comfy. Big brother.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 59,
+            "startFrame": 6522,
+            "startTimecode": "00:04:20.883",
+            "startTime": 260.883,
+            "midFrame": 6614,
+            "midTimecode": "00:04:24.563",
+            "midTime": 264.563,
+            "endFrame": 6706,
+            "endTimecode": "00:04:28.243",
+            "endTime": 268.243,
+            "lengthInFrames": 184,
+            "lengthInTimecode": "00:00:07.360",
+            "lengthInSeconds": 7.36,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.8,
+                    "id": "G7"
+                },
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.75,
+                    "id": "G1"
+                }
+            ],
+            "audio_transcript": "You mean Yang? Oh my god, we actually are! Do you see what I mean? Let's go somewhere. But I really want to get comfy. Big brother.",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 60,
+            "startFrame": 6706,
+            "startTimecode": "00:04:28.243",
+            "startTime": 268.243,
+            "midFrame": 6741,
+            "midTimecode": "00:04:29.643",
+            "midTime": 269.643,
+            "endFrame": 6777,
+            "endTimecode": "00:04:31.083",
+            "endTime": 271.083,
+            "lengthInFrames": 71,
+            "lengthInTimecode": "00:00:02.840",
+            "lengthInSeconds": 2.84,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        }
+    ]
+}

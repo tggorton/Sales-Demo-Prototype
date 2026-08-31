@@ -82,6 +82,7 @@ type DemoViewProps = {
   activeAdBreakImage: string
   activeAdQrImage: string
   activeAdVideoUrl: string | null
+  syncAdCreatives: ReadonlyArray<{ modeId: AdPlaybackOption; videoUrl: string }>
   mainVideoSrc: string
   productsUnavailableMessage: string | null
   hasReachedFirstProduct: boolean
@@ -162,6 +163,7 @@ export function DemoView({
   activeAdBreakImage,
   activeAdQrImage,
   activeAdVideoUrl,
+  syncAdCreatives,
   mainVideoSrc,
   productsUnavailableMessage,
   hasReachedFirstProduct,
@@ -344,6 +346,7 @@ export function DemoView({
               adVideoRef={adVideoRef}
               mainVideoSrc={mainVideoSrc}
               activeAdVideoUrl={activeAdVideoUrl}
+              syncAdCreatives={syncAdCreatives}
               activeAdBreakImage={activeAdBreakImage}
               activeAdQrImage={activeAdQrImage}
               isVideoPlaying={isVideoPlaying}

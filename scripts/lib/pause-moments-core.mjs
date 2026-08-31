@@ -151,18 +151,26 @@ export function buildSceneEntry(sceneNumber, startTime, endTime, products, image
   }
 }
 
-/** Assemble the final pause-moments document (shared shape for both modes). */
-export function buildDocument({ videoId, note, campaignId, theme, scenes }) {
-  return {
+/** Assemble the final pause-moments document (shared shape for both modes).
+ *  `ctaPauseWindows` is OPTIONAL — only the CTA Pause generator passes it,
+ *  so the resulting JSON carries the editorial window markers right
+ *  alongside the moments. Organic Pause is window-less by design and omits
+ *  the field entirely. */
+export function buildDocument({ videoId, note, campaignId, theme, scenes, ctaPauseWindows }) {
+  const doc = {
     video_id: videoId,
     _note: note,
-    campaign: [
-      {
-        campaign_id: campaignId,
-        pause_to_shop_screen: theme.pause_to_shop_screen ?? {},
-        product_detail_screen: theme.product_detail_screen ?? {},
-        scenes,
-      },
-    ],
   }
+  if (Array.isArray(ctaPauseWindows)) {
+    doc.cta_pause_windows = ctaPauseWindows.map(([s, e]) => ({ start: s, end: e }))
+  }
+  doc.campaign = [
+    {
+      campaign_id: campaignId,
+      pause_to_shop_screen: theme.pause_to_shop_screen ?? {},
+      product_detail_screen: theme.product_detail_screen ?? {},
+      scenes,
+    },
+  ]
+  return doc
 }

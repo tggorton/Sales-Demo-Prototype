@@ -1,0 +1,69 @@
+{
+  "id": "wayfiar_furniture-pause-ad",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: wayfiar_furniture-pause-ad",
+    "data": {
+      "id": "49UnETv7HDDGtFb5QYF0q47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/wayfiar_furniture-pause-ad.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "15.040000",
+      "fps": "29.97002997002997",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "283",
+          "name": "Interior Decorating",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Wayfair",
+        "adomain": "wayfair.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [],
+        "object_labels": [
+          {
+            "Name": "Couch",
+            "Confidence": 1
+          },
+          {
+            "Name": "Furniture",
+            "Confidence": 1
+          },
+          {
+            "Name": "Living_Room",
+            "Confidence": 1
+          },
+          {
+            "Name": "Home_Decor",
+            "Confidence": 1
+          },
+          {
+            "Name": "Interior_Design",
+            "Confidence": 1
+          },
+          {
+            "Name": "Advertisement",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Cleaning",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Person",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Woman",
+            "Confidence": 0.96
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,2588 @@
+{
+    "video_id": "DemoClip_RHOSLC-612",
+    "duration_in_seconds": 255.78,
+    "aspect_ratio": "16:9",
+    "video_metadata": {
+        "garm_category": [
+            {
+                "id": "G7",
+                "name": "Obscenity & Profanity",
+                "risk_level": "High",
+                "confidence": 0.8,
+                "count": 1,
+                "screen_time": 3.462,
+                "screen_time_percentage": 0.014
+            },
+            {
+                "id": "G8-3",
+                "name": "Alcohol",
+                "risk_level": "High",
+                "confidence": 0.8,
+                "count": 1,
+                "screen_time": 2.294,
+                "screen_time_percentage": 0.009
+            }
+        ],
+        "iab_taxonomy": [
+            {
+                "id": "163",
+                "name": "Personal Celebrations & Life Events",
+                "confidence": 0.87,
+                "count": 30,
+                "screen_time": 77.328,
+                "screen_time_percentage": 0.302
+            },
+            {
+                "id": "274",
+                "name": "Home & Garden",
+                "confidence": 0.78,
+                "count": 5,
+                "screen_time": 12.554,
+                "screen_time_percentage": 0.049
+            },
+            {
+                "id": "161",
+                "name": "Party Supplies and Decorations",
+                "confidence": 0.77,
+                "count": 4,
+                "screen_time": 7.257,
+                "screen_time_percentage": 0.028
+            },
+            {
+                "id": "186",
+                "name": "Family and Relationships",
+                "confidence": 0.72,
+                "count": 3,
+                "screen_time": 6.799,
+                "screen_time_percentage": 0.027
+            },
+            {
+                "id": "278",
+                "name": "Home Appliances",
+                "confidence": 0.75,
+                "count": 1,
+                "screen_time": 4.546,
+                "screen_time_percentage": 0.018
+            },
+            {
+                "id": "279",
+                "name": "Home Entertaining",
+                "confidence": 0.78,
+                "count": 2,
+                "screen_time": 4.212,
+                "screen_time_percentage": 0.016
+            },
+            {
+                "id": "280",
+                "name": "Home Improvement",
+                "confidence": 0.85,
+                "count": 2,
+                "screen_time": 4.171,
+                "screen_time_percentage": 0.016
+            },
+            {
+                "id": "210",
+                "name": "Food & Drink",
+                "confidence": 0.8,
+                "count": 1,
+                "screen_time": 2.753,
+                "screen_time_percentage": 0.011
+            },
+            {
+                "id": "655",
+                "name": "Travel Locations",
+                "confidence": 0.89,
+                "count": 2,
+                "screen_time": 2.67,
+                "screen_time_percentage": 0.01
+            }
+        ],
+        "sentiment_analysis": [
+            {
+                "id": "S1",
+                "name": "Mostly Positive",
+                "confidence": 0.9,
+                "count": 38,
+                "screen_time": 98.432,
+                "screen_time_percentage": 0.385
+            },
+            {
+                "id": "S5",
+                "name": "Somewhat Negative",
+                "confidence": 0.9,
+                "count": 13,
+                "screen_time": 61.02,
+                "screen_time_percentage": 0.239
+            },
+            {
+                "id": "S2",
+                "name": "Somewhat Positive",
+                "confidence": 0.9,
+                "count": 19,
+                "screen_time": 60.77,
+                "screen_time_percentage": 0.238
+            },
+            {
+                "id": "S3",
+                "name": "Neutral",
+                "confidence": 0.9,
+                "count": 17,
+                "screen_time": 35.579,
+                "screen_time_percentage": 0.139
+            }
+        ]
+    },
+    "total_scenes": 87,
+    "Scenes": [
+        {
+            "scene": 0,
+            "startFrame": 0,
+            "startTimecode": "00:00:00.000",
+            "startTime": 0,
+            "midFrame": 26,
+            "midTimecode": "00:00:01.084",
+            "midTime": 1.084,
+            "endFrame": 53,
+            "endTimecode": "00:00:02.211",
+            "endTime": 2.211,
+            "lengthInFrames": 53,
+            "lengthInTimecode": "00:00:02.211",
+            "lengthInSeconds": 2.211,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home Improvement",
+                    "confidence": 0.85,
+                    "id": "280"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.78,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 1,
+            "startFrame": 53,
+            "startTimecode": "00:00:02.211",
+            "startTime": 2.211,
+            "midFrame": 76,
+            "midTimecode": "00:00:03.170",
+            "midTime": 3.17,
+            "endFrame": 100,
+            "endTimecode": "00:00:04.171",
+            "endTime": 4.171,
+            "lengthInFrames": 47,
+            "lengthInTimecode": "00:00:01.960",
+            "lengthInSeconds": 1.96,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home Entertaining",
+                    "confidence": 0.75,
+                    "id": "279"
+                },
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.72,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 2,
+            "startFrame": 100,
+            "startTimecode": "00:00:04.171",
+            "startTime": 4.171,
+            "midFrame": 127,
+            "midTimecode": "00:00:05.297",
+            "midTime": 5.297,
+            "endFrame": 154,
+            "endTimecode": "00:00:06.423",
+            "endTime": 6.423,
+            "lengthInFrames": 54,
+            "lengthInTimecode": "00:00:02.252",
+            "lengthInSeconds": 2.252,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home Entertaining",
+                    "confidence": 0.78,
+                    "id": "279"
+                },
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.72,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 3,
+            "startFrame": 154,
+            "startTimecode": "00:00:06.423",
+            "startTime": 6.423,
+            "midFrame": 191,
+            "midTimecode": "00:00:07.966",
+            "midTime": 7.966,
+            "endFrame": 228,
+            "endTimecode": "00:00:09.510",
+            "endTime": 9.51,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:03.086",
+            "lengthInSeconds": 3.086,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.75,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 4,
+            "startFrame": 228,
+            "startTimecode": "00:00:09.510",
+            "startTime": 9.51,
+            "midFrame": 251,
+            "midTimecode": "00:00:10.469",
+            "midTime": 10.469,
+            "endFrame": 275,
+            "endTimecode": "00:00:11.470",
+            "endTime": 11.47,
+            "lengthInFrames": 47,
+            "lengthInTimecode": "00:00:01.960",
+            "lengthInSeconds": 1.96,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home Improvement",
+                    "confidence": 0.77,
+                    "id": "280"
+                },
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.74,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 5,
+            "startFrame": 275,
+            "startTimecode": "00:00:11.470",
+            "startTime": 11.47,
+            "midFrame": 297,
+            "midTimecode": "00:00:12.387",
+            "midTime": 12.387,
+            "endFrame": 319,
+            "endTimecode": "00:00:13.305",
+            "endTime": 13.305,
+            "lengthInFrames": 44,
+            "lengthInTimecode": "00:00:01.835",
+            "lengthInSeconds": 1.835,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.73,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 6,
+            "startFrame": 319,
+            "startTimecode": "00:00:13.305",
+            "startTime": 13.305,
+            "midFrame": 373,
+            "midTimecode": "00:00:15.557",
+            "midTime": 15.557,
+            "endFrame": 428,
+            "endTimecode": "00:00:17.851",
+            "endTime": 17.851,
+            "lengthInFrames": 109,
+            "lengthInTimecode": "00:00:04.546",
+            "lengthInSeconds": 4.546,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home Appliances",
+                    "confidence": 0.75,
+                    "id": "278"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 7,
+            "startFrame": 428,
+            "startTimecode": "00:00:17.851",
+            "startTime": 17.851,
+            "midFrame": 462,
+            "midTimecode": "00:00:19.269",
+            "midTime": 19.269,
+            "endFrame": 497,
+            "endTimecode": "00:00:20.729",
+            "endTime": 20.729,
+            "lengthInFrames": 69,
+            "lengthInTimecode": "00:00:02.878",
+            "lengthInSeconds": 2.878,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 8,
+            "startFrame": 497,
+            "startTimecode": "00:00:20.729",
+            "startTime": 20.729,
+            "midFrame": 515,
+            "midTimecode": "00:00:21.480",
+            "midTime": 21.48,
+            "endFrame": 534,
+            "endTimecode": "00:00:22.272",
+            "endTime": 22.272,
+            "lengthInFrames": 37,
+            "lengthInTimecode": "00:00:01.543",
+            "lengthInSeconds": 1.543,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 9,
+            "startFrame": 534,
+            "startTimecode": "00:00:22.272",
+            "startTime": 22.272,
+            "midFrame": 574,
+            "midTimecode": "00:00:23.941",
+            "midTime": 23.941,
+            "endFrame": 614,
+            "endTimecode": "00:00:25.609",
+            "endTime": 25.609,
+            "lengthInFrames": 80,
+            "lengthInTimecode": "00:00:03.337",
+            "lengthInSeconds": 3.337,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.8,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 10,
+            "startFrame": 614,
+            "startTimecode": "00:00:25.609",
+            "startTime": 25.609,
+            "midFrame": 655,
+            "midTimecode": "00:00:27.319",
+            "midTime": 27.319,
+            "endFrame": 697,
+            "endTimecode": "00:00:29.071",
+            "endTime": 29.071,
+            "lengthInFrames": 83,
+            "lengthInTimecode": "00:00:03.462",
+            "lengthInSeconds": 3.462,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Home & Garden",
+                    "confidence": 0.75,
+                    "id": "274"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "High",
+                    "confidence": 0.8,
+                    "id": "G7"
+                }
+            ],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 11,
+            "startFrame": 697,
+            "startTimecode": "00:00:29.071",
+            "startTime": 29.071,
+            "midFrame": 730,
+            "midTimecode": "00:00:30.447",
+            "midTime": 30.447,
+            "endFrame": 763,
+            "endTimecode": "00:00:31.823",
+            "endTime": 31.823,
+            "lengthInFrames": 66,
+            "lengthInTimecode": "00:00:02.753",
+            "lengthInSeconds": 2.753,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Food & Drink",
+                    "confidence": 0.8,
+                    "id": "210"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 12,
+            "startFrame": 763,
+            "startTimecode": "00:00:31.823",
+            "startTime": 31.823,
+            "midFrame": 792,
+            "midTimecode": "00:00:33.033",
+            "midTime": 33.033,
+            "endFrame": 822,
+            "endTimecode": "00:00:34.284",
+            "endTime": 34.284,
+            "lengthInFrames": 59,
+            "lengthInTimecode": "00:00:02.461",
+            "lengthInSeconds": 2.461,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 13,
+            "startFrame": 822,
+            "startTimecode": "00:00:34.284",
+            "startTime": 34.284,
+            "midFrame": 835,
+            "midTimecode": "00:00:34.826",
+            "midTime": 34.826,
+            "endFrame": 849,
+            "endTimecode": "00:00:35.410",
+            "endTime": 35.41,
+            "lengthInFrames": 27,
+            "lengthInTimecode": "00:00:01.126",
+            "lengthInSeconds": 1.126,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 14,
+            "startFrame": 849,
+            "startTimecode": "00:00:35.410",
+            "startTime": 35.41,
+            "midFrame": 868,
+            "midTimecode": "00:00:36.203",
+            "midTime": 36.203,
+            "endFrame": 887,
+            "endTimecode": "00:00:36.995",
+            "endTime": 36.995,
+            "lengthInFrames": 38,
+            "lengthInTimecode": "00:00:01.585",
+            "lengthInSeconds": 1.585,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 15,
+            "startFrame": 887,
+            "startTimecode": "00:00:36.995",
+            "startTime": 36.995,
+            "midFrame": 909,
+            "midTimecode": "00:00:37.913",
+            "midTime": 37.913,
+            "endFrame": 932,
+            "endTimecode": "00:00:38.872",
+            "endTime": 38.872,
+            "lengthInFrames": 45,
+            "lengthInTimecode": "00:00:01.877",
+            "lengthInSeconds": 1.877,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 16,
+            "startFrame": 932,
+            "startTimecode": "00:00:38.872",
+            "startTime": 38.872,
+            "midFrame": 958,
+            "midTimecode": "00:00:39.957",
+            "midTime": 39.957,
+            "endFrame": 985,
+            "endTimecode": "00:00:41.083",
+            "endTime": 41.083,
+            "lengthInFrames": 53,
+            "lengthInTimecode": "00:00:02.211",
+            "lengthInSeconds": 2.211,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 17,
+            "startFrame": 985,
+            "startTimecode": "00:00:41.083",
+            "startTime": 41.083,
+            "midFrame": 1041,
+            "midTimecode": "00:00:43.418",
+            "midTime": 43.418,
+            "endFrame": 1098,
+            "endTimecode": "00:00:45.796",
+            "endTime": 45.796,
+            "lengthInFrames": 113,
+            "lengthInTimecode": "00:00:04.713",
+            "lengthInSeconds": 4.713,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Obscenity & Profanity",
+                    "risk_level": "Medium",
+                    "confidence": 0.5,
+                    "id": "G7"
+                },
+                {
+                    "name": "Adult & Explicit Sexual Content",
+                    "risk_level": "Medium",
+                    "confidence": 0.5,
+                    "id": "G1"
+                }
+            ],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 18,
+            "startFrame": 1098,
+            "startTimecode": "00:00:45.796",
+            "startTime": 45.796,
+            "midFrame": 1140,
+            "midTimecode": "00:00:47.548",
+            "midTime": 47.548,
+            "endFrame": 1182,
+            "endTimecode": "00:00:49.299",
+            "endTime": 49.299,
+            "lengthInFrames": 84,
+            "lengthInTimecode": "00:00:03.504",
+            "lengthInSeconds": 3.504,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.75,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 19,
+            "startFrame": 1182,
+            "startTimecode": "00:00:49.299",
+            "startTime": 49.299,
+            "midFrame": 1232,
+            "midTimecode": "00:00:51.385",
+            "midTime": 51.385,
+            "endFrame": 1282,
+            "endTimecode": "00:00:53.470",
+            "endTime": 53.47,
+            "lengthInFrames": 100,
+            "lengthInTimecode": "00:00:04.171",
+            "lengthInSeconds": 4.171,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 20,
+            "startFrame": 1282,
+            "startTimecode": "00:00:53.470",
+            "startTime": 53.47,
+            "midFrame": 1316,
+            "midTimecode": "00:00:54.888",
+            "midTime": 54.888,
+            "endFrame": 1351,
+            "endTimecode": "00:00:56.348",
+            "endTime": 56.348,
+            "lengthInFrames": 69,
+            "lengthInTimecode": "00:00:02.878",
+            "lengthInSeconds": 2.878,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 21,
+            "startFrame": 1351,
+            "startTimecode": "00:00:56.348",
+            "startTime": 56.348,
+            "midFrame": 1380,
+            "midTimecode": "00:00:57.558",
+            "midTime": 57.558,
+            "endFrame": 1409,
+            "endTimecode": "00:00:58.767",
+            "endTime": 58.767,
+            "lengthInFrames": 58,
+            "lengthInTimecode": "00:00:02.419",
+            "lengthInSeconds": 2.419,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Hey, Georgia. Yeah? Can you come help me? I need two hands for this. I want to do like Oh my gosh! You got your shirt on! It looks good. We need to make it a bed party like we did for you when you went to Miami. Yes. It's been a big year for me. I've experienced two major changes. First one is I bought an air fryer. It's changed my life. This bag. Oh. It's pretty controversial in the air fryer world. Basically, we've done everything in it. Fried Oreos, fried pickles. You guys did a fried Oreo in here? Did. We do fried Oreos. We do. The second one is that I have one kid left at home, and she's graduating and flying the coop. I want to make her bed look like a Tampa bed, so we'll just like... Tampa Spartans, right? Isn't that gonna be awesome? Wow. Literally perfect. Oh, I love it. That looks great, babe. Oh, this is so awesome.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 22,
+            "startFrame": 1409,
+            "startTimecode": "00:00:58.767",
+            "startTime": 58.767,
+            "midFrame": 1455,
+            "midTimecode": "00:01:00.686",
+            "midTime": 60.686,
+            "endFrame": 1502,
+            "endTimecode": "00:01:02.646",
+            "endTime": 62.646,
+            "lengthInFrames": 93,
+            "lengthInTimecode": "00:00:03.879",
+            "lengthInSeconds": 3.879,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 23,
+            "startFrame": 1502,
+            "startTimecode": "00:01:02.646",
+            "startTime": 62.646,
+            "midFrame": 1518,
+            "midTimecode": "00:01:03.313",
+            "midTime": 63.313,
+            "endFrame": 1534,
+            "endTimecode": "00:01:03.981",
+            "endTime": 63.981,
+            "lengthInFrames": 32,
+            "lengthInTimecode": "00:00:01.335",
+            "lengthInSeconds": 1.335,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.85,
+                    "id": "163"
+                },
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.72,
+                    "id": "186"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 24,
+            "startFrame": 1534,
+            "startTimecode": "00:01:03.981",
+            "startTime": 63.981,
+            "midFrame": 1565,
+            "midTimecode": "00:01:05.274",
+            "midTime": 65.274,
+            "endFrame": 1597,
+            "endTimecode": "00:01:06.608",
+            "endTime": 66.608,
+            "lengthInFrames": 63,
+            "lengthInTimecode": "00:00:02.628",
+            "lengthInSeconds": 2.628,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                },
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.69,
+                    "id": "186"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 25,
+            "startFrame": 1597,
+            "startTimecode": "00:01:06.608",
+            "startTime": 66.608,
+            "midFrame": 1618,
+            "midTimecode": "00:01:07.484",
+            "midTime": 67.484,
+            "endFrame": 1640,
+            "endTimecode": "00:01:08.402",
+            "endTime": 68.402,
+            "lengthInFrames": 43,
+            "lengthInTimecode": "00:00:01.793",
+            "lengthInSeconds": 1.793,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.82,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 26,
+            "startFrame": 1640,
+            "startTimecode": "00:01:08.402",
+            "startTime": 68.402,
+            "midFrame": 1691,
+            "midTimecode": "00:01:10.529",
+            "midTime": 70.529,
+            "endFrame": 1743,
+            "endTimecode": "00:01:12.698",
+            "endTime": 72.698,
+            "lengthInFrames": 103,
+            "lengthInTimecode": "00:00:04.296",
+            "lengthInSeconds": 4.296,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.76,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 27,
+            "startFrame": 1743,
+            "startTimecode": "00:01:12.698",
+            "startTime": 72.698,
+            "midFrame": 1777,
+            "midTimecode": "00:01:14.116",
+            "midTime": 74.116,
+            "endFrame": 1811,
+            "endTimecode": "00:01:15.534",
+            "endTime": 75.534,
+            "lengthInFrames": 68,
+            "lengthInTimecode": "00:00:02.836",
+            "lengthInSeconds": 2.836,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.84,
+                    "id": "163"
+                },
+                {
+                    "name": "Family and Relationships",
+                    "confidence": 0.71,
+                    "id": "186"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 28,
+            "startFrame": 1811,
+            "startTimecode": "00:01:15.534",
+            "startTime": 75.534,
+            "midFrame": 1890,
+            "midTimecode": "00:01:18.829",
+            "midTime": 78.829,
+            "endFrame": 1969,
+            "endTimecode": "00:01:22.124",
+            "endTime": 82.124,
+            "lengthInFrames": 158,
+            "lengthInTimecode": "00:00:06.590",
+            "lengthInSeconds": 6.59,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.79,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 29,
+            "startFrame": 1969,
+            "startTimecode": "00:01:22.124",
+            "startTime": 82.124,
+            "midFrame": 1998,
+            "midTimecode": "00:01:23.333",
+            "midTime": 83.333,
+            "endFrame": 2028,
+            "endTimecode": "00:01:24.585",
+            "endTime": 84.585,
+            "lengthInFrames": 59,
+            "lengthInTimecode": "00:00:02.461",
+            "lengthInSeconds": 2.461,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.83,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 30,
+            "startFrame": 2028,
+            "startTimecode": "00:01:24.585",
+            "startTime": 84.585,
+            "midFrame": 2055,
+            "midTimecode": "00:01:25.711",
+            "midTime": 85.711,
+            "endFrame": 2083,
+            "endTimecode": "00:01:26.879",
+            "endTime": 86.879,
+            "lengthInFrames": 55,
+            "lengthInTimecode": "00:00:02.294",
+            "lengthInSeconds": 2.294,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 31,
+            "startFrame": 2083,
+            "startTimecode": "00:01:26.879",
+            "startTime": 86.879,
+            "midFrame": 2112,
+            "midTimecode": "00:01:28.088",
+            "midTime": 88.088,
+            "endFrame": 2142,
+            "endTimecode": "00:01:29.339",
+            "endTime": 89.339,
+            "lengthInFrames": 59,
+            "lengthInTimecode": "00:00:02.461",
+            "lengthInSeconds": 2.461,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.77,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Exciting, mom. When we did your bed party for Miami, what were you thinking and feeling? I mean, did you have any idea of what to expect? I mean, I feel like the biggest change was just being out of Utah and in the city of Miami. Like, that's a crazy switch up. Like, whenever I would talk to someone, and they'd be like, where are you from? And I'm like, I'm from Salt Lake City, Utah. And they're like, what? What is their impression of Utah? Like, what do they think about Utah? Mormon, which is true. What do you say when they ask you if you're Mormon?",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 32,
+            "startFrame": 2142,
+            "startTimecode": "00:01:29.339",
+            "startTime": 89.339,
+            "midFrame": 2176,
+            "midTimecode": "00:01:30.757",
+            "midTime": 90.757,
+            "endFrame": 2211,
+            "endTimecode": "00:01:32.217",
+            "endTime": 92.217,
+            "lengthInFrames": 69,
+            "lengthInTimecode": "00:00:02.878",
+            "lengthInSeconds": 2.878,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 33,
+            "startFrame": 2211,
+            "startTimecode": "00:01:32.217",
+            "startTime": 92.217,
+            "midFrame": 2238,
+            "midTimecode": "00:01:33.343",
+            "midTime": 93.343,
+            "endFrame": 2265,
+            "endTimecode": "00:01:34.469",
+            "endTime": 94.469,
+            "lengthInFrames": 54,
+            "lengthInTimecode": "00:00:02.252",
+            "lengthInSeconds": 2.252,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 34,
+            "startFrame": 2265,
+            "startTimecode": "00:01:34.469",
+            "startTime": 94.469,
+            "midFrame": 2302,
+            "midTimecode": "00:01:36.013",
+            "midTime": 96.013,
+            "endFrame": 2339,
+            "endTimecode": "00:01:37.556",
+            "endTime": 97.556,
+            "lengthInFrames": 74,
+            "lengthInTimecode": "00:00:03.086",
+            "lengthInSeconds": 3.086,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 35,
+            "startFrame": 2339,
+            "startTimecode": "00:01:37.556",
+            "startTime": 97.556,
+            "midFrame": 2394,
+            "midTimecode": "00:01:39.850",
+            "midTime": 99.85,
+            "endFrame": 2449,
+            "endTimecode": "00:01:42.144",
+            "endTime": 102.144,
+            "lengthInFrames": 110,
+            "lengthInTimecode": "00:00:04.588",
+            "lengthInSeconds": 4.588,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.79,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 36,
+            "startFrame": 2449,
+            "startTimecode": "00:01:42.144",
+            "startTime": 102.144,
+            "midFrame": 2492,
+            "midTimecode": "00:01:43.937",
+            "midTime": 103.937,
+            "endFrame": 2535,
+            "endTimecode": "00:01:45.731",
+            "endTime": 105.731,
+            "lengthInFrames": 86,
+            "lengthInTimecode": "00:00:03.587",
+            "lengthInSeconds": 3.587,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Totally thrived and I just, it's like was my dream come true.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 37,
+            "startFrame": 2535,
+            "startTimecode": "00:01:45.731",
+            "startTime": 105.731,
+            "midFrame": 2567,
+            "midTimecode": "00:01:47.065",
+            "midTime": 107.065,
+            "endFrame": 2600,
+            "endTimecode": "00:01:48.442",
+            "endTime": 108.442,
+            "lengthInFrames": 65,
+            "lengthInTimecode": "00:00:02.711",
+            "lengthInSeconds": 2.711,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.76,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Totally thrived and I just, it's like was my dream come true.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 38,
+            "startFrame": 2600,
+            "startTimecode": "00:01:48.442",
+            "startTime": 108.442,
+            "midFrame": 2631,
+            "midTimecode": "00:01:49.735",
+            "midTime": 109.735,
+            "endFrame": 2662,
+            "endTimecode": "00:01:51.028",
+            "endTime": 111.028,
+            "lengthInFrames": 62,
+            "lengthInTimecode": "00:00:02.586",
+            "lengthInSeconds": 2.586,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Totally thrived and I just, it's like was my dream come true.",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 39,
+            "startFrame": 2662,
+            "startTimecode": "00:01:51.028",
+            "startTime": 111.028,
+            "midFrame": 2689,
+            "midTimecode": "00:01:52.154",
+            "midTime": 112.154,
+            "endFrame": 2717,
+            "endTimecode": "00:01:53.322",
+            "endTime": 113.322,
+            "lengthInFrames": 55,
+            "lengthInTimecode": "00:00:02.294",
+            "lengthInSeconds": 2.294,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Alcohol",
+                    "risk_level": "High",
+                    "confidence": 0.8,
+                    "id": "G8-3"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 40,
+            "startFrame": 2717,
+            "startTimecode": "00:01:53.322",
+            "startTime": 113.322,
+            "midFrame": 2760,
+            "midTimecode": "00:01:55.115",
+            "midTime": 115.115,
+            "endFrame": 2803,
+            "endTimecode": "00:01:56.909",
+            "endTime": 116.909,
+            "lengthInFrames": 86,
+            "lengthInTimecode": "00:00:03.587",
+            "lengthInSeconds": 3.587,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 41,
+            "startFrame": 2803,
+            "startTimecode": "00:01:56.909",
+            "startTime": 116.909,
+            "midFrame": 2834,
+            "midTimecode": "00:01:58.202",
+            "midTime": 118.202,
+            "endFrame": 2865,
+            "endTimecode": "00:01:59.494",
+            "endTime": 119.494,
+            "lengthInFrames": 62,
+            "lengthInTimecode": "00:00:02.586",
+            "lengthInSeconds": 2.586,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.73,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 42,
+            "startFrame": 2865,
+            "startTimecode": "00:01:59.494",
+            "startTime": 119.494,
+            "midFrame": 2885,
+            "midTimecode": "00:02:00.329",
+            "midTime": 120.329,
+            "endFrame": 2905,
+            "endTimecode": "00:02:01.163",
+            "endTime": 121.163,
+            "lengthInFrames": 40,
+            "lengthInTimecode": "00:00:01.668",
+            "lengthInSeconds": 1.668,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "breath, you know, I'm hoping for Annabelle that she just like",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 43,
+            "startFrame": 2905,
+            "startTimecode": "00:02:01.163",
+            "startTime": 121.163,
+            "midFrame": 3065,
+            "midTimecode": "00:02:07.836",
+            "midTime": 127.836,
+            "endFrame": 3225,
+            "endTimecode": "00:02:14.510",
+            "endTime": 134.51,
+            "lengthInFrames": 320,
+            "lengthInTimecode": "00:00:13.347",
+            "lengthInSeconds": 13.347,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "breath, you know, I'm hoping for Annabelle that she just like discovers how talented she is, how special she is, like, she meets friends from everywhere that",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 44,
+            "startFrame": 3225,
+            "startTimecode": "00:02:14.510",
+            "startTime": 134.51,
+            "midFrame": 3302,
+            "midTimecode": "00:02:17.721",
+            "midTime": 137.721,
+            "endFrame": 3379,
+            "endTimecode": "00:02:20.933",
+            "endTime": 140.933,
+            "lengthInFrames": 154,
+            "lengthInTimecode": "00:00:06.423",
+            "lengthInSeconds": 6.423,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 45,
+            "startFrame": 3379,
+            "startTimecode": "00:02:20.933",
+            "startTime": 140.933,
+            "midFrame": 3421,
+            "midTimecode": "00:02:22.684",
+            "midTime": 142.684,
+            "endFrame": 3464,
+            "endTimecode": "00:02:24.478",
+            "endTime": 144.478,
+            "lengthInFrames": 85,
+            "lengthInTimecode": "00:00:03.545",
+            "lengthInSeconds": 3.545,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.8,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 46,
+            "startFrame": 3464,
+            "startTimecode": "00:02:24.478",
+            "startTime": 144.478,
+            "midFrame": 3489,
+            "midTimecode": "00:02:25.521",
+            "midTime": 145.521,
+            "endFrame": 3514,
+            "endTimecode": "00:02:26.563",
+            "endTime": 146.563,
+            "lengthInFrames": 50,
+            "lengthInTimecode": "00:00:02.085",
+            "lengthInSeconds": 2.085,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 47,
+            "startFrame": 3514,
+            "startTimecode": "00:02:26.563",
+            "startTime": 146.563,
+            "midFrame": 3607,
+            "midTimecode": "00:02:30.442",
+            "midTime": 150.442,
+            "endFrame": 3700,
+            "endTimecode": "00:02:34.321",
+            "endTime": 154.321,
+            "lengthInFrames": 186,
+            "lengthInTimecode": "00:00:07.758",
+            "lengthInSeconds": 7.758,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 48,
+            "startFrame": 3700,
+            "startTimecode": "00:02:34.321",
+            "startTime": 154.321,
+            "midFrame": 3714,
+            "midTimecode": "00:02:34.905",
+            "midTime": 154.905,
+            "endFrame": 3729,
+            "endTimecode": "00:02:35.531",
+            "endTime": 155.531,
+            "lengthInFrames": 29,
+            "lengthInTimecode": "00:00:01.210",
+            "lengthInSeconds": 1.21,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 49,
+            "startFrame": 3729,
+            "startTimecode": "00:02:35.531",
+            "startTime": 155.531,
+            "midFrame": 3824,
+            "midTimecode": "00:02:39.493",
+            "midTime": 159.493,
+            "endFrame": 3920,
+            "endTimecode": "00:02:43.497",
+            "endTime": 163.497,
+            "lengthInFrames": 191,
+            "lengthInTimecode": "00:00:07.966",
+            "lengthInSeconds": 7.966,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Years I've been raising, you know, three kids by myself. Even when I was married, I felt like I was raising them by myself. It's always felt like, you know, a huge responsibility. And I had no one to shoulder it with. You know how these bed parties go. All the other moms be judging. I'm most excited about just not feeling responsible for another person. I want them to be on their own so that a little bit of that time and energy can be spent on other things, on myself.",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 50,
+            "startFrame": 3920,
+            "startTimecode": "00:02:43.497",
+            "startTime": 163.497,
+            "midFrame": 3949,
+            "midTimecode": "00:02:44.706",
+            "midTime": 164.706,
+            "endFrame": 3979,
+            "endTimecode": "00:02:45.958",
+            "endTime": 165.958,
+            "lengthInFrames": 59,
+            "lengthInTimecode": "00:00:02.461",
+            "lengthInSeconds": 2.461,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.82,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 51,
+            "startFrame": 3979,
+            "startTimecode": "00:02:45.958",
+            "startTime": 165.958,
+            "midFrame": 4004,
+            "midTimecode": "00:02:47.000",
+            "midTime": 167,
+            "endFrame": 4029,
+            "endTimecode": "00:02:48.043",
+            "endTime": 168.043,
+            "lengthInFrames": 50,
+            "lengthInTimecode": "00:00:02.085",
+            "lengthInSeconds": 2.085,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.84,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 52,
+            "startFrame": 4029,
+            "startTimecode": "00:02:48.043",
+            "startTime": 168.043,
+            "midFrame": 4041,
+            "midTimecode": "00:02:48.544",
+            "midTime": 168.544,
+            "endFrame": 4054,
+            "endTimecode": "00:02:49.086",
+            "endTime": 169.086,
+            "lengthInFrames": 25,
+            "lengthInTimecode": "00:00:01.043",
+            "lengthInSeconds": 1.043,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.87,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 53,
+            "startFrame": 4054,
+            "startTimecode": "00:02:49.086",
+            "startTime": 169.086,
+            "midFrame": 4068,
+            "midTimecode": "00:02:49.670",
+            "midTime": 169.67,
+            "endFrame": 4082,
+            "endTimecode": "00:02:50.254",
+            "endTime": 170.254,
+            "lengthInFrames": 28,
+            "lengthInTimecode": "00:00:01.168",
+            "lengthInSeconds": 1.168,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 54,
+            "startFrame": 4082,
+            "startTimecode": "00:02:50.254",
+            "startTime": 170.254,
+            "midFrame": 4104,
+            "midTimecode": "00:02:51.171",
+            "midTime": 171.171,
+            "endFrame": 4126,
+            "endTimecode": "00:02:52.089",
+            "endTime": 172.089,
+            "lengthInFrames": 44,
+            "lengthInTimecode": "00:00:01.835",
+            "lengthInSeconds": 1.835,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.85,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 55,
+            "startFrame": 4126,
+            "startTimecode": "00:02:52.089",
+            "startTime": 172.089,
+            "midFrame": 4187,
+            "midTimecode": "00:02:54.633",
+            "midTime": 174.633,
+            "endFrame": 4249,
+            "endTimecode": "00:02:57.219",
+            "endTime": 177.219,
+            "lengthInFrames": 123,
+            "lengthInTimecode": "00:00:05.130",
+            "lengthInSeconds": 5.13,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 56,
+            "startFrame": 4249,
+            "startTimecode": "00:02:57.219",
+            "startTime": 177.219,
+            "midFrame": 4266,
+            "midTimecode": "00:02:57.928",
+            "midTime": 177.928,
+            "endFrame": 4283,
+            "endTimecode": "00:02:58.637",
+            "endTime": 178.637,
+            "lengthInFrames": 34,
+            "lengthInTimecode": "00:00:01.418",
+            "lengthInSeconds": 1.418,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.82,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 57,
+            "startFrame": 4283,
+            "startTimecode": "00:02:58.637",
+            "startTime": 178.637,
+            "midFrame": 4324,
+            "midTimecode": "00:03:00.347",
+            "midTime": 180.347,
+            "endFrame": 4365,
+            "endTimecode": "00:03:02.057",
+            "endTime": 182.057,
+            "lengthInFrames": 82,
+            "lengthInTimecode": "00:00:03.420",
+            "lengthInSeconds": 3.42,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 58,
+            "startFrame": 4365,
+            "startTimecode": "00:03:02.057",
+            "startTime": 182.057,
+            "midFrame": 4386,
+            "midTimecode": "00:03:02.933",
+            "midTime": 182.933,
+            "endFrame": 4408,
+            "endTimecode": "00:03:03.851",
+            "endTime": 183.851,
+            "lengthInFrames": 43,
+            "lengthInTimecode": "00:00:01.793",
+            "lengthInSeconds": 1.793,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 59,
+            "startFrame": 4408,
+            "startTimecode": "00:03:03.851",
+            "startTime": 183.851,
+            "midFrame": 4432,
+            "midTimecode": "00:03:04.852",
+            "midTime": 184.852,
+            "endFrame": 4457,
+            "endTimecode": "00:03:05.894",
+            "endTime": 185.894,
+            "lengthInFrames": 49,
+            "lengthInTimecode": "00:00:02.044",
+            "lengthInSeconds": 2.044,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.8,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 60,
+            "startFrame": 4457,
+            "startTimecode": "00:03:05.894",
+            "startTime": 185.894,
+            "midFrame": 4486,
+            "midTimecode": "00:03:07.104",
+            "midTime": 187.104,
+            "endFrame": 4515,
+            "endTimecode": "00:03:08.313",
+            "endTime": 188.313,
+            "lengthInFrames": 58,
+            "lengthInTimecode": "00:00:02.419",
+            "lengthInSeconds": 2.419,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.79,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 61,
+            "startFrame": 4515,
+            "startTimecode": "00:03:08.313",
+            "startTime": 188.313,
+            "midFrame": 4546,
+            "midTimecode": "00:03:09.606",
+            "midTime": 189.606,
+            "endFrame": 4577,
+            "endTimecode": "00:03:10.899",
+            "endTime": 190.899,
+            "lengthInFrames": 62,
+            "lengthInTimecode": "00:00:02.586",
+            "lengthInSeconds": 2.586,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 62,
+            "startFrame": 4577,
+            "startTimecode": "00:03:10.899",
+            "startTime": 190.899,
+            "midFrame": 4604,
+            "midTimecode": "00:03:12.025",
+            "midTime": 192.025,
+            "endFrame": 4632,
+            "endTimecode": "00:03:13.193",
+            "endTime": 193.193,
+            "lengthInFrames": 55,
+            "lengthInTimecode": "00:00:02.294",
+            "lengthInSeconds": 2.294,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 63,
+            "startFrame": 4632,
+            "startTimecode": "00:03:13.193",
+            "startTime": 193.193,
+            "midFrame": 4673,
+            "midTimecode": "00:03:14.903",
+            "midTime": 194.903,
+            "endFrame": 4714,
+            "endTimecode": "00:03:16.613",
+            "endTime": 196.613,
+            "lengthInFrames": 82,
+            "lengthInTimecode": "00:00:03.420",
+            "lengthInSeconds": 3.42,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 64,
+            "startFrame": 4714,
+            "startTimecode": "00:03:16.613",
+            "startTime": 196.613,
+            "midFrame": 4734,
+            "midTimecode": "00:03:17.447",
+            "midTime": 197.447,
+            "endFrame": 4755,
+            "endTimecode": "00:03:18.323",
+            "endTime": 198.323,
+            "lengthInFrames": 41,
+            "lengthInTimecode": "00:00:01.710",
+            "lengthInSeconds": 1.71,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.78,
+                    "id": "163"
+                },
+                {
+                    "name": "Party Supplies and Decorations",
+                    "confidence": 0.72,
+                    "id": "161"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 65,
+            "startFrame": 4755,
+            "startTimecode": "00:03:18.323",
+            "startTime": 198.323,
+            "midFrame": 4780,
+            "midTimecode": "00:03:19.366",
+            "midTime": 199.366,
+            "endFrame": 4806,
+            "endTimecode": "00:03:20.450",
+            "endTime": 200.45,
+            "lengthInFrames": 51,
+            "lengthInTimecode": "00:00:02.127",
+            "lengthInSeconds": 2.127,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.76,
+                    "id": "163"
+                },
+                {
+                    "name": "Party Supplies and Decorations",
+                    "confidence": 0.71,
+                    "id": "161"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 66,
+            "startFrame": 4806,
+            "startTimecode": "00:03:20.450",
+            "startTime": 200.45,
+            "midFrame": 4834,
+            "midTimecode": "00:03:21.618",
+            "midTime": 201.618,
+            "endFrame": 4863,
+            "endTimecode": "00:03:22.828",
+            "endTime": 202.828,
+            "lengthInFrames": 57,
+            "lengthInTimecode": "00:00:02.377",
+            "lengthInSeconds": 2.377,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.75,
+                    "id": "163"
+                },
+                {
+                    "name": "Party Supplies and Decorations",
+                    "confidence": 0.69,
+                    "id": "161"
+                }
+            ],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 67,
+            "startFrame": 4863,
+            "startTimecode": "00:03:22.828",
+            "startTime": 202.828,
+            "midFrame": 4885,
+            "midTimecode": "00:03:23.745",
+            "midTime": 203.745,
+            "endFrame": 4908,
+            "endTimecode": "00:03:24.705",
+            "endTime": 204.705,
+            "lengthInFrames": 45,
+            "lengthInTimecode": "00:00:01.877",
+            "lengthInSeconds": 1.877,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 68,
+            "startFrame": 4908,
+            "startTimecode": "00:03:24.705",
+            "startTime": 204.705,
+            "midFrame": 4920,
+            "midTimecode": "00:03:25.205",
+            "midTime": 205.205,
+            "endFrame": 4933,
+            "endTimecode": "00:03:25.747",
+            "endTime": 205.747,
+            "lengthInFrames": 25,
+            "lengthInTimecode": "00:00:01.043",
+            "lengthInSeconds": 1.043,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Personal Celebrations & Life Events",
+                    "confidence": 0.84,
+                    "id": "163"
+                },
+                {
+                    "name": "Party Supplies and Decorations",
+                    "confidence": 0.77,
+                    "id": "161"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo!",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 69,
+            "startFrame": 4933,
+            "startTimecode": "00:03:25.747",
+            "startTime": 205.747,
+            "midFrame": 4973,
+            "midTimecode": "00:03:27.416",
+            "midTime": 207.416,
+            "endFrame": 5014,
+            "endTimecode": "00:03:29.126",
+            "endTime": 209.126,
+            "lengthInFrames": 81,
+            "lengthInTimecode": "00:00:03.378",
+            "lengthInSeconds": 3.378,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "Go Spartan! I'll follow your lead. Go Spartan! Oh my gosh! This is crazy! It's your bed party! We love you! Hi sweetie! We were so proud of you! What do you think? This is so good! Thank you so much! Oh my gosh, I'm so proud of you! Okay, my two college Florida girls. Yay! Oh, love it. Yay! Let's go celebrate! Let's go celebrate! Woo! Woo!",
+            "sentiment_analysis": {
+                "name": "Mostly Positive",
+                "id": "S1"
+            }
+        },
+        {
+            "scene": 70,
+            "startFrame": 5014,
+            "startTimecode": "00:03:29.126",
+            "startTime": 209.126,
+            "midFrame": 5026,
+            "midTimecode": "00:03:29.626",
+            "midTime": 209.626,
+            "endFrame": 5039,
+            "endTimecode": "00:03:30.169",
+            "endTime": 210.169,
+            "lengthInFrames": 25,
+            "lengthInTimecode": "00:00:01.043",
+            "lengthInSeconds": 1.043,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Travel Locations",
+                    "confidence": 0.89,
+                    "id": "655"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 71,
+            "startFrame": 5039,
+            "startTimecode": "00:03:30.169",
+            "startTime": 210.169,
+            "midFrame": 5057,
+            "midTimecode": "00:03:30.919",
+            "midTime": 210.919,
+            "endFrame": 5075,
+            "endTimecode": "00:03:31.670",
+            "endTime": 211.67,
+            "lengthInFrames": 36,
+            "lengthInTimecode": "00:00:01.502",
+            "lengthInSeconds": 1.502,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 72,
+            "startFrame": 5075,
+            "startTimecode": "00:03:31.670",
+            "startTime": 211.67,
+            "midFrame": 5090,
+            "midTimecode": "00:03:32.296",
+            "midTime": 212.296,
+            "endFrame": 5105,
+            "endTimecode": "00:03:32.921",
+            "endTime": 212.921,
+            "lengthInFrames": 30,
+            "lengthInTimecode": "00:00:01.251",
+            "lengthInSeconds": 1.251,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 73,
+            "startFrame": 5105,
+            "startTimecode": "00:03:32.921",
+            "startTime": 212.921,
+            "midFrame": 5124,
+            "midTimecode": "00:03:33.714",
+            "midTime": 213.714,
+            "endFrame": 5144,
+            "endTimecode": "00:03:34.548",
+            "endTime": 214.548,
+            "lengthInFrames": 39,
+            "lengthInTimecode": "00:00:01.627",
+            "lengthInSeconds": 1.627,
+            "profile": {},
+            "iab_taxonomy": [
+                {
+                    "name": "Travel Locations",
+                    "confidence": 0.87,
+                    "id": "655"
+                }
+            ],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 74,
+            "startFrame": 5144,
+            "startTimecode": "00:03:34.548",
+            "startTime": 214.548,
+            "midFrame": 5175,
+            "midTimecode": "00:03:35.841",
+            "midTime": 215.841,
+            "endFrame": 5207,
+            "endTimecode": "00:03:37.176",
+            "endTime": 217.176,
+            "lengthInFrames": 63,
+            "lengthInTimecode": "00:00:02.628",
+            "lengthInSeconds": 2.628,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Somewhat Positive",
+                "id": "S2"
+            }
+        },
+        {
+            "scene": 75,
+            "startFrame": 5207,
+            "startTimecode": "00:03:37.176",
+            "startTime": 217.176,
+            "midFrame": 5221,
+            "midTimecode": "00:03:37.759",
+            "midTime": 217.759,
+            "endFrame": 5235,
+            "endTimecode": "00:03:38.343",
+            "endTime": 218.343,
+            "lengthInFrames": 28,
+            "lengthInTimecode": "00:00:01.168",
+            "lengthInSeconds": 1.168,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 76,
+            "startFrame": 5235,
+            "startTimecode": "00:03:38.343",
+            "startTime": 218.343,
+            "midFrame": 5249,
+            "midTimecode": "00:03:38.927",
+            "midTime": 218.927,
+            "endFrame": 5264,
+            "endTimecode": "00:03:39.553",
+            "endTime": 219.553,
+            "lengthInFrames": 29,
+            "lengthInTimecode": "00:00:01.210",
+            "lengthInSeconds": 1.21,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 77,
+            "startFrame": 5264,
+            "startTimecode": "00:03:39.553",
+            "startTime": 219.553,
+            "midFrame": 5278,
+            "midTimecode": "00:03:40.137",
+            "midTime": 220.137,
+            "endFrame": 5292,
+            "endTimecode": "00:03:40.721",
+            "endTime": 220.721,
+            "lengthInFrames": 28,
+            "lengthInTimecode": "00:00:01.168",
+            "lengthInSeconds": 1.168,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 78,
+            "startFrame": 5292,
+            "startTimecode": "00:03:40.721",
+            "startTime": 220.721,
+            "midFrame": 5304,
+            "midTimecode": "00:03:41.221",
+            "midTime": 221.221,
+            "endFrame": 5316,
+            "endTimecode": "00:03:41.722",
+            "endTime": 221.722,
+            "lengthInFrames": 24,
+            "lengthInTimecode": "00:00:01.001",
+            "lengthInSeconds": 1.001,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 79,
+            "startFrame": 5316,
+            "startTimecode": "00:03:41.722",
+            "startTime": 221.722,
+            "midFrame": 5340,
+            "midTimecode": "00:03:42.723",
+            "midTime": 222.723,
+            "endFrame": 5365,
+            "endTimecode": "00:03:43.765",
+            "endTime": 223.765,
+            "lengthInFrames": 49,
+            "lengthInTimecode": "00:00:02.044",
+            "lengthInSeconds": 2.044,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "",
+            "sentiment_analysis": {
+                "name": "Neutral",
+                "id": "S3"
+            }
+        },
+        {
+            "scene": 80,
+            "startFrame": 5365,
+            "startTimecode": "00:03:43.765",
+            "startTime": 223.765,
+            "midFrame": 5387,
+            "midTimecode": "00:03:44.683",
+            "midTime": 224.683,
+            "endFrame": 5410,
+            "endTimecode": "00:03:45.642",
+            "endTime": 225.642,
+            "lengthInFrames": 45,
+            "lengthInTimecode": "00:00:01.877",
+            "lengthInSeconds": 1.877,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 81,
+            "startFrame": 5410,
+            "startTimecode": "00:03:45.642",
+            "startTime": 225.642,
+            "midFrame": 5585,
+            "midTimecode": "00:03:52.941",
+            "midTime": 232.941,
+            "endFrame": 5761,
+            "endTimecode": "00:04:00.282",
+            "endTime": 240.282,
+            "lengthInFrames": 351,
+            "lengthInTimecode": "00:00:14.640",
+            "lengthInSeconds": 14.64,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 82,
+            "startFrame": 5761,
+            "startTimecode": "00:04:00.282",
+            "startTime": 240.282,
+            "midFrame": 5804,
+            "midTimecode": "00:04:02.075",
+            "midTime": 242.075,
+            "endFrame": 5847,
+            "endTimecode": "00:04:03.869",
+            "endTime": 243.869,
+            "lengthInFrames": 86,
+            "lengthInTimecode": "00:00:03.587",
+            "lengthInSeconds": 3.587,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 83,
+            "startFrame": 5847,
+            "startTimecode": "00:04:03.869",
+            "startTime": 243.869,
+            "midFrame": 5864,
+            "midTimecode": "00:04:04.578",
+            "midTime": 244.578,
+            "endFrame": 5882,
+            "endTimecode": "00:04:05.329",
+            "endTime": 245.329,
+            "lengthInFrames": 35,
+            "lengthInTimecode": "00:00:01.460",
+            "lengthInSeconds": 1.46,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 84,
+            "startFrame": 5882,
+            "startTimecode": "00:04:05.329",
+            "startTime": 245.329,
+            "midFrame": 5901,
+            "midTimecode": "00:04:06.121",
+            "midTime": 246.121,
+            "endFrame": 5921,
+            "endTimecode": "00:04:06.955",
+            "endTime": 246.955,
+            "lengthInFrames": 39,
+            "lengthInTimecode": "00:00:01.627",
+            "lengthInSeconds": 1.627,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 85,
+            "startFrame": 5921,
+            "startTimecode": "00:04:06.955",
+            "startTime": 246.955,
+            "midFrame": 5941,
+            "midTimecode": "00:04:07.789",
+            "midTime": 247.789,
+            "endFrame": 5961,
+            "endTimecode": "00:04:08.624",
+            "endTime": 248.624,
+            "lengthInFrames": 40,
+            "lengthInTimecode": "00:00:01.668",
+            "lengthInSeconds": 1.668,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        },
+        {
+            "scene": 86,
+            "startFrame": 5961,
+            "startTimecode": "00:04:08.624",
+            "startTime": 248.624,
+            "midFrame": 6047,
+            "midTimecode": "00:04:12.211",
+            "midTime": 252.211,
+            "endFrame": 6133,
+            "endTimecode": "00:04:15.797",
+            "endTime": 255.797,
+            "lengthInFrames": 172,
+            "lengthInTimecode": "00:00:07.174",
+            "lengthInSeconds": 7.174,
+            "profile": {},
+            "iab_taxonomy": [],
+            "garm_category": [
+                {
+                    "name": "Debated Sensitive Social Issue",
+                    "risk_level": "Medium",
+                    "confidence": 0.78,
+                    "id": "G11"
+                }
+            ],
+            "audio_transcript": "I am putting these flags in envelopes to mail out. Do you want to bring me the spreadsheet we made and I can come address these? I am a big supporter of the LGBTQIA community and I was horrified when there was a passing of a law here in Salt Lake that pride flags could not be displayed at any kind of government building. Hello, thank you. I just thought one way I could show support for the community is to make sure that every",
+            "sentiment_analysis": {
+                "name": "Somewhat Negative",
+                "id": "S5"
+            }
+        }
+    ]
+}

@@ -1,0 +1,283 @@
+{
+  "id": "dancing-furniture-wayfair-commercial-2013",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: dancing-furniture-wayfair-commercial-2013",
+    "data": {
+      "id": "5V0cH6nFHYxZ3Z0eibUUDi47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/dancing-furniture-wayfair-commercial-2013.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "30.094000",
+      "fps": "29.97002997002997",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "274",
+          "name": "Home & Garden",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Wayfair",
+        "adomain": "wayfair.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Wayfair"
+        ],
+        "object_labels": [
+          {
+            "Name": "Home_Decor",
+            "Confidence": 1
+          },
+          {
+            "Name": "Couch",
+            "Confidence": 1
+          },
+          {
+            "Name": "Furniture",
+            "Confidence": 1
+          },
+          {
+            "Name": "Table",
+            "Confidence": 1
+          },
+          {
+            "Name": "Interior_Design",
+            "Confidence": 1
+          },
+          {
+            "Name": "Living_Room",
+            "Confidence": 1
+          },
+          {
+            "Name": "Cushion",
+            "Confidence": 1
+          },
+          {
+            "Name": "Box",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Computer",
+            "Confidence": 1
+          },
+          {
+            "Name": "Electronics",
+            "Confidence": 1
+          },
+          {
+            "Name": "Laptop",
+            "Confidence": 1
+          },
+          {
+            "Name": "Pc",
+            "Confidence": 1
+          },
+          {
+            "Name": "Computer_Hardware",
+            "Confidence": 0.93
+          },
+          {
+            "Name": "Monitor",
+            "Confidence": 0.93
+          },
+          {
+            "Name": "Screen",
+            "Confidence": 0.93
+          },
+          {
+            "Name": "Cup",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "Chair",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Photo_Frame",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Pillow",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Dining_Room",
+            "Confidence": 1
+          },
+          {
+            "Name": "Dining_Table",
+            "Confidence": 1
+          },
+          {
+            "Name": "Tabletop",
+            "Confidence": 1
+          },
+          {
+            "Name": "Handicraft",
+            "Confidence": 0.77
+          },
+          {
+            "Name": "Rug",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Birthday_Cake",
+            "Confidence": 1
+          },
+          {
+            "Name": "Indoors",
+            "Confidence": 1
+          },
+          {
+            "Name": "Bookcase",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Person",
+            "Confidence": 0.72
+          },
+          {
+            "Name": "Play_Area",
+            "Confidence": 0.57
+          },
+          {
+            "Name": "Hat",
+            "Confidence": 0.66
+          },
+          {
+            "Name": "Bag",
+            "Confidence": 0.76
+          },
+          {
+            "Name": "Handbag",
+            "Confidence": 0.57
+          },
+          {
+            "Name": "Plant",
+            "Confidence": 1
+          },
+          {
+            "Name": "Potted_Plant",
+            "Confidence": 1
+          },
+          {
+            "Name": "Floor",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Flooring",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Planter",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Wood",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Bar_Stool",
+            "Confidence": 1
+          },
+          {
+            "Name": "TV",
+            "Confidence": 0.57
+          },
+          {
+            "Name": "Kitchen",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Kitchen_Island",
+            "Confidence": 0.86
+          },
+          {
+            "Name": "Lamp",
+            "Confidence": 1
+          },
+          {
+            "Name": "Table_Lamp",
+            "Confidence": 1
+          },
+          {
+            "Name": "Cabinet",
+            "Confidence": 1
+          },
+          {
+            "Name": "Pottery",
+            "Confidence": 1
+          },
+          {
+            "Name": "Jar",
+            "Confidence": 1
+          },
+          {
+            "Name": "File",
+            "Confidence": 1
+          },
+          {
+            "Name": "Webpage",
+            "Confidence": 1
+          },
+          {
+            "Name": "Page",
+            "Confidence": 0.75
+          },
+          {
+            "Name": "Flower",
+            "Confidence": 0.64
+          },
+          {
+            "Name": "Bed",
+            "Confidence": 0.62
+          },
+          {
+            "Name": "Wheel",
+            "Confidence": 0.59
+          },
+          {
+            "Name": "Sideboard",
+            "Confidence": 1
+          },
+          {
+            "Name": "Logo",
+            "Confidence": 1
+          },
+          {
+            "Name": "Purple",
+            "Confidence": 0.88
+          },
+          {
+            "Name": "Fruit",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Text",
+            "Confidence": 0.55
+          },
+          {
+            "Name": "Graphics",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Shop",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Recycling_Symbol",
+            "Confidence": 0.53
+          },
+          {
+            "Name": "Inn",
+            "Confidence": 0.53
+          }
+        ]
+      }
+    }
+  }
+}

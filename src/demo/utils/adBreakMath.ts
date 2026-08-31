@@ -2,19 +2,21 @@ import type { SyncImpulseSegment } from '../types'
 
 // Phase 6b — pure-function ad-break / clip-time math.
 //
-// HANDOFF §6 (protected behavior): DHYH is a two-segment splice
-// (`Segment A → Ad → Segment B`) with the ad break sitting exactly at
-// the splice point. The shipped MP4 contains only the two content
-// segments; the ad break is a synthetic duration injected by the
-// scrubber. That means there are TWO timelines:
+// HANDOFF §6 (protected behavior): Sync-style ad-break content has two
+// timelines:
 //
 //   - **player time** (`videoCurrentSeconds`): the scrubber's value.
 //     For Sync-style ad-break modes this includes the ad-break duration
-//     between Segment A and Segment B (so the slider shows a colored
-//     ad block). Range: `[0, clipDuration + adBreakDuration]`.
+//     so the slider shows a colored ad block. Range:
+//     `[0, clipDuration + adBreakDuration]`.
 //   - **clip time** (`panelTimelineSeconds`): the displayed-clip value,
 //     ignoring the ad break. Used to re-anchor scenes from the upstream
 //     JSON onto the spliced clip. Range: `[0, clipDuration]`.
+//
+// `adBreakClipSeconds` (where the ad starts on the clip-time axis) is a
+// per-content value — see `ContentConfig.adBreakClipSeconds`:
+//   - DHYH: mid-clip splice point (Segment A → Ad → Segment B).
+//   - MasterChef: equal to clip duration (tail-anchored: Content → Ad).
 //
 // The functions below convert between the two and resolve which Sync:
 // Impulse segment is active. Extracting them as pure functions makes
@@ -27,45 +29,50 @@ import type { SyncImpulseSegment } from '../types'
  * Convert a player-time second value to clip-time, treating the ad
  * break (when present) as an opaque hold. Inside the ad-break window
  * the clip-time is pinned just below the splice point so panels keyed
- * to clip-time stay anchored to the last Segment A scene for the
- * duration of the break — without this pin, even a 0-length nudge into
- * the ad-break window would flip the panels to Segment B's first scene
- * (Segment B starts at clip-time `adBreakClipSeconds`).
+ * to clip-time stay anchored to the last pre-ad scene for the duration
+ * of the break — without this pin, even a 0-length nudge into the
+ * ad-break window would flip the panels to the first post-ad scene
+ * (post-ad content starts at clip-time `adBreakClipSeconds`).
  *
- * For non-DHYH content or non-ad-break modes the two timelines are
- * identical and this function returns `playerSeconds` unchanged.
+ * For non-ad-break modes the two timelines are identical and this
+ * function returns `playerSeconds` unchanged.
  */
 export const mapPlayerToClipSeconds = (
   playerSeconds: number,
   options: {
-    isDhyhContent: boolean
     isAdBreakMode: boolean
-    /** Clip-time the ad break starts at (= end of Segment A). */
+    /** Clip-time the ad break starts at (= end of pre-ad content). */
     adBreakClipSeconds: number
     /** Per-mode ad-break duration (30s for Impulse/L-Bar, 45s for Sync). */
     adBreakDurationSeconds: number
   }
 ): number => {
-  if (!options.isDhyhContent) return playerSeconds
   if (!options.isAdBreakMode) return playerSeconds
   if (playerSeconds < options.adBreakClipSeconds) return playerSeconds
   if (playerSeconds < options.adBreakClipSeconds + options.adBreakDurationSeconds) {
     // Inside the ad-break window: pin to just-below the splice point.
     // The 0.001s offset is intentional — clip-time === adBreakClipSeconds
-    // selects Segment B's first scene, which is what we want to AVOID
-    // until playback actually crosses into Segment B.
+    // selects the first post-ad scene, which is what we want to AVOID
+    // until playback actually crosses past the ad. (For tail-anchored
+    // content there are no post-ad scenes, so the pin simply holds the
+    // panels on the last scene — same behaviour as the natural end.)
     return Math.max(0, options.adBreakClipSeconds - 0.001)
   }
-  // Past the ad break: subtract the break duration to land in Segment B.
+  // Past the ad break: subtract the break duration to land in post-ad
+  // content (DHYH Segment B). For tail-anchored content (MC) there is
+  // no post-ad content; the value lands at clip-end and `hasPlaybackEnded`
+  // takes over.
   return playerSeconds - options.adBreakDurationSeconds
 }
 
 /**
- * Build the three-segment Sync: Impulse scrubber timeline for DHYH.
- * Order is `[content (Segment A), ad-break-1, content (Segment B)]`.
- * The first content segment ends at the splice point; the ad-break
- * spans `adBreakDurationSeconds`; the second content segment fills
- * the rest of the player-time range.
+ * Build the Sync: Impulse scrubber timeline for sync-ad-break content.
+ * Order is `[content, ad-break-1, content]` — for mid-clip splice content
+ * (DHYH) the first content segment ends at the splice point and the
+ * second fills the rest. For tail-anchored content (MasterChef)
+ * `adBreakClipSeconds === clipDurationSeconds`, so the trailing content
+ * segment collapses to zero length and the scrubber renders as
+ * `[content, ad-break-1]`.
  */
 export const buildDhyhImpulseSegments = (options: {
   adBreakClipSeconds: number
@@ -75,11 +82,17 @@ export const buildDhyhImpulseSegments = (options: {
   const adStart = options.adBreakClipSeconds
   const adEnd = adStart + options.adBreakDurationSeconds
   const total = options.clipDurationSeconds + options.adBreakDurationSeconds
-  return [
+  const segments: SyncImpulseSegment[] = [
     { start: 0, end: adStart, kind: 'content' },
     { start: adStart, end: adEnd, kind: 'ad-break-1' },
-    { start: adEnd, end: total, kind: 'content' },
   ]
+  // Only emit the trailing content segment when there's actual post-ad
+  // content to fill it. Tail-anchored ads (MC) have `adEnd === total` so
+  // this would be a zero-length segment.
+  if (adEnd < total) {
+    segments.push({ start: adEnd, end: total, kind: 'content' })
+  }
+  return segments
 }
 
 /**

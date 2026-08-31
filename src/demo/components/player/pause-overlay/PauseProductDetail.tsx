@@ -13,7 +13,14 @@ type PauseProductDetailProps = {
   // card. When null the card stays opaque white per Figma; when set
   // the inner-card body tints toward the image and any text on top
   // tints lighter for legibility.
+  // **`cardBackgroundColor` (below) takes precedence** when both are
+  // set — color wins, image is ignored.
   cardBackgroundImageSrc: string | null
+  // Optional hex / CSS color painted behind the inner card body. Lets
+  // a campaign brand the detail card with a solid color (e.g. Wayfair
+  // `#7b189f`) instead of an image. When set, text flips to white as
+  // it does with an image, assuming the campaign color is dark.
+  cardBackgroundColor: string | null
   // Click anywhere on the inner card → opens
   // `ProductDestinationDialog` (desktop-aspect, separate from the
   // Sync mobile-companion modal) with the active product's full
@@ -45,6 +52,7 @@ export function PauseProductDetail({
   sponsorLabel,
   sponsorLogoSrc,
   cardBackgroundImageSrc,
+  cardBackgroundColor,
   onOpenProductDestination,
   onExit,
 }: PauseProductDetailProps) {
@@ -59,13 +67,15 @@ export function PauseProductDetail({
       price: detail.price,
     })
   }
-  // When the campaign supplies a card background image we treat it as
-  // a dark/branded image and flip product copy to white. When there's
-  // no image, the card stays opaque white per Figma and copy is dark.
-  // This bool gates every text-colour decision in the card body.
-  const hasCardBgImage = Boolean(cardBackgroundImageSrc)
-  const titleColor = hasCardBgImage ? '#FFFFFF' : '#1d1d1d'
-  const bodyColor = hasCardBgImage ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
+  // Color > image > white default. When a brand color OR image is set we
+  // flip product copy to white (both are assumed dark/branded). The flag
+  // names keep "Image" as a historical artifact even though the same flag
+  // now also catches the brand-color path.
+  const useBrandColor = Boolean(cardBackgroundColor)
+  const useBrandImage = !useBrandColor && Boolean(cardBackgroundImageSrc)
+  const hasCardBg = useBrandColor || useBrandImage
+  const titleColor = hasCardBg ? '#FFFFFF' : '#1d1d1d'
+  const bodyColor = hasCardBg ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
 
   return (
     <Box
@@ -108,10 +118,12 @@ export function PauseProductDetail({
           left: '10%',
           right: '10%',
           bottom: '12%',
-          backgroundColor: hasCardBgImage ? '#1d1d1d' : '#FFFFFF',
-          backgroundImage: hasCardBgImage
-            ? `url(${cardBackgroundImageSrc})`
-            : 'none',
+          backgroundColor: useBrandColor
+            ? cardBackgroundColor!
+            : useBrandImage
+              ? '#1d1d1d'
+              : '#FFFFFF',
+          backgroundImage: useBrandImage ? `url(${cardBackgroundImageSrc})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderRadius: '10px',
@@ -383,8 +395,9 @@ export function PauseProductDetail({
             width: '19.4%',
             aspectRatio: '299 / 80',
             // Asset glyphs are white. Only invert on the no-bg placeholder
-            // card (white background) so they read as dark there.
-            filter: hasCardBgImage ? 'none' : 'invert(1)',
+            // card (white background) so they read as dark there. Brand-
+            // color cards (e.g. Wayfair purple) also keep glyphs white.
+            filter: hasCardBg ? 'none' : 'invert(1)',
           }}
         >
           <Box

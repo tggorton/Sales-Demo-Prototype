@@ -84,6 +84,7 @@ export function PauseOverlay({
           // campaign only supplies one.
           sponsorLogoSrc={payload.detailSponsorLogoSrc ?? payload.sponsorLogoSrc}
           cardBackgroundImageSrc={payload.detailBackgroundImageSrc}
+          cardBackgroundColor={payload.cardBackgroundColor}
           onOpenProductDestination={onOpenProductDestination}
           // Exit on the detail card resumes playback (which unmounts the
           // whole overlay). We also clear `selectedTileId` defensively so

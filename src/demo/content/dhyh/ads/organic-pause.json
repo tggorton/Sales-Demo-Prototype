@@ -19,7 +19,7 @@
       },
       "product_detail_screen": {
         "shop_logo_url": "",
-        "background_image": "/assets/pause-overlay/product-detail-bg.png",
+        "background_image": "/assets/pause-overlay/product-detail-bg.svg",
         "product_image_placeholder_url": "https://rcdn.kervinteractive.com/pts/default-product.png",
         "product_name_font_color": "#ffffff",
         "product_details_font_color": "#ffffff",

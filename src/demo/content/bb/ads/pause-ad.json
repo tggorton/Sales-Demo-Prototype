@@ -1,0 +1,67 @@
+{
+  "id": "bigbrother-macys-furniture-ad_970x250",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: bigbrother-macys-furniture-ad_970x250",
+    "data": {
+      "id": "3CdFvGHUDN1kpxZKvaANmr47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/bigbrother-macys-furniture-ad_970x250.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "5.000000",
+      "fps": "30.0",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "552",
+          "name": "Style & Fashion",
+          "confidence": 0.7
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Macy's",
+        "adomain": "macys.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Macy's"
+        ],
+        "object_labels": [
+          {
+            "Name": "Furniture",
+            "Confidence": 1
+          },
+          {
+            "Name": "Living_Room",
+            "Confidence": 1
+          },
+          {
+            "Name": "Interior_Design",
+            "Confidence": 1
+          },
+          {
+            "Name": "Couch",
+            "Confidence": 1
+          },
+          {
+            "Name": "Plant",
+            "Confidence": 1
+          },
+          {
+            "Name": "Chair",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Home_Decor",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Painting",
+            "Confidence": 0.96
+          }
+        ]
+      }
+    }
+  }
+}

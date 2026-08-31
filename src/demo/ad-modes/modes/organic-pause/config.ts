@@ -8,4 +8,5 @@ export const organicPauseMode: AdModeDefinition = {
   id: 'Organic Pause',
   label: 'Organic Pause',
   enabled: true,
+  kind: 'pause-overlay',
 }

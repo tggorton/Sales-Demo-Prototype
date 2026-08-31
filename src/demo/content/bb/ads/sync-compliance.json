@@ -1,0 +1,195 @@
+{
+  "id": "macys_super_buys_1080p_h264",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: macys_super_buys_1080p_h264",
+    "data": {
+      "id": "3QdVdBFrVIPTN7R4fWNjuW47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/macys_super_buys_1080p_h264.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "15.082000",
+      "fps": "29.837478160990358",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "274",
+          "name": "Home & Garden",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Macy's",
+        "adomain": "macys.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Macy's"
+        ],
+        "object_labels": [
+          {
+            "Name": "Star_Symbol",
+            "Confidence": 1
+          },
+          {
+            "Name": "Symbol",
+            "Confidence": 1
+          },
+          {
+            "Name": "Logo",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "Page",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Leaf",
+            "Confidence": 0.53
+          },
+          {
+            "Name": "Red_Cross",
+            "Confidence": 0.52
+          },
+          {
+            "Name": "Badge",
+            "Confidence": 0.51
+          },
+          {
+            "Name": "File",
+            "Confidence": 0.51
+          },
+          {
+            "Name": "Person",
+            "Confidence": 1
+          },
+          {
+            "Name": "Sitting",
+            "Confidence": 1
+          },
+          {
+            "Name": "Couch",
+            "Confidence": 1
+          },
+          {
+            "Name": "Furniture",
+            "Confidence": 1
+          },
+          {
+            "Name": "Adult",
+            "Confidence": 1
+          },
+          {
+            "Name": "Female",
+            "Confidence": 1
+          },
+          {
+            "Name": "Woman",
+            "Confidence": 1
+          },
+          {
+            "Name": "Blonde",
+            "Confidence": 1
+          },
+          {
+            "Name": "Chair",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Armchair",
+            "Confidence": 0.89
+          },
+          {
+            "Name": "Cabinet",
+            "Confidence": 1
+          },
+          {
+            "Name": "Drawer",
+            "Confidence": 1
+          },
+          {
+            "Name": "Dresser",
+            "Confidence": 1
+          },
+          {
+            "Name": "Closet",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Cupboard",
+            "Confidence": 0.54
+          },
+          {
+            "Name": "Sideboard",
+            "Confidence": 0.56
+          },
+          {
+            "Name": "Medicine_Chest",
+            "Confidence": 0.52
+          },
+          {
+            "Name": "Animal",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Canine",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Dog",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Mammal",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Pet",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Ottoman",
+            "Confidence": 0.63
+          },
+          {
+            "Name": "Living_Room",
+            "Confidence": 0.89
+          },
+          {
+            "Name": "Face",
+            "Confidence": 0.92
+          },
+          {
+            "Name": "Bed",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Bedroom",
+            "Confidence": 0.85
+          },
+          {
+            "Name": "Interior_Design",
+            "Confidence": 0.56
+          },
+          {
+            "Name": "Blanket",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Cushion",
+            "Confidence": 1
+          },
+          {
+            "Name": "Head",
+            "Confidence": 0.94
+          },
+          {
+            "Name": "Home_Decor",
+            "Confidence": 0.91
+          }
+        ]
+      }
+    }
+  }
+}

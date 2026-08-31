@@ -120,10 +120,12 @@ describe('buildPauseOverlayPayload', () => {
     const match = getActivePauseMomentScene(90)!
     const payload = buildPauseOverlayPayload(match.scene, match.campaign)
     // The detail bg points at the local asset since 2026-05-28 (the previous
-    // partner-hosted URL had the scan-QR icon baked in; the local "clean"
-    // version lets the in-code overlay render at the correct position).
+    // partner-hosted URL had the scan-QR icon baked in; the local version
+    // lets the in-code overlay render at the correct position). As of
+    // 2026-06-01, switched from a bokeh PNG to a solid-orange SVG
+    // (`product-detail-bg.svg`, #F96302) per design direction.
     expect(payload.detailBackgroundImageSrc).toBe(
-      '/assets/pause-overlay/product-detail-bg.png'
+      '/assets/pause-overlay/product-detail-bg.svg'
     )
   })
 

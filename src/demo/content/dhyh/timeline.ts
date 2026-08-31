@@ -170,15 +170,23 @@ export const DHYH_VIDEO_SOURCE_OFFSET_SECONDS = envNumber(
 //     those same windows. Pausing outside leaves the player in normal
 //     (carousel-less) paused state.
 //
-// Windows are inclusive on both ends. Bump or split the array when the
-// editorial team finalises the moments where pause-to-shop should be
-// available. Times are clip-time seconds (`panelTimelineSeconds` axis),
-// not source-time on the original 44-min episode.
+// Windows are inclusive on both ends. They're sourced FROM
+// `./ads/cta-pause.json` (top-level `cta_pause_windows` field) so
+// partners see the same values in the JSON and in code — the JSON is
+// the single source of truth. To CHANGE the windows: re-run
+// `scripts/generate-cta-pause-moments.mjs --content dhyh --windows ...`
+// and this constant updates on the next rebuild. Times are clip-time
+// seconds (`panelTimelineSeconds` axis), not source-time on the
+// original 44-min episode.
 export const DHYH_ORGANIC_PAUSE_CTA_END_SECONDS = 15
 
 export type DhyhPauseWindow = { readonly start: number; readonly end: number }
 
-export const DHYH_CTA_PAUSE_WINDOWS: ReadonlyArray<DhyhPauseWindow> = [
-  { start: 77, end: 107 }, //  1:17 →  1:47
-  { start: 153, end: 532 }, //  2:33 →  8:52
-] as const
+import {
+  readCtaPauseWindows,
+  type PauseMomentsDocument,
+} from '../_shared/pauseMoments'
+import ctaPauseJson from './ads/cta-pause.json'
+
+export const DHYH_CTA_PAUSE_WINDOWS: ReadonlyArray<DhyhPauseWindow> =
+  readCtaPauseWindows(ctaPauseJson as unknown as PauseMomentsDocument)

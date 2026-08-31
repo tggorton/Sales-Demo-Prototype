@@ -6,4 +6,5 @@ export const companionMode: AdModeDefinition = {
   id: 'Companion',
   label: 'Companion',
   enabled: false,
+  kind: 'companion',
 }

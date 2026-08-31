@@ -12,6 +12,11 @@ type PauseProductTileProps = {
   // the white solid fallback for tiles without a bg image). Falls
   // through to the white-solid Figma look when null.
   focusedBackgroundImageSrc: string | null
+  // Optional hex / CSS color painted over the focused tile, taking
+  // precedence over `focusedBackgroundImageSrc` when both are set.
+  // When the color is set, text flips to white (assumes a dark brand
+  // color like Wayfair's `#7b189f`).
+  focusedBackgroundColor: string | null
   onSelect: () => void
   onFocus: () => void
   onBlur: () => void
@@ -40,10 +45,18 @@ export function PauseProductTile({
   tile,
   isFocused,
   focusedBackgroundImageSrc,
+  focusedBackgroundColor,
   onSelect,
   onFocus,
   onBlur,
 }: PauseProductTileProps) {
+  // Color > image > Figma-white default. When a brand color is supplied we
+  // also flip the text to white (the only brand colors that surface here are
+  // dark — e.g. Wayfair `#7b189f`); if a campaign ships a light color we'd
+  // need to extend this to choose contrast per-color.
+  const useBrandColor = isFocused && Boolean(focusedBackgroundColor)
+  const useBrandImage =
+    isFocused && !useBrandColor && Boolean(focusedBackgroundImageSrc)
   return (
     <Box
       role="button"
@@ -69,18 +82,23 @@ export function PauseProductTile({
         cursor: 'pointer',
         userSelect: 'none',
         outline: 'none',
-        backgroundColor: isFocused ? '#FFFFFF' : '#202020',
+        backgroundColor: useBrandColor
+          ? focusedBackgroundColor!
+          : isFocused
+            ? '#FFFFFF'
+            : '#202020',
         // Campaign-supplied focused-state background image painted
         // over the white solid. Sized to cover so it reads regardless
-        // of tile aspect, anchored centre. Hidden when not focused or
-        // when the campaign supplies no asset.
-        backgroundImage:
-          isFocused && focusedBackgroundImageSrc
-            ? `url(${focusedBackgroundImageSrc})`
-            : 'none',
+        // of tile aspect, anchored centre. Hidden when a brand color
+        // is set (color wins), or when not focused, or when the
+        // campaign supplies no asset.
+        backgroundImage: useBrandImage ? `url(${focusedBackgroundImageSrc})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        color: isFocused ? '#000000' : '#FFFFFF',
+        // Text color: brand-color bg → white (assumes dark brand color);
+        // image bg → black-on-image is unreadable but the image's own
+        // contrast handles it (existing behavior); white fallback → black.
+        color: useBrandColor ? '#FFFFFF' : isFocused ? '#000000' : '#FFFFFF',
         borderRadius: '5px',
         boxShadow: isFocused ? '0 0 10px 1px rgba(255,255,255,0.35)' : 'none',
         transition:
@@ -109,13 +127,28 @@ export function PauseProductTile({
       />
 
       {/* Title — Figma default left=158/448=35.3%, top=13/151=8.6%, width
-          272/448=60.7%. 3-line clamp matches the Figma's 96-px text box. */}
+          272/448=60.7%. 3-line clamp matches the Figma's 96-px text box.
+
+          `bottom` is set as well as `top` so the box can NEVER reach the CTA
+          below it. Relying on the line-clamp alone was not enough: the title
+          and the CTA are both absolutely positioned, and at small player
+          widths the font `clamp()` floors (11px title / 10px CTA) stop
+          scaling with the tile, so three lines grew into the CTA and the two
+          overlapped. Bounding the box makes the collision impossible at any
+          size; the clamp then just decides where the ellipsis lands.
+
+          `overflowWrap: anywhere` handles retail titles that omit the space
+          after a comma (`"Backpacks,Fashion"`) — without it those tokens are
+          unbreakable and blow out the line box. Titles are also truncated
+          upstream in `buildPauseOverlayPayload`, so this is the safety net,
+          not the primary mechanism. */}
       <Typography
         sx={{
           position: 'absolute',
           left: '35.5%',
           right: '4%',
           top: '8.6%',
+          bottom: '30%',
           fontSize: 'clamp(11px, 5.2cqw, 28px)',
           lineHeight: 1.18,
           fontWeight: 700,
@@ -123,6 +156,7 @@ export function PauseProductTile({
           WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
+          overflowWrap: 'anywhere',
         }}
       >
         {tile.title}

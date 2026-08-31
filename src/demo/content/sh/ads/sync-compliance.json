@@ -1,0 +1,252 @@
+{
+  "id": "macyscommercial2-2026",
+  "ok": true,
+  "response": {
+    "status": "success",
+    "message": "results found for video_id: macyscommercial2-2026",
+    "data": {
+      "id": "3uC98BmhlxeRhQQGugVnSb47KrIARUiStpwBREAWHRV",
+      "client_url": "https://rcdn.kervinteractive.com/ad-approval/test-batch/macyscommercial2-2026.mp4",
+      "type": "mp4",
+      "duration_in_seconds": "15.256000",
+      "fps": "60.0",
+      "ad_approval_data": {
+        "iab_category": {
+          "id": "552",
+          "name": "Style & Fashion",
+          "confidence": 0.9
+        },
+        "garm_category": {},
+        "brand_safety_100": {},
+        "brand_safety_75": {},
+        "advertiser": "Macy's",
+        "adomain": "macys.com",
+        "primary_language": "English"
+      },
+      "metadata": {
+        "logos": [
+          "Macy's",
+          "Coach New York"
+        ],
+        "object_labels": [
+          {
+            "Name": "Table",
+            "Confidence": 1
+          },
+          {
+            "Name": "Desk",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Coat",
+            "Confidence": 1
+          },
+          {
+            "Name": "Adult",
+            "Confidence": 1
+          },
+          {
+            "Name": "Male",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Man",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Person",
+            "Confidence": 1
+          },
+          {
+            "Name": "Solo_Performance",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "Photography",
+            "Confidence": 1
+          },
+          {
+            "Name": "Female",
+            "Confidence": 1
+          },
+          {
+            "Name": "Woman",
+            "Confidence": 1
+          },
+          {
+            "Name": "Head",
+            "Confidence": 1
+          },
+          {
+            "Name": "Face",
+            "Confidence": 1
+          },
+          {
+            "Name": "Glasses",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "People",
+            "Confidence": 1
+          },
+          {
+            "Name": "Smile",
+            "Confidence": 1
+          },
+          {
+            "Name": "Accessories",
+            "Confidence": 1
+          },
+          {
+            "Name": "Bag",
+            "Confidence": 1
+          },
+          {
+            "Name": "Handbag",
+            "Confidence": 1
+          },
+          {
+            "Name": "Purse",
+            "Confidence": 1
+          },
+          {
+            "Name": "Wallet",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Tote_Bag",
+            "Confidence": 0.58
+          },
+          {
+            "Name": "High_Heel",
+            "Confidence": 1
+          },
+          {
+            "Name": "Shoe",
+            "Confidence": 1
+          },
+          {
+            "Name": "Dress",
+            "Confidence": 1
+          },
+          {
+            "Name": "Briefcase",
+            "Confidence": 0.53
+          },
+          {
+            "Name": "Fashion",
+            "Confidence": 1
+          },
+          {
+            "Name": "Jacket",
+            "Confidence": 1
+          },
+          {
+            "Name": "Blazer",
+            "Confidence": 1
+          },
+          {
+            "Name": "Boy",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Teen",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Shirt",
+            "Confidence": 1
+          },
+          {
+            "Name": "Finger",
+            "Confidence": 1
+          },
+          {
+            "Name": "Portrait",
+            "Confidence": 0.97
+          },
+          {
+            "Name": "Overcoat",
+            "Confidence": 0.75
+          },
+          {
+            "Name": "Long_Sleeve",
+            "Confidence": 1
+          },
+          {
+            "Name": "Formal_Wear",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Suit",
+            "Confidence": 0.95
+          },
+          {
+            "Name": "Microphone",
+            "Confidence": 0.94
+          },
+          {
+            "Name": "Hugging",
+            "Confidence": 0.98
+          },
+          {
+            "Name": "Romantic",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Cuddling",
+            "Confidence": 0.75
+          },
+          {
+            "Name": "Dancing",
+            "Confidence": 0.91
+          },
+          {
+            "Name": "Belt",
+            "Confidence": 0.9
+          },
+          {
+            "Name": "Robe",
+            "Confidence": 0.99
+          },
+          {
+            "Name": "Evening_Dress",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Happy",
+            "Confidence": 1
+          },
+          {
+            "Name": "Laughing",
+            "Confidence": 1
+          },
+          {
+            "Name": "Shorts",
+            "Confidence": 0.93
+          },
+          {
+            "Name": "Duet",
+            "Confidence": 0.96
+          },
+          {
+            "Name": "Disk",
+            "Confidence": 0.83
+          },
+          {
+            "Name": "Indoors",
+            "Confidence": 0.58
+          },
+          {
+            "Name": "Gown",
+            "Confidence": 0.57
+          },
+          {
+            "Name": "Wedding_Gown",
+            "Confidence": 0.57
+          }
+        ]
+      }
+    }
+  }
+}

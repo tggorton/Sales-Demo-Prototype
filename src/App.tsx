@@ -1,5 +1,6 @@
 import { Container, Paper } from '@mui/material'
 import { AppShell } from '@kerv-one/theme'
+import { BUNDLED_CONTENT_IDS } from './demo/content'
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { AuthenticatedHeader } from './demo/components/layout/AuthenticatedHeader'
 import { CompanionDialog } from './demo/components/dialogs/CompanionDialog'
@@ -67,12 +68,15 @@ function App() {
   // Mirror handleStartDemo's initial-time logic for a rehydrated demo view so the
   // scrubber starts from the content's natural beginning. Without this, the
   // generic DEFAULT_START_SECONDS (4:31) lands past the DHYH ad break and the
-  // player gets stuck inside an unconsumed ad on refresh.
+  // player gets stuck inside an unconsumed ad on refresh. The check generalizes
+  // to "any bundled tile starts at 0" via BUNDLED_CONTENT_IDS — without this,
+  // a tile whose clip is shorter than DEFAULT_START_SECONDS (e.g. MasterChef
+  // at 4:01 < 4:31) lands past the end of its own clip.
   const restoredInitialSeconds = (() => {
     if (persistedView !== 'demo' || !persistedContent) return DEFAULT_START_SECONDS
     const isSyncImpulse = persisted.selectedAdPlayback === 'Sync: Impulse'
-    const isDhyh = persistedContent.id === 'dhyh'
-    return isSyncImpulse || isDhyh ? 0 : DEFAULT_START_SECONDS
+    const isBundled = BUNDLED_CONTENT_IDS.has(persistedContent.id)
+    return isSyncImpulse || isBundled ? 0 : DEFAULT_START_SECONDS
   })()
 
   const [currentView, setCurrentView] = useState<CurrentView>(persistedView)
@@ -228,8 +232,12 @@ function App() {
     setIsSelectorModalOpen(false)
     setIsVideoPlaying(false)
     setIsVideoMuted(true)
-    const isDhyh = selectedContent.id === 'dhyh'
-    const initialSeconds = demoPlayback.isSyncImpulseMode ? 0 : isDhyh ? 0 : DEFAULT_START_SECONDS
+    // "Any bundled tile starts at 0" — generalized from the original
+    // DHYH-only check so MasterChef (and any future bundled content with a
+    // clip shorter than DEFAULT_START_SECONDS) doesn't land past the end of
+    // its own clip.
+    const isBundled = BUNDLED_CONTENT_IDS.has(selectedContent.id)
+    const initialSeconds = demoPlayback.isSyncImpulseMode ? 0 : isBundled ? 0 : DEFAULT_START_SECONDS
     setVideoCurrentSeconds(initialSeconds)
     setCurrentView('demo')
   }
@@ -477,6 +485,7 @@ function App() {
                   activeAdBreakImage={demoPlayback.activeAdBreakImage}
                   activeAdQrImage={demoPlayback.activeAdQrImage}
                   activeAdVideoUrl={demoPlayback.activeAdVideoUrl}
+                  syncAdCreatives={demoPlayback.syncAdCreatives}
                   mainVideoSrc={demoPlayback.mainVideoSrc}
                   productsUnavailableMessage={demoPlayback.productsUnavailableMessage}
                   hasReachedFirstProduct={demoPlayback.hasReachedFirstProduct}

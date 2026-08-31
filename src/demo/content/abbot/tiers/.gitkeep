@@ -1,0 +1,5 @@
+# Drop tier1.json / tier2.json / tier3.json here. Use the normalized b-files
+# from /normalize-tier-jsons, renamed to drop the "b" suffix:
+#   <prefix>tier1b.json  →  tier1.json
+#   <prefix>tier2b.json  →  tier2.json
+#   <prefix>tier3b.json  →  tier3.json
