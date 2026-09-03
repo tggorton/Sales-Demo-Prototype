@@ -48,6 +48,7 @@ import {
   findActiveImpulseSegment,
   isAdBreakSegment,
   mapPlayerToClipSeconds,
+  snapSeekToAdBreakStart,
 } from '../utils/adBreakMath'
 import {
   resolveActiveProductIndex,
@@ -549,6 +550,21 @@ export function useDemoPlayback({
     activeAdBreakClipSeconds,
     setVideoCurrentSeconds,
   ])
+
+  // Resolve a user-requested scrubber position. Everything outside the ad
+  // break passes through unchanged; a landing inside it snaps to the break's
+  // first frame so the creative plays from the top. Wired into App's
+  // `onVideoTimeChange` — the single user-seek entry point — deliberately NOT
+  // into the tick that advances playback.
+  const resolveSeekTargetSeconds = useCallback(
+    (requestedSeconds: number) =>
+      snapSeekToAdBreakStart(requestedSeconds, {
+        isAdBreakMode: isSyncImpulseMode,
+        adBreakClipSeconds: activeAdBreakClipSeconds,
+        adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
+      }),
+    [isSyncImpulseMode, activeAdBreakClipSeconds, dhyhAdBreakDurationSeconds]
+  )
 
   // Sync-style ad-break compliance JSON from the active content's adAssets.
   // Placeholder content (no adAssets) still gets the legacy `adDecisionPayload`
@@ -1357,6 +1373,7 @@ export function useDemoPlayback({
     availableTaxonomies,
     availableAdModes,
     flagPanelScrub,
+    resolveSeekTargetSeconds,
     scrubVersion,
     displayedCurrentSeconds,
     displayedDurationSeconds,

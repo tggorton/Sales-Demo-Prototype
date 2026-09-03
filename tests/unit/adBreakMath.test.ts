@@ -5,6 +5,7 @@ import {
   findActiveImpulseSegment,
   isAdBreakSegment,
   mapPlayerToClipSeconds,
+  snapSeekToAdBreakStart,
 } from '../../src/demo/utils/adBreakMath'
 import type { SyncImpulseSegment } from '../../src/demo/types'
 
@@ -236,5 +237,47 @@ describe('computeAdBreakProgress', () => {
   it('clamps to [0, 1] outside the segment bounds', () => {
     expect(computeAdBreakProgress(adSegment, 50, true)).toBe(0) // before start
     expect(computeAdBreakProgress(adSegment, 200, true)).toBe(1) // past end
+  })
+})
+
+describe('snapSeekToAdBreakStart', () => {
+  // Abbott: break at 297.52s, 30s creative -> window [297.52, 327.52)
+  const opts = {
+    isAdBreakMode: true,
+    adBreakClipSeconds: 297.52,
+    adBreakDurationSeconds: 30,
+  }
+
+  it('passes through a seek before the break', () => {
+    expect(snapSeekToAdBreakStart(120, opts)).toBe(120)
+  })
+
+  it('passes through a seek after the break', () => {
+    expect(snapSeekToAdBreakStart(400, opts)).toBe(400)
+  })
+
+  it('snaps a seek landing mid-break to the first frame', () => {
+    // 312 is the measured failure case: it started the creative at 16.0s.
+    expect(snapSeekToAdBreakStart(312, opts)).toBe(297.52)
+  })
+
+  it('is idempotent on the break start itself', () => {
+    expect(snapSeekToAdBreakStart(297.52, opts)).toBe(297.52)
+  })
+
+  it('snaps the last frame inside the window but not the first frame after', () => {
+    expect(snapSeekToAdBreakStart(327.51, opts)).toBe(297.52)
+    expect(snapSeekToAdBreakStart(327.52, opts)).toBe(327.52)
+  })
+
+  it('is the identity in non-ad-break modes', () => {
+    // CTA Pause / Organic Pause / Pause Ad must scrub normally.
+    expect(snapSeekToAdBreakStart(312, { ...opts, isAdBreakMode: false })).toBe(312)
+  })
+
+  it('handles tail-anchored content where the break sits at clip end', () => {
+    const tail = { isAdBreakMode: true, adBreakClipSeconds: 600, adBreakDurationSeconds: 30 }
+    expect(snapSeekToAdBreakStart(615, tail)).toBe(600)
+    expect(snapSeekToAdBreakStart(599, tail)).toBe(599)
   })
 })

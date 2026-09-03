@@ -530,7 +530,10 @@ function App() {
                     // The threshold detector in useDemoPlayback is the backup;
                     // this is the source-of-truth signal for user seeks.
                     demoPlayback.flagPanelScrub()
-                    setVideoCurrentSeconds(value)
+                    // A seek landing inside the ad break resolves to the
+                    // break's first frame so the creative never starts
+                    // mid-roll. Outside the break this is the identity.
+                    setVideoCurrentSeconds(demoPlayback.resolveSeekTargetSeconds(value))
                   }}
                   onVideoMetadataLoaded={setVideoElementDuration}
                   onToggleDemoPanel={toggleDemoPanel}

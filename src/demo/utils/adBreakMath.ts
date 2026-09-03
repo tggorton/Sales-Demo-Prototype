@@ -66,6 +66,43 @@ export const mapPlayerToClipSeconds = (
 }
 
 /**
+ * Snap a *user-requested* seek that lands inside the ad break back to the
+ * break's first frame.
+ *
+ * The ad's own `currentTime` is driven by the offset into the break
+ * (`videoCurrentSeconds - adBreakClipSeconds`, see useDemoPlayback), so a
+ * seek into the middle of the cyan block would otherwise start the creative
+ * mid-roll and play only the remainder — measured: clicking 14.5s into a 30s
+ * break started the ad at 16.0s. An ad should never begin mid-roll, while
+ * scrubbing *to* the break should stay effortless, so any landing inside the
+ * window resolves to `adBreakClipSeconds` and the creative plays in full.
+ *
+ * This mirrors the existing mid-break ad-mode-switch behaviour, which already
+ * snaps the scrubber to the start of the block so a newly selected creative
+ * stays aligned with the slider.
+ *
+ * Apply this ONLY to user seeks. The natural per-tick advance must pass
+ * through untouched or the break could never progress past its own first
+ * frame.
+ */
+export const snapSeekToAdBreakStart = (
+  requestedPlayerSeconds: number,
+  options: {
+    isAdBreakMode: boolean
+    adBreakClipSeconds: number
+    adBreakDurationSeconds: number
+  }
+): number => {
+  if (!options.isAdBreakMode) return requestedPlayerSeconds
+  const adStart = options.adBreakClipSeconds
+  const adEnd = adStart + options.adBreakDurationSeconds
+  if (requestedPlayerSeconds >= adStart && requestedPlayerSeconds < adEnd) {
+    return adStart
+  }
+  return requestedPlayerSeconds
+}
+
+/**
  * Build the Sync: Impulse scrubber timeline for sync-ad-break content.
  * Order is `[content, ad-break-1, content]` — for mid-clip splice content
  * (DHYH) the first content segment ends at the splice point and the
