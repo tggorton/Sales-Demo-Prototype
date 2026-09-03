@@ -66,6 +66,44 @@ export const mapPlayerToClipSeconds = (
 }
 
 /**
+ * Resolve the scrubber position for one `timeupdate` tick on mid-clip,
+ * clip-native sync content (Abbott). DHYH carries a source offset and the
+ * tail-anchored titles end after their break, so both have their own paths;
+ * this is the plain mid-clip splice.
+ *
+ * Branches on `previousPlayerSeconds` — our own timeline — rather than on the
+ * element's time. That ordering is the whole point: the element's time lags a
+ * seek by a frame or two, and branching on it let a stale value yank the
+ * scrubber straight back out of a break the user had just jumped into.
+ */
+export const resolveMidClipSyncTick = (
+  previousPlayerSeconds: number,
+  elementSeconds: number,
+  options: {
+    adBreakClipSeconds: number
+    adBreakDurationSeconds: number
+    clipDurationSeconds: number
+  }
+): number => {
+  const adStart = options.adBreakClipSeconds
+  const adEnd = adStart + options.adBreakDurationSeconds
+  const internalTotal = options.clipDurationSeconds + options.adBreakDurationSeconds
+  // 1. Inside the break — the synthetic timer owns the timeline.
+  if (previousPlayerSeconds >= adStart && previousPlayerSeconds < adEnd) {
+    return previousPlayerSeconds
+  }
+  // 2. Past the break — element time plus the ad block. Clamped at `adEnd` so
+  //    an element that has not been re-seeked yet cannot drag us pre-break.
+  if (previousPlayerSeconds >= adEnd) {
+    return Math.min(internalTotal, Math.max(adEnd, elementSeconds + options.adBreakDurationSeconds))
+  }
+  // 3. Content just reached the splice point — hand over to the ad.
+  if (elementSeconds >= adStart - 0.05) return adStart
+  // 4. Pre-break — 1:1.
+  return elementSeconds
+}
+
+/**
  * Snap a *user-requested* seek that lands inside the ad break back to the
  * break's first frame.
  *

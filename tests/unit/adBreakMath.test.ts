@@ -6,6 +6,7 @@ import {
   isAdBreakSegment,
   mapPlayerToClipSeconds,
   snapSeekToAdBreakStart,
+  resolveMidClipSyncTick,
 } from '../../src/demo/utils/adBreakMath'
 import type { SyncImpulseSegment } from '../../src/demo/types'
 
@@ -279,5 +280,45 @@ describe('snapSeekToAdBreakStart', () => {
     const tail = { isAdBreakMode: true, adBreakClipSeconds: 600, adBreakDurationSeconds: 30 }
     expect(snapSeekToAdBreakStart(615, tail)).toBe(600)
     expect(snapSeekToAdBreakStart(599, tail)).toBe(599)
+  })
+})
+
+describe('resolveMidClipSyncTick', () => {
+  // Abbott: clip 601.042s, break at 297.52s for 30s -> window [297.52, 327.52)
+  const o = {
+    adBreakClipSeconds: 297.52,
+    adBreakDurationSeconds: 30,
+    clipDurationSeconds: 601.042,
+  }
+
+  it('maps 1:1 before the break', () => {
+    expect(resolveMidClipSyncTick(100, 100.25, o)).toBe(100.25)
+  })
+
+  it('hands over to the ad when content reaches the splice point', () => {
+    expect(resolveMidClipSyncTick(297.4, 297.5, o)).toBe(297.52)
+  })
+
+  it('holds the timeline while inside the break, ignoring the element', () => {
+    // THE REGRESSION: a stale element time (2.4s, straight after a seek into
+    // the block) previously clobbered the scrubber and cancelled the break.
+    expect(resolveMidClipSyncTick(298, 2.4, o)).toBe(298)
+    expect(resolveMidClipSyncTick(310, 2.4, o)).toBe(310)
+    expect(resolveMidClipSyncTick(327.51, 999, o)).toBe(327.51)
+  })
+
+  it('adds the ad block back after the break so content does not lose 30s', () => {
+    // Element resumes at the splice point; scrubber must read past the block.
+    expect(resolveMidClipSyncTick(327.52, 297.6, o)).toBeCloseTo(327.6, 5)
+    expect(resolveMidClipSyncTick(400, 400, o)).toBe(430)
+  })
+
+  it('clamps post-break to the block end while the element is still stale', () => {
+    // Without the clamp this returned 32.4 and bounced back to pre-break.
+    expect(resolveMidClipSyncTick(327.52, 2.4, o)).toBe(327.52)
+  })
+
+  it('never exceeds the internal total', () => {
+    expect(resolveMidClipSyncTick(600, 601.042, o)).toBe(631.042)
   })
 })

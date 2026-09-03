@@ -48,6 +48,7 @@ import {
   findActiveImpulseSegment,
   isAdBreakSegment,
   mapPlayerToClipSeconds,
+  resolveMidClipSyncTick,
   snapSeekToAdBreakStart,
 } from '../utils/adBreakMath'
 import {
@@ -1195,7 +1196,18 @@ export function useDemoPlayback({
       // see DHYH_VIDEO_SOURCE_OFFSET_SECONDS if we ever switch back to the full-length render.
       targetTime = Math.min(duration - 0.05, DHYH_VIDEO_SOURCE_OFFSET_SECONDS + dhyhClipSeconds)
     } else if (usesNativeTimeline) {
-      targetTime = Math.min(videoCurrentSeconds, duration - 0.05)
+      // For a mid-clip sync break the scrubber spans clip + ad, so player-time
+      // must be mapped back through the splice or the element resumes an
+      // ad-duration too late. Identity pre-break; `- adBreakDuration` after.
+      const clipTarget =
+        isSyncImpulseMode && !isDhyhContent
+          ? mapPlayerToClipSeconds(videoCurrentSeconds, {
+              isAdBreakMode: true,
+              adBreakClipSeconds: activeAdBreakClipSeconds,
+              adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
+            })
+          : videoCurrentSeconds
+      targetTime = Math.min(clipTarget, duration - 0.05)
     } else {
       targetTime = videoCurrentSeconds % duration
     }
@@ -1210,6 +1222,9 @@ export function useDemoPlayback({
     usesNativeTimeline,
     isDhyhContent,
     dhyhClipSeconds,
+    isSyncImpulseMode,
+    activeAdBreakClipSeconds,
+    dhyhAdBreakDurationSeconds,
   ])
 
   // When the native timeline is active, pull the element's currentTime into state via the
@@ -1279,6 +1294,32 @@ export function useDemoPlayback({
           return Math.min(adEnd, prev)
         })
         if (t >= activeClipDurationSeconds) videoEl.pause()
+      } else if (hasBundledContent && isSyncImpulseMode) {
+        // Mid-clip splice on clip-native content (Abbott). DHYH and the
+        // tail-anchored titles are handled above; this branch is the case
+        // that was missing, and without it the generic `setVideoCurrentSeconds(t)`
+        // fallback below overwrote the scrubber ~4x/sec from the element's own
+        // time. Two consequences, both measured:
+        //   - a seek INTO the ad block survived one frame and was then clobbered
+        //     back to the element's time, so the break never started;
+        //   - after a break the scrubber and element were 1:1, so content
+        //     resumed `adBreakDuration` too late and lost 30s.
+        //
+        // Branch on `prev` (our own timeline) rather than on `t`, so a stale
+        // element time cannot yank the scrubber out of a state we just set --
+        // that race is exactly what broke the seek-into-break case.
+        const adStart = activeAdBreakClipSeconds
+        setVideoCurrentSeconds((prev) => {
+          const next = resolveMidClipSyncTick(prev, t, {
+            adBreakClipSeconds: adStart,
+            adBreakDurationSeconds: dhyhAdBreakDurationSeconds,
+            clipDurationSeconds: activeClipDurationSeconds,
+          })
+          // Content just handed over to the ad — hold the element on the
+          // splice frame so it waits there for the resume.
+          if (next === adStart && prev < adStart) videoEl.pause()
+          return next
+        })
       } else {
         setVideoCurrentSeconds(t)
       }
