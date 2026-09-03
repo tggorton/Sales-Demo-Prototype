@@ -329,31 +329,23 @@ export function VideoPlayer({
               animation: 'contentFadeIn 1100ms ease-out',
             }}
           />
-          <Box
-            sx={{
-              position: 'absolute',
-              inset: 0,
-              backgroundColor: isSyncImpulseMode ? 'rgba(255,0,40,0.14)' : 'rgba(0,0,0,0.3)',
-              pointerEvents: 'none',
-            }}
-          />
+          {/* NOTE (2026-09-03): a full-bleed tint used to sit here --
+              `isSyncImpulseMode ? 'rgba(255,0,40,0.14)' : 'rgba(0,0,0,0.3)'`,
+              ungated. Because this Box is *inside* the content wrapper (which
+              is opacity 0 during the break) it never touched an ad; it only
+              ever dimmed the content, and its colour changed with the selected
+              ad mode. Selecting an ad mode must not alter content playback --
+              Sync / L-Bar / Impulse appear only at their break marker and
+              `Pause Ad` only on pause -- so it is gone. Same rule as the
+              Pause Ad dim strip below (bug report 2026-06-15): gate on the
+              ACTIVE state, never on mode selection. */}
         </Box>
 
-        {/* Sync: Impulse radial-gradient overlays — only outside the ad break. */}
-        {isSyncImpulseMode && (
-          <Box
-            sx={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-              background:
-                'radial-gradient(circle at 18% 35%, rgba(0,255,255,0.12), transparent 36%), radial-gradient(circle at 80% 20%, rgba(255,40,90,0.16), transparent 34%), radial-gradient(circle at 65% 78%, rgba(255,80,120,0.14), transparent 40%)',
-              mixBlendMode: 'screen',
-              opacity: isAdBreakPlayback ? 0 : 1,
-              transition: 'opacity 320ms ease-in-out',
-            }}
-          />
-        )}
+        {/* NOTE (2026-09-03): three screen-blended radial gradients used to
+            render here for the Sync modes at `opacity: isAdBreakPlayback ? 0 : 1`
+            -- i.e. over the CONTENT and never over the ad. Removed for the same
+            reason as the tint above: choosing an ad mode must leave playback
+            untouched. */}
 
         {/* QR code, only when the ad break uses a static image (legacy
             placeholder content path — DHYH plays a video instead). */}
