@@ -5,7 +5,7 @@
     {
       "campaign_id": "abbot-organic-pause",
       "pause_to_shop_screen": {
-        "cta_url": "https://3grmivdua3.ap-southeast-2.awsapprunner.com/track?tag_id=ctv-pts&ord1=5&ord2=&a=478&b=69fb7f33c670ce8ddf3d07f6&c=test1&d=&e=&img=https%3A%2F%2Frcdn.kervinteractive.com%2Fpts%2Fcampaigns%2F69fb7f33c670ce8ddf3d07f6%2F2cdcd1c1-3033-4079-8d27-28a9aa18da62.png",
+        "cta_url": "/assets/pause-overlay/abbot/pause-to-shop.png",
         "sponsored_by_logo_url": "",
         "selected_product_background_image": "https://rcdn.kervinteractive.com/pts/campaigns/69fb7f33c670ce8ddf3d07f6/085df96f-88c0-4590-9180-435deca17cd9.png",
         "selected_product_background_border_color": "#FFFFFF",
